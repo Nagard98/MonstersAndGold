@@ -86,9 +86,9 @@ public class Conductor : MonoBehaviour
         {
             if (!_attemptedHit)
             {
-                Debug.Log("Not Attempted");
+                //Debug.Log("Not Attempted");
                 _numConsecutiveHits = 0;
-                characterMovement._speed = Mathf.Clamp(characterMovement._speed - SPEED_STEP, 1f, 4f);
+                characterMovement.charSpeed = Mathf.Clamp(characterMovement.charSpeed - SPEED_STEP, 1f, 4f);
                 updateMultiplier();
             }
 
@@ -180,7 +180,7 @@ public class Conductor : MonoBehaviour
 #if DEBUG
             Debug.Log("Correct");
 #endif
-            characterMovement._speed = Mathf.Clamp(characterMovement._speed + SPEED_STEP, 1f, 4f);
+            characterMovement.charSpeed = Mathf.Clamp(characterMovement.charSpeed + SPEED_STEP, 1f, 4f);
             score += (BASE_HIT_POINTS * multiplier);
 
             _numConsecutiveHits += 1;
@@ -191,7 +191,7 @@ public class Conductor : MonoBehaviour
             Debug.Log("Wrong");
 #endif
             _numConsecutiveHits = 0;
-            characterMovement._speed = Mathf.Clamp(characterMovement._speed - SPEED_STEP, 1f, 4f);
+            characterMovement.charSpeed = Mathf.Clamp(characterMovement.charSpeed - SPEED_STEP, 1f, 4f);
             score -= BASE_HIT_POINTS;
         }
 
