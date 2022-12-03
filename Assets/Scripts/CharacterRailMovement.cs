@@ -10,13 +10,8 @@ public class CharacterRailMovement : MonoBehaviour
     public Transform path;
     public float totalDistance;
 
-    private float _t;
-    private float _dist;
     private Vector3[] _waypoints;
-    private Vector3[] _controlPolygon;
     private QuadraticBezier _quadBezierCurve;
-    private int _curveIndex = 0;
-    private int _pathwayIndex;
 
 
     // Start is called before the first frame update
@@ -26,30 +21,19 @@ public class CharacterRailMovement : MonoBehaviour
         _waypoints = GetWaypoints(path);       
 
         transform.position = _waypoints[0];
-
-        _controlPolygon = QuadraticBezier.BuildControlPolygon(_waypoints);
-        _quadBezierCurve = new QuadraticBezier(_controlPolygon, nSamples:10);
+        
+        _quadBezierCurve = new QuadraticBezier(_waypoints, nSamples:10);
     }
 
     // Update is called once per frame
     void Update()
     {
-        totalDistance += _dist;
-        float arcLength = _quadBezierCurve.GetArcLength(_curveIndex);
-        
-        if (_dist >= arcLength && _pathwayIndex + 2 < _controlPolygon.Length - 2)
-        {
-            _dist = 0f;
-            _pathwayIndex += 2;
-            _curveIndex += 1;
-        }
+        totalDistance += charSpeed + Time.deltaTime;
+        transform.position = _quadBezierCurve.MoveAlong(charSpeed * Time.deltaTime);
+        transform.forward = _quadBezierCurve.GetFirstDerivative();
 
-        _dist = Mathf.Clamp(_dist + (charSpeed * Time.deltaTime), 0, arcLength);
-
-        _t = _quadBezierCurve.ConvDistToT(_dist, _curveIndex);
-        
-        transform.position = _quadBezierCurve.GetPosition(_t, firstPoint: _pathwayIndex);
-        transform.forward = _quadBezierCurve.GetFirstDerivative(_t, firstPoint: _pathwayIndex).normalized;
+        //TO-DO: add updateT to derivative function
+        //transform.forward = _quadBezierCurve.GetFirstDerivative(_t, firstPoint: _pathwayIndex).normalized;
     }
 
     private Vector3[] GetWaypoints(Transform path)
@@ -62,5 +46,12 @@ public class CharacterRailMovement : MonoBehaviour
         }
 
         return _tmp;
+    }
+
+    void OnDrawGizmos()
+    {
+        // Draws a 5 unit long red line in front of the object
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(transform.position, transform.forward);
     }
 }

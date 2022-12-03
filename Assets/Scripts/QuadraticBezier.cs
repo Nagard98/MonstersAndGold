@@ -1,30 +1,148 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class QuadraticBezier
 {
     private Vector3[] _controlPolygon;
     private int _nSamples;
-    private List<float[]> _pathLUTs;
+    public List<float[]> _pathLUTs;
 
-    public QuadraticBezier(Vector3[] controlPolygon, int nSamples = 5)
+    private float _currentArcDist;
+    private int _currentArcIndex;
+    private float _totalDist;
+
+    public float _buildArcDist;
+    public int _buildArcIndex;
+
+
+    public QuadraticBezier(Vector3[] controlPoints,/* int numCurves, float beelineLength,*/ int nSamples = 5)
     {
-        _controlPolygon = controlPolygon;
-        _nSamples = nSamples;
+         _controlPolygon = BuildControlPolygon(controlPoints);
+         _nSamples = nSamples;
+         _totalDist = 0f;
 
-        _pathLUTs = new List<float[]>();
-        for (int i = 0; i + 2 < _controlPolygon.Length; i += 2)
-        {
-            _pathLUTs.Add(BuildCumDistLUT(startIndex: i, nSamples: nSamples));
-        }
+         _pathLUTs = BuildPathLUTs(_controlPolygon, 0, ref _totalDist);
+
+         _currentArcIndex = 0;
+         _currentArcDist = 0;
+
+        _buildArcDist = 0f;
+        _buildArcIndex = 0;
+
+        //float beelineLengthSingleCurve = beelineLength / numCurves;
+
     }
 
-    public Vector3 GetPosition(float t, int firstPoint = 0)
+    private List<float[]> BuildPathLUTs(Vector3[] controlPoly, int firstChunkPointIndex,ref float totalDist)
     {
-        return _controlPolygon[firstPoint] * Mathf.Pow((1 - t), 2) +
-               _controlPolygon[firstPoint + 1] * 2 * t * (1 - t) +
-               _controlPolygon[firstPoint + 2] * Mathf.Pow(t, 2);
+        List<float[]> tmp = new List<float[]>();
+        for (int i = 0; i + 3 <= controlPoly.Length; i += 3)
+        {
+            tmp.Add(BuildArcCumDistLUT(curveStartIndex: firstChunkPointIndex + i, nSamples: _nSamples));
+            totalDist += tmp[tmp.Count - 1][_nSamples];
+        }
+        return tmp;
+    }
+
+    public void AddPathWaypoints(Vector3[] controlPoints, int chunkIndex, int numCurvesChunk)
+    {
+
+        Vector3[] newChunkControlPoly = BuildControlPolygon(controlPoints, start: false);
+
+        _controlPolygon = _controlPolygon.Concat(newChunkControlPoly).ToArray();
+        //TODO implementa starting index
+        List<float[]> newChunkPathLUTs = BuildPathLUTs(newChunkControlPoly, chunkIndex * numCurvesChunk * 3, ref _totalDist);
+        _pathLUTs = _pathLUTs.Concat(newChunkPathLUTs).ToList();
+
+    }
+
+    private float[] BuildArcCumDistLUT(int curveStartIndex, int nSamples = 5)
+    {
+        float[] arcLengths = new float[nSamples + 1];
+        float tStep = (1f / (float)nSamples);
+        float _tmp = 0f;
+
+        arcLengths[0] = 0f;
+        for (int j = 1; j <= nSamples; j++)
+        {
+            _tmp += Vector3.Distance(GetPosition(t: tStep * (j), arcIndex: curveStartIndex), GetPosition(t: tStep * (j - 1), arcIndex: curveStartIndex));
+            arcLengths[j] = _tmp;
+        }
+
+        return arcLengths;
+    }
+
+
+    public int ControlPolyLength
+    {
+        get { return _controlPolygon.Length; }
+    }
+
+    public float TotalDist
+    {
+        get { return _totalDist; }  
+        set { _totalDist = value; }  
+    }
+
+
+    public float GetPathChunkDist(int chunkIndex, int numCurvesChunk)
+    {
+        float tmpDist = 0f;
+        //il 2 è il numero di archi per chunk
+        for(int i = 0; i < numCurvesChunk; i++)
+        {
+            /*if (chunkIndex > 0 && i==0)
+            {
+                tmpDist += (_pathLUTs[(chunkIndex * 10) - 1][_nSamples] / 2f);
+            }*/
+            tmpDist += _pathLUTs[(chunkIndex * numCurvesChunk) + i][_nSamples];
+            /*if (i == 9)
+            {
+                tmpDist -= ((_pathLUTs[(chunkIndex * 10) + i][_nSamples]) / 2f);
+            }*/
+        }
+        return tmpDist;
+    }
+
+    //-------------------------------------------------------------------------------------------
+    public Vector3 MoveAlong(float dist)
+    {
+        float t = UpdateT(dist);
+
+        return _controlPolygon[_currentArcIndex * 3] * Mathf.Pow((1 - t), 2) +
+               _controlPolygon[(_currentArcIndex * 3) + 1] * 2 * t * (1 - t) +
+               _controlPolygon[(_currentArcIndex * 3) + 2] * Mathf.Pow(t, 2);
+    }
+
+    public Vector3 BuildAlong(float dist)
+    {
+
+        float t = UpdateBuildT(dist);
+
+        return _controlPolygon[_buildArcIndex * 3] * Mathf.Pow((1 - t), 2) +
+               _controlPolygon[(_buildArcIndex * 3) + 1] * 2 * t * (1 - t) +
+               _controlPolygon[(_buildArcIndex * 3) + 2] * Mathf.Pow(t, 2);
+    }
+
+    public Vector3 GetFirstDerivative()
+    {
+        float t = ConvDistToT(_currentArcDist, _currentArcIndex);
+
+        return _controlPolygon[_currentArcIndex * 3] * (t - 1f) +
+               _controlPolygon[(_currentArcIndex * 3) + 1] * (1f - (2f * t)) +
+               _controlPolygon[(_currentArcIndex * 3) + 2] * t;
+    }
+
+    //-------------------------------------------------------------------------------------------
+
+    public Vector3 GetPosition(float t, int arcIndex)
+    {
+        return _controlPolygon[arcIndex] * Mathf.Pow((1 - t), 2) +
+               _controlPolygon[arcIndex + 1] * 2 * t * (1 - t) +
+               _controlPolygon[arcIndex + 2] * Mathf.Pow(t, 2);
     }
 
     public Vector3 GetFirstDerivative(float t, int firstPoint = 0)
@@ -34,53 +152,75 @@ public class QuadraticBezier
                _controlPolygon[firstPoint + 2] * t;
     }
 
-    public static Vector3[] BuildControlPolygon(Vector3[] arr)
+    //-------------------------------------------------------------------------------------------
+
+    private float UpdateT(float dist)
     {
-        List<Vector3> _tmp = new List<Vector3>();
-        _tmp.Add(arr[0]);
+        float arcLength = GetArcLength(_currentArcIndex);
 
-        for (int i = 1; i < arr.Length; i++)
+        if (_currentArcDist >= arcLength && (_currentArcIndex * 3) + 3 < ControlPolyLength)
         {
-            _tmp.Add(arr[i]);
-            if ((i + 1) < arr.Length)
-            {
-                _tmp.Add(Vector3.Lerp(arr[i], arr[i + 1], 0.5f));
-            }
-        }
-        _tmp.Add(arr[arr.Length - 1]);
-
-        return _tmp.ToArray();
-    }
-
-    private float[] BuildCumDistLUT(int startIndex, int nSamples = 5)
-    {
-        float[] arcLength = new float[nSamples + 1];
-        float tStep = (1f / (float)nSamples);
-        float _tmp = 0f;
-
-        arcLength[0] = 0f;
-        for (int j = 1; j <= nSamples; j++)
-        {
-            _tmp += Vector3.Distance(GetPosition(tStep * (j), firstPoint: startIndex), GetPosition(tStep * (j - 1), firstPoint: startIndex));
-            arcLength[j] = _tmp;
+            _currentArcDist = 0f;
+            _currentArcIndex += 1;
         }
 
-        return arcLength;
+        _currentArcDist = Mathf.Clamp(_currentArcDist + dist, 0, arcLength);
+
+        return ConvDistToT(_currentArcDist, _currentArcIndex);
     }
+
+    private float UpdateBuildT(float dist)
+    {
+        float arcLength = GetArcLength(_buildArcIndex);
+
+        if (_buildArcDist >= arcLength && (_buildArcIndex * 3) + 3 < ControlPolyLength)
+        {
+            _buildArcDist = 0f;
+            _buildArcIndex += 1;
+        }
+
+        _buildArcDist = Mathf.Clamp(_buildArcDist + dist, 0, arcLength);
+
+        return ConvDistToT(_buildArcDist, _buildArcIndex);
+    }
+
+
+    public void Reset()
+    {
+        _currentArcDist = 0f;
+        _currentArcIndex = 0;
+    }
+
+    public Vector3[] BuildControlPolygon(Vector3[] controlPoints, bool start = true)
+    {
+        if (!start)
+        {
+            controlPoints[0] = _controlPolygon[_controlPolygon.Length - 1]; 
+            controlPoints[1] = 2 * _controlPolygon[_controlPolygon.Length - 1] - _controlPolygon[_controlPolygon.Length - 2];
+        }
+        for (int i =  3; i < controlPoints.Length; i += 3)
+        {
+            controlPoints[i] = controlPoints[i - 1];
+            controlPoints[i + 1] = 2 * controlPoints[i - 1] - controlPoints[i - 2];
+        }
+
+        return controlPoints;
+    }
+
 
     public float ConvDistToT(float dist, int curveIndex)
     {
         float[] arcLUT = _pathLUTs[curveIndex];
-        float arcLength = arcLUT[arcLUT.Length - 1];
-        int nSamples = arcLUT.Length;
+        float arcLength = arcLUT[_nSamples];
 
-        for (int i = 0; i < nSamples - 1; i++)
+        for (int i = 0; i < _nSamples; i++)
         {
             if (dist >= arcLUT[i] && dist < arcLUT[i + 1])
             {
-                return Remap(dist, arcLUT[i], arcLUT[i + 1], i / ((float)nSamples - 1f), (i + 1f) / ((float)nSamples - 1f));
+                return MathUtils.Remap(dist, arcLUT[i], arcLUT[i + 1], i / ((float)_nSamples), (i + 1f) / ((float)_nSamples));
             }
         }
+
         return dist / arcLength;
     }
 
@@ -89,8 +229,4 @@ public class QuadraticBezier
         return _pathLUTs[curveIndex][_pathLUTs[curveIndex].Length - 1];
     }
 
-    public static float Remap(float value, float from1, float to1, float from2, float to2)
-    {
-        return from2 + (value - from1) * (to2 - from2) / (to1 - from1);
-    }
 }
