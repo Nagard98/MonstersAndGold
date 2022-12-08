@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class QuadraticBezier
+public class BezierSpline
 {
     private Vector3[] _controlPolygon;
     private int _nSamples;
@@ -18,7 +18,7 @@ public class QuadraticBezier
     public int _buildArcIndex;
 
 
-    public QuadraticBezier(Vector3[] controlPoints,/* int numCurves, float beelineLength,*/ int nSamples = 5)
+    public BezierSpline(Vector3[] controlPoints,/* int numCurves, float beelineLength,*/ int nSamples = 5)
     {
          _controlPolygon = BuildControlPolygon(controlPoints);
          _nSamples = nSamples;

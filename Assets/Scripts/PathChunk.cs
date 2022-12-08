@@ -1,93 +1,109 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshFilter))]
-[RequireComponent(typeof(MeshRenderer))]
-[RequireComponent(typeof(BoxCollider))]
+[RequireComponent(typeof(Terrain))]
+[RequireComponent(typeof(TerrainCollider))]
+
 public class PathChunk : MonoBehaviour
 {
     private int _chunkIndex;
     private int _chunkXSize;
     private int _chunkZSize;
-    public GameObject spawnCollider;
+    private GameObject spawnCollider;
 
     private Material _material;
-    Mesh _mesh;
-    Vector3[] _vertices;
-    int[] _triangles;
-    Vector2[] _uvs;
+    private Terrain _terrain;
+    private TerrainData terrainData;
+    private TerrainLayer[] _terrainLayers;
+    private ChunkTrees _chunkTrees;
+
+    private float[,] _heightmap;
+    private float[,,] _splatmaps;
 
     void Start()
     {
-        _mesh = new Mesh();
-        GetComponent<MeshFilter>().mesh = _mesh;
-        GetComponent<MeshRenderer>().material = _material;
-        spawnCollider = new GameObject();
-        spawnCollider.transform.parent = this.transform;
-        spawnCollider.AddComponent<TriggerSpawn>();
-        BoxCollider box = spawnCollider.AddComponent<BoxCollider>();
-        box.transform.position = new Vector3(x: _chunkXSize/2, z: 100f, y: 1f);
-        box.isTrigger = true;
-        box.size = new Vector3(x: _chunkXSize, z: 5f, y: 10f);
-        box.name = "collider" + _chunkIndex;
-        UpdateMesh();
-        transform.position = new Vector3(x: 0f, y: 0f, z: _chunkIndex * _chunkZSize);
+        terrainData = new TerrainData();
+
+        terrainData.heightmapResolution = (_chunkXSize*4) + 1;
+        terrainData.SetHeights(0, 0, _heightmap);
+
+        terrainData.size = new Vector3(x: _chunkXSize, z: _chunkZSize, y: 20);
+
+        terrainData.terrainLayers = _terrainLayers;
+
+        terrainData.treePrototypes = _chunkTrees.TreePrototypes;
+        TreeInstance[] treeInstances = BuildTreeInstances(_chunkTrees, _heightmap, _chunkXSize*4);
+        terrainData.SetTreeInstances(treeInstances, true);
+        
+        terrainData.alphamapResolution = (_chunkXSize*4) + 1;
+        terrainData.SetAlphamaps(0, 0, _splatmaps);
+
+        _terrain.terrainData = terrainData;
+        _terrain.materialTemplate = _material;
+        _terrain.allowAutoConnect = true;
+
+        GetComponent<TerrainCollider>().terrainData = terrainData;
+
+        spawnCollider = BuildSpawnCollider(this.transform, _chunkXSize, _chunkIndex);
+
+        transform.position = new Vector3(x: 0f, y: 0f, z: _chunkIndex * (_chunkZSize));
     }
 
-    public void InitChunk(Vector3[] vertices, Vector2[] uvs, int chunkIndex, int chunkXSize, int chunkZSize, Material material)
+    private static GameObject BuildSpawnCollider(Transform parent, int colliderWidth, int colliderIndex)
     {
-        _vertices = vertices;
-        _uvs = uvs;
+        GameObject tmpSpawnCollider = new GameObject();
+        tmpSpawnCollider.transform.parent = parent;
+        tmpSpawnCollider.AddComponent<TriggerSpawn>();
+        BoxCollider box = tmpSpawnCollider.AddComponent<BoxCollider>();
+        box.transform.position = new Vector3(x: colliderWidth / 2, z: colliderWidth, y: 1f);
+        box.isTrigger = true;
+        box.size = new Vector3(x: colliderWidth, z: 5f, y: 10f);
+        box.name = "collider" + colliderIndex;
+
+        return tmpSpawnCollider;
+    }
+
+    private static TreeInstance[] BuildTreeInstances(ChunkTrees chunkTrees, float[,] heightmap, int heightmapRes)
+    {
+        List<TreeInstance> tmpTreeInstances = new List<TreeInstance>();
+
+        for (int i = 0; i < chunkTrees.Count; i++)
+        {
+            float x = MathUtils.Remap(chunkTrees.TreesPos[i].x, 0, heightmapRes, 0f, 1f);
+            float z = MathUtils.Remap(chunkTrees.TreesPos[i].y, 0, heightmapRes, 0f, 1f);
+            if (heightmap[(int)chunkTrees.TreesPos[i].x, (int)chunkTrees.TreesPos[i].y] > 0.005)
+            {
+                TreeInstance tmpTreeInstance = new TreeInstance();
+                tmpTreeInstance.prototypeIndex = chunkTrees.TreesIndex[i];
+                tmpTreeInstance.position = new Vector3(x: z, z: x, y: 0f);
+                tmpTreeInstance.widthScale = 1;
+                tmpTreeInstance.heightScale = 1;
+                tmpTreeInstances.Add(tmpTreeInstance);
+            }
+        }
+
+        return tmpTreeInstances.ToArray();
+    }
+
+    public Terrain InitChunk(int chunkIndex, int chunkXSize, int chunkZSize, float[,] heightmap, float[,,] splatmaps, TerrainLayer[] terrainLayers, ChunkTrees chunkTrees, Material terrainMaterial)
+    {
         _chunkIndex = chunkIndex;
         _chunkXSize = chunkXSize;
         _chunkZSize = chunkZSize;
-        _material = material;
-        BuildMeshTriangles();
+        _heightmap = heightmap;
+        _splatmaps = splatmaps;
+        _material = terrainMaterial;
+        _chunkTrees = chunkTrees;
+        _terrainLayers = terrainLayers;
+        _terrain = GetComponent<Terrain>();
+
+        return _terrain;
     }
 
-    public Vector3[] Vertices
-    {
-        get { return _vertices; }
-        set { _vertices = value; }
-    }
-    void BuildMeshTriangles()
-    {
-        _triangles = new int[_chunkXSize * _chunkZSize * 6];
-        int vert = 0;
-        int tris = 0;
-
-        for (int z = 0; z < _chunkZSize; z++)
-        {
-            for (int x = 0; x < _chunkXSize; x++)
-            {
-                _triangles[tris + 0] = vert + 0;
-                _triangles[tris + 1] = vert + _chunkXSize + 1;
-                _triangles[tris + 2] = vert + 1;
-                _triangles[tris + 3] = vert + 1;
-                _triangles[tris + 4] = vert + _chunkXSize + 1;
-                _triangles[tris + 5] = vert + _chunkXSize + 2;
-
-                vert++;
-                tris += 6;
-            }
-            vert++;
-        }
-    }
-
-    public void UpdateMesh()
-    {
-        _mesh.Clear();
-
-        _mesh.vertices = _vertices;
-        _mesh.triangles = _triangles;
-        _mesh.uv = _uvs;
-
-        _mesh.RecalculateNormals();
-    }
     void TriggerChunkBuild()
     {
-        print("chunkIndex: " + _chunkIndex);
         SendMessageUpwards("BuildChunk", PathGenerator.ChunkBuildSettings);
     }
 }

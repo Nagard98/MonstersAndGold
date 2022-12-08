@@ -11,7 +11,7 @@ public class CharacterRailMovement : MonoBehaviour
     public float totalDistance;
 
     private Vector3[] _waypoints;
-    private QuadraticBezier _quadBezierCurve;
+    private BezierSpline _quadBezierCurve;
 
 
     // Start is called before the first frame update
@@ -22,7 +22,7 @@ public class CharacterRailMovement : MonoBehaviour
 
         transform.position = _waypoints[0];
         
-        _quadBezierCurve = new QuadraticBezier(_waypoints, nSamples:10);
+        _quadBezierCurve = new BezierSpline(_waypoints, nSamples:10);
     }
 
     // Update is called once per frame
