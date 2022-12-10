@@ -132,7 +132,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 515197055}
-  - component: {fileID: 515197057}
   - component: {fileID: 515197056}
   m_Layer: 0
   m_Name: PathGen
@@ -168,29 +167,91 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40807544fcbd3f940aa7407f1e39ccef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainLayers:
-  - {fileID: 8574412962073106934, guid: f7ce30ec9b280b34cacb1a1005349890, type: 2}
-  - {fileID: 8574412962073106934, guid: 52ac57c2c14c60b4d88913beb57dce00, type: 2}
+  splatHeights:
+  - terrainLayer: {fileID: 8574412962073106934, guid: 52ac57c2c14c60b4d88913beb57dce00, type: 2}
+    layerIndex: 0
+    height: -1
+    overlap: 0.001
+  - terrainLayer: {fileID: 8574412962073106934, guid: f7ce30ec9b280b34cacb1a1005349890, type: 2}
+    layerIndex: 1
+    height: 0.002
+    overlap: 0
   trees:
-  - {fileID: 7335176420224820531, guid: 734a767dc0ba0024d8624eca1b65fd36, type: 3}
-  - {fileID: 4479373333862468082, guid: 4a90e5a9791339246811dc2965d5db48, type: 3}
-  - {fileID: 8439506048520143327, guid: 9c3ba689608a25a40968ed317fcce0b7, type: 3}
-  - {fileID: 4561261066736219567, guid: cb1d77d25308a184fb6e215e18cc3f05, type: 3}
+  - treeObject: {fileID: 7335176420224820531, guid: 734a767dc0ba0024d8624eca1b65fd36, type: 3}
+    layerIndex: 1
+  - treeObject: {fileID: 4479373333862468082, guid: 4a90e5a9791339246811dc2965d5db48, type: 3}
+    layerIndex: 1
+  - treeObject: {fileID: 8439506048520143327, guid: 9c3ba689608a25a40968ed317fcce0b7, type: 3}
+    layerIndex: 1
+  details:
+  - detail: {fileID: 8333869302400229472, guid: 61982c2c99063e44e9e4646d763c0439, type: 3}
+    minDistance: 20
+    layerIndex: 1
+  - detail: {fileID: 5546342222124265899, guid: 28f2088d7c340e14fb0ffb692c6d4f82, type: 3}
+    minDistance: 4
+    layerIndex: 1
+  - detail: {fileID: -338750432734848899, guid: 5c7de3ea78afce6468d2ebe76dd0bf6d, type: 3}
+    minDistance: 15
+    layerIndex: 1
   material: {fileID: 2100000, guid: e52cdfd4b0e613047952909e1faf8b9d, type: 2}
-  concurrentChunkNumber: 6
-  chunkXSize: 100
-  chunkZSize: 101
+  concurrentChunkNumber: 5
+  chunkXSize: 0
+  chunkZSize: 0
   pathMaxWidth: 0
-  numCurvesChunk: 60
-  speed: 10.58
---- !u!33 &515197057
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 515197053}
-  m_Mesh: {fileID: 0}
+  numCurvesChunk: 0
+  characterController: {fileID: 0}
+  speed: 10
+  easingFunction:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2.0287068
+      outSlope: 2.0287068
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.49218234
+      value: 0.9984937
+      inSlope: 0.84998673
+      outSlope: 0.84998673
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.49971095
+      value: 1.0005207
+      inSlope: -0.0009977035
+      outSlope: -0.0009977035
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.23682183
+    - serializedVersion: 3
+      time: 0.5077494
+      value: 0.99859625
+      inSlope: -0.8120693
+      outSlope: -0.8120693
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1.0041872
+      value: -0.0012397617
+      inSlope: -2.0140204
+      outSlope: -2.0140204
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

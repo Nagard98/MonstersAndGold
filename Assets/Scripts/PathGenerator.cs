@@ -7,8 +7,10 @@ public class PathGenerator : MonoBehaviour
 {
     private List<PathChunk> pathChunks;
 
-    public TerrainLayer[] terrainLayers;
-    public GameObject[] trees;
+    public SplatHeights[] splatHeights;
+    public Tree[] trees;
+    public Detail[] details;
+
     public Material material;
 
     public int concurrentChunkNumber;
@@ -16,8 +18,12 @@ public class PathGenerator : MonoBehaviour
     public int chunkZSize;
     public float pathMaxWidth;
     public int numCurvesChunk;
+
     private int lastChunkIndex;
     private float[,] lastHeightmap;
+    private Vector3 lastPos = Vector3.zero;
+
+    public CharacterController characterController;
 
     private GameObject chr;
     public float speed = 10f;
@@ -25,15 +31,15 @@ public class PathGenerator : MonoBehaviour
     public BezierSpline bezCurve;
     private static ChunkSettings chunkSettings;
 
+    public AnimationCurve easingFunction;
     void Start()
     {
         chr = GameObject.CreatePrimitive(PrimitiveType.Cube);
         chr.name = "Character";
-        chr.AddComponent<Rigidbody>();
         chr.AddComponent<Camera>();
-        chr.GetComponent<Rigidbody>().isKinematic = true;
+        characterController = chr.AddComponent<CharacterController>();
 
-        numCurvesChunk = 40;
+        numCurvesChunk = 10;
         concurrentChunkNumber = 5;
         chunkXSize = 256;
         chunkZSize = 256;
@@ -47,7 +53,10 @@ public class PathGenerator : MonoBehaviour
             BuildChunk(chunkSettings);
         }
         bezCurve.Reset();
-
+        Vector3 newpos = bezCurve.MoveAlong(0);
+        newpos.y += 10f;
+        characterController.transform.position = newpos;
+        lastPos = newpos;
     }
     public static ChunkSettings ChunkBuildSettings{
         get { return chunkSettings; }
@@ -79,6 +88,7 @@ public class PathGenerator : MonoBehaviour
             
             float horOffset = Mathf.PerlinNoise(.01f, (lastChunkIndex * chunkZSize) * .01f + step * d * .01f);
             float scaledOffset = MathUtils.Remap(horOffset, 0f, 1f, 0f, (float)(pathMaxWidth));
+
             waypoints[i] = new Vector3(x: scaledOffset + (((chunkXSize) - (pathMaxWidth)) / 2), y: 1, z: (lastChunkIndex * (chunkZSize)) + d * step);
 
         }
@@ -92,70 +102,129 @@ public class PathGenerator : MonoBehaviour
         float[,,] splatmaps = new float[((chunkXSize*4) + 1), ((chunkZSize*4) + 1), 2];
 
         double chunkDist = bezCurve.GetPathChunkDist(chunkIndex, numCurvesChunk);
-        double stepCurve = chunkDist / (chunkZSize * 4 );
-        stepCurve += 0.005f;
+        double stepCurve = chunkDist / (chunkZSize * 4);
 
         bezCurve._buildArcDist = .0f;
         bezCurve._buildArcIndex = chunkIndex * numCurvesChunk;
 
-        for (int z = 0, i = 0; z <= chunkZSize*4; z++)
+        Vector3 p = bezCurve.BuildAlong(0);
+        float lastZ = p.z;
+        float totalZTraversed = 0f;
+        float zError = 0f;
+        for (int z = 0; z <= chunkZSize*4; z++)
         {
-            
-            Vector3 p = bezCurve.BuildAlong(z == 0 ? 0 : (float)stepCurve);
+            if (z > 0)
+            {
+                p = bezCurve.BuildAlong((float)stepCurve + zError);
+                float pzStep = p.z - lastZ;
+                totalZTraversed += pzStep;
+                zError = (z * 0.25f) - totalZTraversed;
+                lastZ = p.z;
+            }
 
             for (int x = 0; x <= chunkXSize*4; x++)
             {
                 float noiseVal = Mathf.PerlinNoise(x * 0.01f, ((lastChunkIndex * chunkZSize*4) + z) * 0.01f);
                 float t = MathUtils.Remap(x, 0f, (float)(chunkXSize*4), 0f, 1f);
                 float pathT = MathUtils.Remap(MathUtils.Remap(p.x, 0f, (float)chunkXSize, 0f, (float)(chunkXSize * 4)), 0f, (float)(chunkXSize * 4), 0f, 1f);
-                float y = noiseVal - EasingFunctions.Custom(t + (0.5f - pathT)) * noiseVal;
+                float y = noiseVal - (easingFunction.Evaluate(t + (0.5f - pathT)) * noiseVal);
 
                 heightmap[z,x] = y;
 
-                splatmaps[z, x, 1] = y <= 0.003 ? (y>=0.002 ? 0.5f : 1) : 0;
-                splatmaps[z, x, 0] = y >= 0.002 ? (y <=0.003 ? 0.5f : 1) : 0;
+                for(int i=0; i < splatHeights.Length; i++)
+                {
+
+                    //TODO: generalizza a più layer
+                    float height = splatHeights[i].height;
+                    float overlap = splatHeights[i].overlap;
+                    
+                    if(i == splatHeights.Length - 1)
+                    {
+                        splatmaps[z, x, splatHeights[i].layerIndex] = (y >= height) ? (y >= (height + splatHeights[i - 1].overlap) ? 1 : 0.5f) : 0;
+    }
+                    else
+                    {
+                        float nextHeight = splatHeights[i + 1].height;
+                        splatmaps[z, x, splatHeights[i].layerIndex] = (y >= height && y <= nextHeight + overlap) ? (y >= nextHeight ? 0.5f : 1) : 0;
+                    }
+                }
+
+                noiseVal = Mathf.Clamp01(Mathf.PerlinNoise(0.01f, ((lastChunkIndex * chunkZSize * 4) + z) * 0.002f));
+                float scaledNoise = MathUtils.Remap(noiseVal, 0f, 1f, 0f, 0.5f);
+                heightmap[z, x] += scaledNoise;
             }
             
         }
 
-        ChunkTrees chunkTrees = SetupTrees(trees, chunkXSize*4, 40f);
+        ChunkTrees chunkTrees = SetupTrees(trees, chunkXSize*4, 35f);
+        ChunkSplats tmpSplatmaps = SetupSplatmaps(splatHeights, splatmaps);
+        ChunkDetail[] tmpDetails = SetupDetailMaps(details, splatmaps, chunkXSize*4);
 
-        if (lastChunkIndex > 0)
-        {
-            StitchHeightmaps(heightmap, lastHeightmap);
-        }
+        if (lastChunkIndex > 0) StitchHeightmaps(heightmap, lastHeightmap);
+        lastHeightmap = heightmap;
 
         GameObject newChunk = new GameObject("chunk" + lastChunkIndex);
         newChunk.transform.parent = this.gameObject.transform;
         PathChunk chunkComponent = newChunk.AddComponent<PathChunk>();
-        chunkComponent.InitChunk(chunkIndex, chunkXSize, chunkZSize, heightmap,splatmaps, terrainLayers,  chunkTrees, material);
+        chunkComponent.InitChunk(chunkIndex, chunkXSize, chunkZSize, heightmap, tmpSplatmaps, chunkTrees, material, tmpDetails);
         pathChunks.Add(chunkComponent);
-
-        lastHeightmap = heightmap;
     }
 
-    private ChunkTrees SetupTrees(GameObject[] sceneTrees, int chunkResolution, float treeMinDistance)
+    private ChunkDetail[] SetupDetailMaps(Detail[] tmpdetails, float[,,] splatmaps, int resolution)
+    {
+        ChunkDetail[] tmpChunkDetails = new ChunkDetail[tmpdetails.Length];
+        for (int i = 0; i < tmpdetails.Length; i++) 
+        {
+            List<Vector2> tmpSampling = FastPoissonDiskSampling.Sampling(Vector2.zero, new Vector2(x: resolution, y: resolution), minimumDistance: tmpdetails[i].minDistance);
+            int[,] detailMap = new int[resolution + 1, resolution + 1];
+
+            for (int j = 0; j < tmpSampling.Count; j++)
+            {
+                int x = (int)(tmpSampling[j].x); 
+                int y = (int)(tmpSampling[j].y);
+                if (splatmaps[x, y, tmpdetails[i].layerIndex] == 1)
+                {
+                    detailMap[x, y] = 1;
+                }
+            }
+            tmpChunkDetails[i] = new ChunkDetail(tmpdetails[i], detailMap);
+
+        }
+        return tmpChunkDetails;
+    }
+
+    private ChunkSplats SetupSplatmaps(SplatHeights[] splatHeights, float[,,] splatmaps)
+    {
+        ChunkSplats tmpSplatmaps = new ChunkSplats();
+        tmpSplatmaps.splatHeights = splatHeights;
+        tmpSplatmaps.Splatmaps = splatmaps;
+        return tmpSplatmaps;
+    }
+
+    private ChunkTrees SetupTrees(Tree[] sceneTreeTypes, int chunkResolution, float treeMinDistance)
     {
         List<Vector2> treesPos = FastPoissonDiskSampling.Sampling(Vector2.zero, new Vector2(x: chunkResolution, y: chunkResolution), minimumDistance: treeMinDistance);
 
-        int numTrees = sceneTrees.Length;
-        TreePrototype[] treePrototypes = new TreePrototype[numTrees];
+        int numTreeTypes = sceneTreeTypes.Length;
+        TreePrototype[] treePrototypes = new TreePrototype[numTreeTypes];
         int[] treesIndex = new int[treesPos.Count];
+        int[] treeLayer= new int[treesPos.Count];
 
-        for (int i = 0; i < numTrees; i++) 
+        for (int i = 0; i < numTreeTypes; i++) 
         {
             TreePrototype tmpTreeProto = new TreePrototype();
-            tmpTreeProto.prefab = sceneTrees[i];
+            tmpTreeProto.prefab = sceneTreeTypes[i].treeObject;
             treePrototypes[i] = tmpTreeProto;
         }
 
         for (int i = 0; i < treesPos.Count; i++) 
         {
-            int treeIndex = UnityEngine.Random.Range(0, numTrees);
+            int treeIndex = UnityEngine.Random.Range(0, numTreeTypes);
             treesIndex[i] = treeIndex;
+            treeLayer[i] = sceneTreeTypes[treeIndex].layerIndex;
         }
 
-        return new ChunkTrees(treePrototypes, treesPos, treesIndex);
+        return new ChunkTrees(treePrototypes, treesPos, treesIndex, treeLayer);
     }
 
     private void StitchHeightmaps(float[,] heightmapToStich, float[,] stitchTo)
@@ -170,26 +239,84 @@ public class PathGenerator : MonoBehaviour
     
     void Update()
     {
-        chr.transform.position = bezCurve.MoveAlong(speed * Time.deltaTime);
-        chr.transform.forward = bezCurve.GetFirstDerivative();
+        Vector3 newPos = bezCurve.MoveAlong(speed * Time.deltaTime);
+        Vector3 dir = newPos - lastPos;
+        dir.y += (-9.81f) * Time.deltaTime;
+        characterController.Move(dir);
+        characterController.transform.forward = bezCurve.GetFirstDerivative();
+        lastPos = newPos;
     }
-
 
 }
 
 public struct ChunkTrees
 {
-    public ChunkTrees(TreePrototype[] treePrototypes, List<Vector2> treesPos, int[] treesIndex)
+    public ChunkTrees(TreePrototype[] treePrototypes, List<Vector2> treesPos, int[] treeIndex, int [] treeLayer)
     {
         TreePrototypes = treePrototypes;
         TreesPos = treesPos;
-        TreesIndex = treesIndex;
+        TreesIndex = treeIndex;
+        TreeLayer = treeLayer;
         Count = treesPos.Count;
     }
 
     public TreePrototype[] TreePrototypes { get; }
     public List<Vector2> TreesPos { get; }
     public int[] TreesIndex { get; }
+    public int[] TreeLayer { get; }
     public int Count { get; }
 
+}
+
+
+[Serializable]
+public class Detail
+{
+    public GameObject detail;
+    public float minDistance;
+    public int layerIndex;
+}
+
+[Serializable]
+public class Tree
+{
+    public GameObject treeObject;
+    public int layerIndex;
+}
+
+[Serializable]
+public class SplatHeights
+{
+    public TerrainLayer terrainLayer;
+    public int layerIndex;
+    public float height;
+    public float overlap;
+}
+
+public class ChunkDetail
+{
+    public Detail detail;
+    private int[,] detailMap;
+
+    public ChunkDetail(Detail detail, int[,] detailMap)
+    {
+        this.detail = detail;
+        this.detailMap = detailMap;
+    }
+    public int[,] DetailMap
+    {
+        get { return detailMap; }
+        set { detailMap = value; }
+    }
+}
+
+public class ChunkSplats
+{
+    public SplatHeights[] splatHeights;
+    private float[,,] splatmaps;
+    public float[,,] Splatmaps
+    {
+        get { return splatmaps; }
+        set { splatmaps = value; }
+    }
 }

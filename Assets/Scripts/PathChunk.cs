@@ -16,11 +16,12 @@ public class PathChunk : MonoBehaviour
     private Material _material;
     private Terrain _terrain;
     private TerrainData terrainData;
-    private TerrainLayer[] _terrainLayers;
+
     private ChunkTrees _chunkTrees;
+    private ChunkDetail[] _details;
 
     private float[,] _heightmap;
-    private float[,,] _splatmaps;
+    private ChunkSplats _splatmaps;
 
     void Start()
     {
@@ -31,14 +32,23 @@ public class PathChunk : MonoBehaviour
 
         terrainData.size = new Vector3(x: _chunkXSize, z: _chunkZSize, y: 20);
 
-        terrainData.terrainLayers = _terrainLayers;
+        terrainData.terrainLayers = BuildTerrainLayers(_splatmaps);
 
         terrainData.treePrototypes = _chunkTrees.TreePrototypes;
-        TreeInstance[] treeInstances = BuildTreeInstances(_chunkTrees, _heightmap, _chunkXSize*4);
+        TreeInstance[] treeInstances = BuildTreeInstances(_chunkTrees, _splatmaps.Splatmaps, _chunkXSize*4);
         terrainData.SetTreeInstances(treeInstances, true);
         
         terrainData.alphamapResolution = (_chunkXSize*4) + 1;
-        terrainData.SetAlphamaps(0, 0, _splatmaps);
+        terrainData.SetAlphamaps(0, 0, _splatmaps.Splatmaps);
+
+        terrainData.SetDetailResolution(_chunkXSize * 4, 128);
+        DetailPrototype[] detailPrototypes = BuildDetailProtos(_details);
+        terrainData.detailPrototypes = detailPrototypes;
+
+        for(int j=0; j<_details.Length; j++)
+        {
+            terrainData.SetDetailLayer(0, 0, j, _details[j].DetailMap);
+        }
 
         _terrain.terrainData = terrainData;
         _terrain.materialTemplate = _material;
@@ -49,6 +59,35 @@ public class PathChunk : MonoBehaviour
         spawnCollider = BuildSpawnCollider(this.transform, _chunkXSize, _chunkIndex);
 
         transform.position = new Vector3(x: 0f, y: 0f, z: _chunkIndex * (_chunkZSize));
+    }
+
+    private TerrainLayer[] BuildTerrainLayers(ChunkSplats splatmaps)
+    {
+        TerrainLayer[] tmpTerrainLayers = new TerrainLayer[splatmaps.splatHeights.Length];
+        for (int i = 0; i < splatmaps.splatHeights.Length; i++)
+        {
+            tmpTerrainLayers[i] = splatmaps.splatHeights[i].terrainLayer;
+        }
+        return tmpTerrainLayers;
+    }
+
+    private DetailPrototype[] BuildDetailProtos(ChunkDetail[] details)
+    {
+        DetailPrototype[] tmpDetailPrototypes = new DetailPrototype[details.Length];
+        for (int i = 0; i < details.Length; i++)
+        {
+            DetailPrototype tmpDetail = new DetailPrototype();
+            tmpDetail.prototype = details[i].detail.detail;
+            tmpDetail.usePrototypeMesh = true;
+            tmpDetail.renderMode = DetailRenderMode.VertexLit;
+            tmpDetail.useInstancing = true;
+            tmpDetail.maxHeight = 1.1f;
+            tmpDetail.maxWidth = 1;
+            tmpDetail.minHeight = 0.9f;
+            tmpDetail.minWidth = 0.7f;
+            tmpDetailPrototypes[i] = tmpDetail;
+        }
+        return tmpDetailPrototypes;
     }
 
     private static GameObject BuildSpawnCollider(Transform parent, int colliderWidth, int colliderIndex)
@@ -65,7 +104,7 @@ public class PathChunk : MonoBehaviour
         return tmpSpawnCollider;
     }
 
-    private static TreeInstance[] BuildTreeInstances(ChunkTrees chunkTrees, float[,] heightmap, int heightmapRes)
+    private static TreeInstance[] BuildTreeInstances(ChunkTrees chunkTrees, float[,,] splatmaps, int heightmapRes)
     {
         List<TreeInstance> tmpTreeInstances = new List<TreeInstance>();
 
@@ -73,7 +112,7 @@ public class PathChunk : MonoBehaviour
         {
             float x = MathUtils.Remap(chunkTrees.TreesPos[i].x, 0, heightmapRes, 0f, 1f);
             float z = MathUtils.Remap(chunkTrees.TreesPos[i].y, 0, heightmapRes, 0f, 1f);
-            if (heightmap[(int)chunkTrees.TreesPos[i].x, (int)chunkTrees.TreesPos[i].y] > 0.005)
+            if (splatmaps[(int)chunkTrees.TreesPos[i].x, (int)chunkTrees.TreesPos[i].y, chunkTrees.TreeLayer[i]] == 1)
             {
                 TreeInstance tmpTreeInstance = new TreeInstance();
                 tmpTreeInstance.prototypeIndex = chunkTrees.TreesIndex[i];
@@ -87,7 +126,7 @@ public class PathChunk : MonoBehaviour
         return tmpTreeInstances.ToArray();
     }
 
-    public Terrain InitChunk(int chunkIndex, int chunkXSize, int chunkZSize, float[,] heightmap, float[,,] splatmaps, TerrainLayer[] terrainLayers, ChunkTrees chunkTrees, Material terrainMaterial)
+    public Terrain InitChunk(int chunkIndex, int chunkXSize, int chunkZSize, float[,] heightmap, ChunkSplats splatmaps, ChunkTrees chunkTrees, Material terrainMaterial, ChunkDetail[] details)
     {
         _chunkIndex = chunkIndex;
         _chunkXSize = chunkXSize;
@@ -96,8 +135,8 @@ public class PathChunk : MonoBehaviour
         _splatmaps = splatmaps;
         _material = terrainMaterial;
         _chunkTrees = chunkTrees;
-        _terrainLayers = terrainLayers;
         _terrain = GetComponent<Terrain>();
+        _details = details;
 
         return _terrain;
     }
