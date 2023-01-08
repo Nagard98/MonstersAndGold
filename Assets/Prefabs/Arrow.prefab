@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7430391246734301283}
+  - component: {fileID: 1992240212513940584}
   - component: {fileID: 852051638593304260}
   - component: {fileID: 7441635869627980526}
-  - component: {fileID: 1992240212513940584}
   m_Layer: 5
   m_Name: Arrow
   m_TagString: Untagged
@@ -39,6 +39,26 @@ RectTransform:
   m_AnchoredPosition: {x: 500, y: 100}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1992240212513940584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5866287011611530094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ed05852d7769c740ac706736342a501, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tval: 0
+  screenWidth: 0
+  beatsShownInAdvance: {fileID: 11400000, guid: cb7db34c6fe618840929f1d0a57ac4a1, type: 2}
+  songPositionInBeats: {fileID: 11400000, guid: 23389ab008218474d80181701f569301, type: 2}
+  upArrowTexture: {fileID: 2800000, guid: f90966e0bac82fb45a90a57286c2c6d8, type: 3}
+  downArrowTexture: {fileID: 2800000, guid: b87c46494af7fbb498cf734e1310c6f4, type: 3}
+  leftArrowTexture: {fileID: 2800000, guid: 76b5a730f7d9b344cb7a1c2889258fcf, type: 3}
+  rightArrowTexture: {fileID: 2800000, guid: 1b9061dfc2cf4504fb8e672e33ee1fa2, type: 3}
 --- !u!222 &852051638593304260
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -74,22 +94,3 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
---- !u!114 &1992240212513940584
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5866287011611530094}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ed05852d7769c740ac706736342a501, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  conductor: {fileID: 0}
-  tval: 0
-  screenWidth: 0
-  upArrowTexture: {fileID: 2800000, guid: f90966e0bac82fb45a90a57286c2c6d8, type: 3}
-  downArrowTexture: {fileID: 2800000, guid: b87c46494af7fbb498cf734e1310c6f4, type: 3}
-  leftArrowTexture: {fileID: 2800000, guid: 76b5a730f7d9b344cb7a1c2889258fcf, type: 3}
-  rightArrowTexture: {fileID: 2800000, guid: 1b9061dfc2cf4504fb8e672e33ee1fa2, type: 3}

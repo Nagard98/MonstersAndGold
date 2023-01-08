@@ -9,10 +9,12 @@ public class MusicNote : MonoBehaviour
     private Vector3 _spawnPosition;
     private Vector3 _hitPosition;
     private Vector3 _removePosition;
-    public Conductor conductor;
+
     public Note note;
     public float tval;
     public float screenWidth;
+    public FloatVariable beatsShownInAdvance;
+    public FloatVariable songPositionInBeats;
 
     public Texture upArrowTexture, downArrowTexture, leftArrowTexture, rightArrowTexture;
     private RawImage _rawImage;
@@ -20,11 +22,8 @@ public class MusicNote : MonoBehaviour
     private bool reachedHitPos;
     private Vector3 interpolationPos;
         
-    
-    // Start is called before the first frame update
     void Start()
     {
-        conductor = transform.parent.GetComponent<Conductor>();
         _rawImage = GetComponent<RawImage>();
         loadNoteTexture((NoteType)note.NoteType);
         _spawnPosition = transform.position;
@@ -66,7 +65,7 @@ public class MusicNote : MonoBehaviour
 
         if (reachedHitPos)
         {
-            tval = (conductor.beatsShownInAdvance - (note.NoteBeat + conductor.beatsShownInAdvance - conductor.songPositionInBeats)) / conductor.beatsShownInAdvance;
+            tval = (beatsShownInAdvance.Value - (note.NoteBeat + beatsShownInAdvance.Value - songPositionInBeats.Value)) / beatsShownInAdvance.Value;
             interpolationPos = Vector3.Lerp(_hitPosition, _removePosition, tval);
             if(transform.position == _removePosition)
             {
@@ -79,7 +78,7 @@ public class MusicNote : MonoBehaviour
             {
                 reachedHitPos = true;
             }
-            tval = (conductor.beatsShownInAdvance - (note.NoteBeat - conductor.songPositionInBeats)) / conductor.beatsShownInAdvance;
+            tval = (beatsShownInAdvance.Value - (note.NoteBeat - songPositionInBeats.Value)) / beatsShownInAdvance.Value;
             interpolationPos =  Vector3.Lerp(_spawnPosition, _hitPosition, tval);
         }
 

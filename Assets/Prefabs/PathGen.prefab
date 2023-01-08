@@ -1,0 +1,145 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1379482748882482558
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1379482748882482556}
+  - component: {fileID: 1379482748882482563}
+  m_Layer: 0
+  m_Name: PathGen
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1379482748882482556
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1379482748882482558}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1379482748882482563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1379482748882482558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40807544fcbd3f940aa7407f1e39ccef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  splatHeights:
+  - terrainLayer: {fileID: 8574412962073106934, guid: 52ac57c2c14c60b4d88913beb57dce00, type: 2}
+    layerIndex: 0
+    height: -1
+    overlap: 0.001
+  - terrainLayer: {fileID: 8574412962073106934, guid: f7ce30ec9b280b34cacb1a1005349890, type: 2}
+    layerIndex: 1
+    height: 0.002
+    overlap: 0
+  trees:
+  - treeObject: {fileID: 7335176420224820531, guid: 734a767dc0ba0024d8624eca1b65fd36, type: 3}
+    layerIndex: 1
+  - treeObject: {fileID: 4479373333862468082, guid: 4a90e5a9791339246811dc2965d5db48, type: 3}
+    layerIndex: 1
+  - treeObject: {fileID: 8439506048520143327, guid: 9c3ba689608a25a40968ed317fcce0b7, type: 3}
+    layerIndex: 1
+  details:
+  - detail: {fileID: 8333869302400229472, guid: 61982c2c99063e44e9e4646d763c0439, type: 3}
+    minDistance: 20
+    layerIndex: 1
+  - detail: {fileID: -1384366078418220761, guid: 8c71f03fcb0c13644a30696cafc5cda8, type: 3}
+    minDistance: 4
+    layerIndex: 1
+  - detail: {fileID: -338750432734848899, guid: 5c7de3ea78afce6468d2ebe76dd0bf6d, type: 3}
+    minDistance: 15
+    layerIndex: 1
+  material: {fileID: 2100000, guid: e52cdfd4b0e613047952909e1faf8b9d, type: 2}
+  concurrentChunkNumber: 5
+  chunkXSize: 0
+  chunkZSize: 0
+  pathMaxWidth: 0
+  numCurvesChunk: 0
+  bezCurve: {fileID: 11400000, guid: 76dae87b8f6a44349933942e9d0231f5, type: 2}
+  generatedEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 11400000, guid: 5fc9aa0eb3c7b7e46b3af269d042e241, type: 2}
+        m_TargetAssemblyTypeName: GameEvent, Assembly-CSharp
+        m_MethodName: Raise
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  easingFunction:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2.0287068
+      outSlope: 2.0287068
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.49218234
+      value: 0.9984937
+      inSlope: 0.84998673
+      outSlope: 0.84998673
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.49971095
+      value: 1.0005207
+      inSlope: -0.0009977035
+      outSlope: -0.0009977035
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.23682183
+    - serializedVersion: 3
+      time: 0.5077494
+      value: 0.99859625
+      inSlope: -0.8120693
+      outSlope: -0.8120693
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1.0041872
+      value: -0.0012397617
+      inSlope: -2.0140204
+      outSlope: -2.0140204
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

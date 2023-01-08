@@ -6,52 +6,57 @@ using UnityEngine;
 public class CharacterRailMovement : MonoBehaviour
 {
 
-    public float charSpeed = 4f;
-    public Transform path;
-    public float totalDistance;
+    private CharacterController characterController;
+    private Animator animator;
+    private Vector3 lastPos;
 
-    private Vector3[] _waypoints;
-    private BezierSpline _quadBezierCurve;
+    public FloatReference speed;
+    public BezierCurveVariable bezCurve;
 
-
-    // Start is called before the first frame update
     void Start()
     {
-        totalDistance = 0;
-        _waypoints = GetWaypoints(path);       
+        characterController = GetComponent<CharacterController>();
+        animator = GetComponentInChildren<Animator>();
 
-        transform.position = _waypoints[0];
-        
-        _quadBezierCurve = new BezierSpline(_waypoints, nSamples:10);
+        lastPos = Vector3.zero;
+
+        Vector3 nextPos = bezCurve.Value.MoveAlong(0);
+        lastPos = nextPos;
+        nextPos.y += 10f;
+        SetCharacterPosition(nextPos);
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        totalDistance += charSpeed + Time.deltaTime;
-        transform.position = _quadBezierCurve.MoveAlong(charSpeed * Time.deltaTime);
-        transform.forward = _quadBezierCurve.GetFirstDerivative();
+        Move();
+        Animate();
 
         //TO-DO: add updateT to derivative function
         //transform.forward = _quadBezierCurve.GetFirstDerivative(_t, firstPoint: _pathwayIndex).normalized;
     }
 
-    private Vector3[] GetWaypoints(Transform path)
+    private void Move()
     {
-        int numWaypoints = path.childCount;
-        Vector3[] _tmp = new Vector3[numWaypoints];
-        for (int i = 0; i < numWaypoints; i++)
-        {
-            _tmp[i] = path.GetChild(i).position;
-        }
-
-        return _tmp;
+        Vector3 nextPos = bezCurve.Value.MoveAlong(speed.Value * Time.deltaTime);
+        Vector3 dir = nextPos - lastPos;
+        dir.y += (-9.81f) * Time.deltaTime;
+        characterController.Move(dir);
+        characterController.transform.forward = bezCurve.Value.GetFirstDerivative();
+        lastPos = nextPos;
     }
 
-    void OnDrawGizmos()
+    private void Animate()
     {
-        // Draws a 5 unit long red line in front of the object
-        Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position, transform.forward);
+        animator.SetFloat("Speed", characterController.velocity.magnitude);
     }
+
+    private void SetCharacterPosition(Vector3 position)
+    {
+        characterController.enabled = false;
+        characterController.transform.position = position;
+        characterController.enabled = true;
+    }
+
 }

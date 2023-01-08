@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
+[Serializable]
 public class PathGenerator : MonoBehaviour
 {
     private List<PathChunk> pathChunks;
@@ -21,24 +23,15 @@ public class PathGenerator : MonoBehaviour
 
     private int lastChunkIndex;
     private float[,] lastHeightmap;
-    private Vector3 lastPos = Vector3.zero;
-
-    public CharacterController characterController;
-
-    private GameObject chr;
-    public float speed = 10f;
-
-    public BezierSpline bezCurve;
     private static ChunkSettings chunkSettings;
 
+    public BezierCurveVariable bezCurve;
+    public UnityEvent generatedEvent;
+
     public AnimationCurve easingFunction;
+
     void Start()
     {
-        chr = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        chr.name = "Character";
-        chr.AddComponent<Camera>();
-        characterController = chr.AddComponent<CharacterController>();
-
         numCurvesChunk = 10;
         concurrentChunkNumber = 5;
         chunkXSize = 256;
@@ -52,12 +45,11 @@ public class PathGenerator : MonoBehaviour
         {
             BuildChunk(chunkSettings);
         }
-        bezCurve.Reset();
-        Vector3 newpos = bezCurve.MoveAlong(0);
-        newpos.y += 10f;
-        characterController.transform.position = newpos;
-        lastPos = newpos;
+        bezCurve.Value.Reset();
+
+        generatedEvent.Invoke();
     }
+
     public static ChunkSettings ChunkBuildSettings{
         get { return chunkSettings; }
     }
@@ -66,8 +58,8 @@ public class PathGenerator : MonoBehaviour
     {
         Vector3[] curveControlPoints = GenerateWaypoints(chunkSettings.BeelineLength, chunkSettings.NumCurves);
 
-        if (lastChunkIndex == 0) { bezCurve = new BezierSpline(curveControlPoints, nSamples: 10); }
-        else { bezCurve.AddPathWaypoints(curveControlPoints, lastChunkIndex, numCurvesChunk); }
+        if (lastChunkIndex == 0) { bezCurve.Value = new BezierSpline(curveControlPoints, nSamples: 10); }
+        else { bezCurve.Value.AddPathWaypoints(curveControlPoints, lastChunkIndex, numCurvesChunk); }
 
         GenerateChunk(lastChunkIndex);
         lastChunkIndex += 1;
@@ -101,13 +93,13 @@ public class PathGenerator : MonoBehaviour
         float[,] heightmap = new float[((chunkXSize*4) + 1), ((chunkZSize*4) + 1)];
         float[,,] splatmaps = new float[((chunkXSize*4) + 1), ((chunkZSize*4) + 1), 2];
 
-        double chunkDist = bezCurve.GetPathChunkDist(chunkIndex, numCurvesChunk);
+        double chunkDist = bezCurve.Value.GetPathChunkDist(chunkIndex, numCurvesChunk);
         double stepCurve = chunkDist / (chunkZSize * 4);
 
-        bezCurve._buildArcDist = .0f;
-        bezCurve._buildArcIndex = chunkIndex * numCurvesChunk;
+        bezCurve.Value._buildArcDist = .0f;
+        bezCurve.Value._buildArcIndex = chunkIndex * numCurvesChunk;
 
-        Vector3 p = bezCurve.BuildAlong(0);
+        Vector3 p = bezCurve.Value.BuildAlong(0);
         float lastZ = p.z;
         float totalZTraversed = 0f;
         float zError = 0f;
@@ -115,7 +107,7 @@ public class PathGenerator : MonoBehaviour
         {
             if (z > 0)
             {
-                p = bezCurve.BuildAlong((float)stepCurve + zError);
+                p = bezCurve.Value.BuildAlong((float)stepCurve + zError);
                 float pzStep = p.z - lastZ;
                 totalZTraversed += pzStep;
                 zError = (z * 0.25f) - totalZTraversed;
@@ -235,16 +227,6 @@ public class PathGenerator : MonoBehaviour
             heightmapToStich[0, x] = stitchTo[chunkXSize*4, x];
         }
 
-    }
-    
-    void Update()
-    {
-        Vector3 newPos = bezCurve.MoveAlong(speed * Time.deltaTime);
-        Vector3 dir = newPos - lastPos;
-        dir.y += (-9.81f) * Time.deltaTime;
-        characterController.Move(dir);
-        characterController.transform.forward = bezCurve.GetFirstDerivative();
-        lastPos = newPos;
     }
 
 }

@@ -24,10 +24,9 @@ public struct Note
     public int NoteType { get; }
 }
 
+[RequireComponent(typeof(AudioSource))]
 public class Conductor : MonoBehaviour
 {
-    public GameObject character;
-    public CharacterRailMovement characterMovement;
 
     public const int FIRST_MULTIPLIER_THRESHOLD = 5;
     public const int SECOND_MULTIPLIER_THRESHOLD = 15;
@@ -40,12 +39,13 @@ public class Conductor : MonoBehaviour
     public float bpm;
     public float songPosition;
     public float beatDuration;
-    public float songPositionInBeats;
+    public FloatVariable songPositionInBeats;
     public float dspSongTime;
-    public AudioSource audioSource;
     public GameObject note;
-    public float beatsShownInAdvance;
+    public FloatVariable beatsShownInAdvance;
+    
     public RectTransform rectTransform;
+    private AudioSource audioSource;
 
     private Note[] _noteBeats;
     private int _noteSpawnIndex;
@@ -53,15 +53,14 @@ public class Conductor : MonoBehaviour
     private bool _attemptedHit;
     public float startOffsetBeats;
 
+    public FloatVariable playerSpeed;
     private const float SPEED_STEP = 0.2f;
 
     // Start is called before the first frame update
     void Start()
     {
-        character = Instantiate(character);
-        characterMovement = character.GetComponent<CharacterRailMovement>();
 
-        rectTransform = GetComponent<RectTransform>();
+        audioSource = GetComponent<AudioSource>();
 
         loadSong();
 
@@ -72,7 +71,7 @@ public class Conductor : MonoBehaviour
 
         dspSongTime = (float)AudioSettings.dspTime;
         audioSource.Play();
-        beatsShownInAdvance = 3;
+        beatsShownInAdvance.Value = 3;
     }
 
 
@@ -82,13 +81,13 @@ public class Conductor : MonoBehaviour
 
         manageInput();
 
-        if (_noteSpawnIndex < _noteBeats.Length && _noteBeats[_noteSpawnIndex].NoteBeat < songPositionInBeats + beatsShownInAdvance)
+        if (_noteSpawnIndex < _noteBeats.Length && _noteBeats[_noteSpawnIndex].NoteBeat < songPositionInBeats.Value + beatsShownInAdvance.Value)
         {
             if (!_attemptedHit)
             {
                 //Debug.Log("Not Attempted");
                 _numConsecutiveHits = 0;
-                characterMovement.charSpeed = Mathf.Clamp(characterMovement.charSpeed - SPEED_STEP, 1f, 4f);
+                playerSpeed.Value = Mathf.Clamp(playerSpeed.Value - SPEED_STEP, 1f, 4f);
                 updateMultiplier();
             }
 
@@ -98,13 +97,13 @@ public class Conductor : MonoBehaviour
         }
 
 
-        if (_noteToHitIndex < _noteBeats.Length && _noteBeats[_noteToHitIndex].NoteBeat + 0.2f < songPositionInBeats)
+        if (_noteToHitIndex < _noteBeats.Length && _noteBeats[_noteToHitIndex].NoteBeat + 0.2f < songPositionInBeats.Value)
         {
             _noteToHitIndex += 1;
         }
 
         songPosition = (float)(AudioSettings.dspTime - dspSongTime);
-        songPositionInBeats = songPosition / beatDuration;
+        songPositionInBeats.Value = songPosition / beatDuration;
 
     }
 
@@ -169,7 +168,7 @@ public class Conductor : MonoBehaviour
 
     private float measureError()
     {
-        float distance = Mathf.Abs(_noteBeats[_noteToHitIndex].NoteBeat - songPositionInBeats);
+        float distance = Mathf.Abs(_noteBeats[_noteToHitIndex].NoteBeat - songPositionInBeats.Value);
         return distance;
     }
 
@@ -180,7 +179,7 @@ public class Conductor : MonoBehaviour
 #if DEBUG
             Debug.Log("Correct");
 #endif
-            characterMovement.charSpeed = Mathf.Clamp(characterMovement.charSpeed + SPEED_STEP, 1f, 4f);
+            playerSpeed.Value = Mathf.Clamp(playerSpeed.Value + SPEED_STEP, 1f, 4f);
             score += (BASE_HIT_POINTS * multiplier);
 
             _numConsecutiveHits += 1;
@@ -191,7 +190,7 @@ public class Conductor : MonoBehaviour
             Debug.Log("Wrong");
 #endif
             _numConsecutiveHits = 0;
-            characterMovement.charSpeed = Mathf.Clamp(characterMovement.charSpeed - SPEED_STEP, 1f, 4f);
+            playerSpeed.Value = Mathf.Clamp(playerSpeed.Value - SPEED_STEP, 1f, 4f);
             score -= BASE_HIT_POINTS;
         }
 
@@ -226,7 +225,7 @@ public class Conductor : MonoBehaviour
     {
         GameObject noteObject = Instantiate(note, new Vector3(rectTransform.rect.width + 100, 100, 0), rectTransform.rotation);
         MusicNote musicNote = noteObject.GetComponent<MusicNote>();
-        musicNote.transform.SetParent(transform);
+        musicNote.transform.SetParent(rectTransform);
         musicNote.note = noteToSpawn;
         musicNote.screenWidth = rectTransform.rect.width;
     }

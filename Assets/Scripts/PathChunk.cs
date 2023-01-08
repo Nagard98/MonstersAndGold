@@ -5,7 +5,6 @@ using UnityEngine;
 
 [RequireComponent(typeof(Terrain))]
 [RequireComponent(typeof(TerrainCollider))]
-
 public class PathChunk : MonoBehaviour
 {
     private int _chunkIndex;
