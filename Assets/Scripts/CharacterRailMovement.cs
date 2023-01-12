@@ -23,8 +23,8 @@ public class CharacterRailMovement : MonoBehaviour
         Vector3 nextPos = bezCurve.Value.MoveAlong(0);
         lastPos = nextPos;
         nextPos.y += 10f;
-        SetCharacterPosition(nextPos);
 
+        SetCharacterPosition(nextPos);
     }
 
     // Update is called once per frame

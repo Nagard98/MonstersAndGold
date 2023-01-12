@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02d80611750d26f408bef24725520f8a, type: 3}
+  m_Name: BigEnemy
+  m_EditorClassIdentifier: 
+  gameObject: {fileID: 7886442460362988094, guid: c1cae038da6237946a5ec90ff54afef6, type: 3}
+  isCollectable: 0
+  tier: 3
+  onUnloadAction: {fileID: 0}
+  atkDamage: 30

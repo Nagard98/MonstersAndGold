@@ -22,6 +22,13 @@ public class PathChunk : MonoBehaviour
     private float[,] _heightmap;
     private ChunkSplats _splatmaps;
 
+    public int Index { get { return _chunkIndex; } }
+
+    public float GetTerrainHeightAt(Vector3 position)
+    {
+        return _terrain.SampleHeight(position);
+    }
+
     void Start()
     {
         terrainData = new TerrainData();

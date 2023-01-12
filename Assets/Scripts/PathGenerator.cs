@@ -7,7 +7,9 @@ using UnityEngine.Events;
 [Serializable]
 public class PathGenerator : MonoBehaviour
 {
-    private List<PathChunk> pathChunks;
+    //private List<PathChunk> pathChunks;
+    [SerializeField]
+    private PathChunksSet pathChunks;
 
     public SplatHeights[] splatHeights;
     public Tree[] trees;
@@ -39,7 +41,7 @@ public class PathGenerator : MonoBehaviour
         pathMaxWidth = 100f;
         lastChunkIndex = 0;
         chunkSettings = new ChunkSettings(beelineLength: (float)chunkZSize, numCurves: numCurvesChunk);
-        pathChunks = new List<PathChunk>();
+        //pathChunks = new List<PathChunk>();
 
         for (int j = 0; j < concurrentChunkNumber; j++)
         {

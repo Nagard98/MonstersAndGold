@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class BezierSpline
+public class BezierSpline : ICloneable
 {
     private Vector3[] _controlPolygon;
     private int _nSamples;
     public List<float[]> _pathLUTs;
+
 
     private float _currentArcDist;
     private int _currentArcIndex;
@@ -229,4 +230,37 @@ public class BezierSpline
         return _pathLUTs[curveIndex][_pathLUTs[curveIndex].Length - 1];
     }
 
+    public Vector3 MoveLongDistance(float distance, out int chunkIndex)
+    {
+        float leftoverArcDist = 0;
+        float leftoverTotalDist = distance;
+        Vector3 destination = Vector3.zero;
+        bool reached = false;
+
+        while(!reached)
+        {
+            leftoverArcDist = GetArcLength(_currentArcIndex) - _currentArcDist;
+
+            if(leftoverArcDist > leftoverTotalDist)
+            {
+                destination = MoveAlong(leftoverTotalDist);
+                reached = true;
+            }
+            else
+            {
+                destination = MoveAlong(leftoverArcDist);
+            }
+
+            leftoverTotalDist -= leftoverArcDist;
+
+        }
+        chunkIndex = (_currentArcIndex / 10);
+
+        return destination;
+    }
+
+    public object Clone()
+    {
+        return MemberwiseClone();
+    }
 }
