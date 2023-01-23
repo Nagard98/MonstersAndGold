@@ -6,14 +6,14 @@ using UnityEngine;
 
 public class BezierSpline : ICloneable
 {
-    private Vector3[] _controlPolygon;
+    public Vector3[] _controlPolygon;
     private int _nSamples;
     public List<float[]> _pathLUTs;
 
 
     private float _currentArcDist;
     private int _currentArcIndex;
-    private float _totalDist;
+    public float _totalDist;
 
     public float _buildArcDist;
     public int _buildArcIndex;

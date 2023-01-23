@@ -7,6 +7,7 @@ public static class FastPoissonDiskSampling
 {
     public const float InvertRootTwo = 0.70710678118f; // Becaust two dimension grid.
     public const int DefaultIterationPerPoint = 30;
+    public static System.Random rpng = new System.Random();
 
     #region "Structures"
     private class Settings
@@ -58,7 +59,7 @@ public static class FastPoissonDiskSampling
 
         do
         {
-            var index = Random.Range(0, bags.ActivePoints.Count);
+            var index = rpng.Next(bags.ActivePoints.Count);
 
             var point = bags.ActivePoints[index];
 
@@ -125,8 +126,8 @@ public static class FastPoissonDiskSampling
     private static void GetFirstPoint(Settings set, Bags bags)
     {
         var first = new Vector2(
-            Random.Range(set.BottomLeft.x, set.TopRight.x),
-            Random.Range(set.BottomLeft.y, set.TopRight.y)
+            ((float)rpng.NextDouble() * (set.TopRight.x - set.BottomLeft.x)) + set.BottomLeft.x,
+            ((float)rpng.NextDouble() * (set.TopRight.y - set.BottomLeft.y)) + set.BottomLeft.y
         );
 
         var index = GetGridIndex(first, set);
@@ -169,8 +170,10 @@ public static class FastPoissonDiskSampling
 
     private static Vector2 GetRandPosInCircle(float fieldMin, float fieldMax)
     {
-        var theta = Random.Range(0f, Mathf.PI * 2f);
-        var radius = Mathf.Sqrt(Random.Range(fieldMin * fieldMin, fieldMax * fieldMax));
+        var theta = (float)rpng.NextDouble()* Mathf.PI * 2f;
+        var fieldMaxSqr = (fieldMax * fieldMax);
+        var fieldMinSqr = (fieldMin * fieldMin);
+        var radius = Mathf.Sqrt(((float)rpng.NextDouble() * (fieldMaxSqr - fieldMinSqr)) + fieldMinSqr);
 
         return new Vector2(radius * Mathf.Cos(theta), radius * Mathf.Sin(theta));
     }

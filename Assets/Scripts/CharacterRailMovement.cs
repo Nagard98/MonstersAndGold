@@ -10,8 +10,11 @@ public class CharacterRailMovement : MonoBehaviour
     private Animator animator;
     private Vector3 lastPos;
 
+    public AudioClip[] footsteps;
+    [Range(0, 1)] public float footstepVolume;
     public FloatReference speed;
     public BezierCurveVariable bezCurve;
+    public Vector3Variable playerPosition;
 
     void Start()
     {
@@ -21,6 +24,7 @@ public class CharacterRailMovement : MonoBehaviour
         lastPos = Vector3.zero;
 
         Vector3 nextPos = bezCurve.Value.MoveAlong(0);
+        playerPosition.Value = nextPos;
         lastPos = nextPos;
         nextPos.y += 10f;
 
@@ -45,6 +49,8 @@ public class CharacterRailMovement : MonoBehaviour
         characterController.Move(dir);
         characterController.transform.forward = bezCurve.Value.GetFirstDerivative();
         lastPos = nextPos;
+
+        playerPosition.Value = nextPos;
     }
 
     private void Animate()
@@ -57,6 +63,15 @@ public class CharacterRailMovement : MonoBehaviour
         characterController.enabled = false;
         characterController.transform.position = position;
         characterController.enabled = true;
+    }
+
+    private void OnFootstep(AnimationEvent animationEvent)
+    {
+        if (animationEvent.animatorClipInfo.weight > 0.5f)
+        {
+            int index = UnityEngine.Random.Range(0, footsteps.Length);
+            AudioSource.PlayClipAtPoint(footsteps[index], transform.position, footstepVolume);
+        }
     }
 
 }

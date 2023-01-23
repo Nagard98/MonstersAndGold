@@ -97,6 +97,7 @@ GameObject:
   - component: {fileID: 756394652591626175}
   - component: {fileID: 3678870564199267350}
   - component: {fileID: 6126287949742585098}
+  - component: {fileID: 6063879288613198323}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -152,6 +153,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc6f0af036d10514aaa836d424e19926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  footsteps:
+  - {fileID: 8300000, guid: 3d49bc3b9d557b64dafbf66e8b4b9354, type: 3}
+  - {fileID: 8300000, guid: 7b6f810f50437a849a46192308f078ac, type: 3}
+  - {fileID: 8300000, guid: 4748b64a92e93b74fb98396f7fb847a3, type: 3}
+  - {fileID: 8300000, guid: 42352b92d21f2174a9fc928cd28991db, type: 3}
+  - {fileID: 8300000, guid: 99cb16dddc884ab429ee9f4d5543aa8b, type: 3}
+  footstepVolume: 0.215
   speed:
     useConstant: 0
     variable: {fileID: 11400000, guid: 84678ac053dc3ff4cb28306e2e01bcf5, type: 2}
@@ -198,9 +206,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerHP: {fileID: 0}
+  FullHealth: {fileID: 0}
   playerGP: {fileID: 0}
   meanHR: {fileID: 0}
   maxHR: {fileID: 0}
+--- !u!95 &6063879288613198323
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3918777734045929577}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 270fc3d48df76f24890b15cf291dc1f8, type: 3}
+  m_Controller: {fileID: 9100000, guid: ea71296d525ac2d49a13c9953bb35079, type: 2}
+  m_CullingMode: 1
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &3918777734784070561
 GameObject:
   m_ObjectHideFlags: 0
@@ -344,7 +373,8 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: ea71296d525ac2d49a13c9953bb35079, type: 2}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5866666021909216657, guid: 270fc3d48df76f24890b15cf291dc1f8, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 270fc3d48df76f24890b15cf291dc1f8, type: 3}
 --- !u!4 &8446466050632621934 stripped
 Transform:

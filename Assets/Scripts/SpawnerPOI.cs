@@ -22,7 +22,7 @@ public class SpawnerPOI : MonoBehaviour
         }
         else
         {
-            float height = pc.GetTerrainHeightAt(spawnPosition);
+            float height = pc.GetTerrainHeightAt(spawnPosition) * EndlessPath.pathGenerator.meshHeightMultiplier;
             spawnPosition.y = height + spawnSettings.groundOffset;
 
             GameObject spawnedPOI = Instantiate(poi.gameObject, spawnPosition, Quaternion.identity);
