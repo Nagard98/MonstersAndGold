@@ -17,15 +17,18 @@ public class EndlessPath : MonoBehaviour
     private void Start()
     {
         pathGenerator = FindObjectOfType<PathGenerator>();
-        //pathChunks = new List<PathChunk>();
-
+        foreach(SplatHeight splat in pathGenerator.splatHeights)
+        {
+            pathMaterial.SetTexture("_MainTex"+splat.layerIndex, splat.texture);
+            pathMaterial.SetTextureScale("_MainTex" + splat.layerIndex, new Vector2(80, 80));
+        }
         StartCoroutine(test());
     }
 
     IEnumerator test()
     {
         yield return null;
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 2; i++)
         {
             InitNewChunk(false);
         }

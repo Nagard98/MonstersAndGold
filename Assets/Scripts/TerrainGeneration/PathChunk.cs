@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class PathChunk
@@ -10,16 +11,18 @@ public class PathChunk
     MeshFilter meshFilter;
     MeshCollider meshCollider;
 
+    private ComputeShader meshPointHeightFinder;
+    private ComputeBuffer positionBuffer;
+
     private ChunkData chunkData;
     public Bounds bounds;
 
-    private int _chunkIndex;
-
-    public int Index { get { return _chunkIndex; } }
+    public int Index { get { return chunkData.chunkIndex; } }
 
     public PathChunk(Vector2 coord, Material material, Transform parent, bool async=true)
     {
-        
+        meshPointHeightFinder = Resources.Load<ComputeShader>("PositionFinderSurface");
+
         meshObject = new GameObject("Path Chunk");
         meshRenderer = meshObject.AddComponent<MeshRenderer>();
         meshFilter = meshObject.AddComponent<MeshFilter>();
@@ -52,32 +55,92 @@ public class PathChunk
 
     private void ApplyChunkData(ChunkData chunkData)
     {
-        Texture2D splatmap = new Texture2D(PathGenerator.pathChunkSize, PathGenerator.pathChunkSize);
+        Texture2D splatmap = new Texture2D(PathGenerator.pathChunkSize, PathGenerator.pathChunkSize, TextureFormat.RGBA32, false);
+        splatmap.wrapMode = TextureWrapMode.Clamp;
         splatmap.SetPixels(chunkData.splatMapColors);
         splatmap.Apply();
+
+        Texture2D heightmap = new Texture2D(PathGenerator.pathChunkSize, PathGenerator.pathChunkSize, TextureFormat.RGBA32, false);
+        heightmap.wrapMode = TextureWrapMode.Clamp;
+        heightmap.filterMode = FilterMode.Bilinear;
+        Color[] colors = new Color[PathGenerator.pathChunkSize * PathGenerator.pathChunkSize];
+        for(int i=0;i< PathGenerator.pathChunkSize; i++)
+        {
+            for(int j=0;j< PathGenerator.pathChunkSize; j++)
+            {
+                colors[i * PathGenerator.pathChunkSize + j] = new Color((chunkData.heightMap[j,i]),0,0);
+            }
+        }
+        heightmap.SetPixels(colors);
+        heightmap.Apply();
+
+        SetupGrassInstantiator(chunkData, heightmap, splatmap);
+
         meshRenderer.material.SetTexture("_Mask", splatmap);
+        meshRenderer.material.SetTexture("_HeightMap", heightmap);
+
+        for(int i = 0; i < chunkData.chunkTrees.Length; i++)
+        {
+            Vector3[] pos = chunkData.chunkTrees[i].TreePos;
+            positionBuffer = new ComputeBuffer(pos.Length, sizeof(float) * 3);
+            positionBuffer.SetData(pos);
+
+            meshPointHeightFinder.SetBuffer(0, "_Vertices", positionBuffer);
+            meshPointHeightFinder.SetTexture(0, "_HeightMap", heightmap);
+            meshPointHeightFinder.SetFloat("_HeightMultiplier", EndlessPath.pathGenerator.meshHeightMultiplier);
+            meshPointHeightFinder.SetFloat("_Dimension", PathGenerator.pathChunkSize - 1);
+            meshPointHeightFinder.Dispatch(0, Mathf.CeilToInt(pos.Length / 64f), 1, 1);
+
+            positionBuffer.GetData(pos);
+            positionBuffer.Release();
+
+            for (int j = 0; j < pos.Length; j++)
+            {
+                GameObject tmp = GameObject.Instantiate(chunkData.chunkTrees[i].TreePrototype.prefab, pos[j], Quaternion.identity);
+                tmp.transform.parent = meshObject.transform;
+            }
+        }
+
+        
 
         for (int i = 0; i < chunkData.chunkMultiDetails.Length; i++)
         {
-            DrawMeshInstancedDemo drmi = meshObject.AddComponent<DrawMeshInstancedDemo>();
-            drmi.playerPosition = EndlessPath.pathGenerator.playerPosition;
-            drmi.matrices = chunkData.chunkMultiDetails[i].Matrix;
-            drmi.mesh = chunkData.chunkMultiDetails[i].DetailPrototype.prototype.GetComponent<MeshFilter>().sharedMesh;
-            drmi.material = chunkData.chunkMultiDetails[i].DetailPrototype.prototype.GetComponent<MeshRenderer>().sharedMaterial;
+            Vector3[] pos = chunkData.chunkMultiDetails[i].DetailPos;
+            positionBuffer = new ComputeBuffer(pos.Length, sizeof(float) * 3);
+            positionBuffer.SetData(pos);
+
+            meshPointHeightFinder.SetBuffer(0, "_Vertices", positionBuffer);
+            meshPointHeightFinder.SetTexture(0, "_HeightMap", heightmap);
+            meshPointHeightFinder.SetFloat("_HeightMultiplier", EndlessPath.pathGenerator.meshHeightMultiplier);
+            meshPointHeightFinder.SetFloat("_Dimension", PathGenerator.pathChunkSize - 1);
+            meshPointHeightFinder.Dispatch(0, Mathf.CeilToInt(pos.Length / 64f), 1, 1);
+
+            positionBuffer.GetData(pos);
+            positionBuffer.Release();
+
+            for (int j = 0; j < pos.Length; j++)
+            {
+                GameObject tmp = GameObject.Instantiate(chunkData.chunkMultiDetails[i].DetailPrototype.prototype, pos[j], Quaternion.identity);
+                tmp.transform.parent = meshObject.transform;
+            }
         }
 
-        for (int i = 0; i < chunkData.chunkTrees.Length; i++)
-        {
-            DrawMeshInstancedDemo drmi = meshObject.AddComponent<DrawMeshInstancedDemo>();
-            drmi.playerPosition = EndlessPath.pathGenerator.playerPosition;
-            drmi.matrices = chunkData.chunkTrees[i].Matrix;
-            drmi.mesh = chunkData.chunkTrees[i].TreePrototype.prefab.GetComponent<MeshFilter>().sharedMesh;
-            drmi.material = chunkData.chunkTrees[i].TreePrototype.prefab.GetComponent<MeshRenderer>().sharedMaterial;
-        }
+    }
+
+    private void SetupGrassInstantiator(ChunkData chunkData, Texture2D heightmap, Texture2D splatmap)
+    {
+        GrassInstantiator grassInstantiator = meshObject.AddComponent<GrassInstantiator>();
+        grassInstantiator.grassSettings = chunkData.grassSettings;
+        grassInstantiator.heightMap = heightmap;
+        grassInstantiator.splatMap = splatmap;
+        float zOffset = chunkData.chunkIndex * (PathGenerator.pathChunkSize - 1) + ((PathGenerator.pathChunkSize - 1) / 2f);
+        float xOffset = (PathGenerator.pathChunkSize - 1) / 2f;
+        grassInstantiator.offset = new Vector2(xOffset, zOffset);
     }
 
     private void ApplyMeshData(MeshData meshData)
     {
+        meshData.DisplaceMesh(meshRenderer.material);
         meshFilter.mesh = meshData.CreateMesh();
         meshCollider.sharedMesh = meshFilter.mesh;
         bounds = meshCollider.bounds;
@@ -111,63 +174,6 @@ public class PathChunk
         
         return tmpDetailPrototype;
     }
-
-
-    private static TreeInstance[] BuildTreeInstances(ChunkTrees chunkTrees, float[,,] splatmaps, int heightmapRes)
-    {
-        List<TreeInstance> tmpTreeInstances = new List<TreeInstance>();
-
-        for (int i = 0; i < chunkTrees.Count; i++)
-        {
-            float x = MathUtils.Remap(chunkTrees.TreesPos[i].x, 0, heightmapRes, 0f, 1f);
-            float z = MathUtils.Remap(chunkTrees.TreesPos[i].y, 0, heightmapRes, 0f, 1f);
-            if (splatmaps[(int)chunkTrees.TreesPos[i].x, (int)chunkTrees.TreesPos[i].y, chunkTrees.TreeLayer[i]] == 1)
-            {
-                TreeInstance tmpTreeInstance = new TreeInstance();
-                tmpTreeInstance.prototypeIndex = chunkTrees.TreesIndex[i];
-                tmpTreeInstance.position = new Vector3(x: z, z: x, y: 0f);
-                tmpTreeInstance.widthScale = 1;
-                tmpTreeInstance.heightScale = 1;
-                tmpTreeInstances.Add(tmpTreeInstance);
-            }
-        }
-
-        return tmpTreeInstances.ToArray();
-    }
-
-}
-
-public struct ChunkTree
-{
-    public ChunkTree(TreePrototype treePrototype, Vector3[] treePos, int treeLayer, Matrix4x4[][] matrix)
-    {
-        TreePrototype = treePrototype;
-        TreePos = treePos;
-        TreeLayer = treeLayer;
-        Matrix = matrix;
-    }
-
-    public TreePrototype TreePrototype { get; }
-    public Vector3[] TreePos { get; }
-    public int TreeLayer { get; }
-    public Matrix4x4[][] Matrix { get; }
-
-}
-
-public struct ChunkDetails
-{
-    public ChunkDetails(DetailPrototype detailPrototype, Vector3[] detailPos, int detailLayer, Matrix4x4[][] matrix)
-    {
-        DetailPrototype = detailPrototype;
-        DetailPos = detailPos;
-        DetailLayer = detailLayer;
-        Matrix = matrix;
-    }
-
-    public DetailPrototype DetailPrototype{ get; }
-    public Vector3[] DetailPos { get; }
-    public int DetailLayer { get; }
-    public Matrix4x4[][] Matrix { get; }
 
 }
 

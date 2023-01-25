@@ -15,6 +15,7 @@ public class PathGenerator : MonoBehaviour
     public SplatHeight[] splatHeights;
     public Tree[] trees;
     public Detail[] details;
+    public Grass grass;
 
     public const int pathChunkSize = 241;
     [Range(0, 6)] public int levelOfDetail;
@@ -29,29 +30,49 @@ public class PathGenerator : MonoBehaviour
 
     public int seed;
     public Vector2 offset;
-    private int index;
+    private int chunkIndex;
     public BezierCurveVariable bezCurve;
-    //public BezierSpline spline;
 
     private static System.Random rpng;
 
     public bool autoupdate;
 
-    Queue<MapThreadInfo<ChunkData>> chunkDataThreadInfoQueue = new Queue<MapThreadInfo<ChunkData>>();
-    Queue<MapThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<MapThreadInfo<MeshData>>();
+    private Queue<MapThreadInfo<ChunkData>> chunkDataThreadInfoQueue = new Queue<MapThreadInfo<ChunkData>>();
+    private Queue<MapThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<MapThreadInfo<MeshData>>();
 
     private void Start()
     {
-        index = 0;
+        chunkIndex = 0;
         rpng = new System.Random();
     }
 
-    public int Index { get { return index; } set { index = value; } }
+    private void Update()
+    {
+        if (chunkDataThreadInfoQueue.Count > 0)
+        {
+            for (int i = 0; i < chunkDataThreadInfoQueue.Count; i++)
+            {
+                MapThreadInfo<ChunkData> threadInfo = chunkDataThreadInfoQueue.Dequeue();
+                threadInfo.callback(threadInfo.parameter);
+            }
+        }
 
+        if (meshDataThreadInfoQueue.Count > 0)
+        {
+            for (int i = 0; i < meshDataThreadInfoQueue.Count; i++)
+            {
+                MapThreadInfo<MeshData> threadInfo = meshDataThreadInfoQueue.Dequeue();
+                threadInfo.callback(threadInfo.parameter);
+            }
+        }
+    }
+
+
+    public int Index { get { return chunkIndex; } set { chunkIndex = value; } }
 
     public void DrawChunkInEditor()
     {
-        index = 0;
+        chunkIndex = 0;
         ChunkData chunkData = GenerateChunkData();
 
         ChunkDisplay display = FindObjectOfType<ChunkDisplay>();
@@ -65,6 +86,11 @@ public class PathGenerator : MonoBehaviour
         }
     }
 
+    public ChunkData RequestChunkDataSync()
+    {
+        return GenerateChunkData();
+    }
+
     public void RequestChunkData(Action<ChunkData> callback)
     {
         ThreadStart threadStart = delegate
@@ -73,11 +99,6 @@ public class PathGenerator : MonoBehaviour
         };
 
         new Thread(threadStart).Start();
-    }
-
-    public ChunkData RequestChunkDataSync()
-    {
-        return GenerateChunkData();
     }
 
     private void ChunkDataThread(Action<ChunkData> callback)
@@ -89,6 +110,12 @@ public class PathGenerator : MonoBehaviour
         }
     }
 
+    public MeshData RequestMeshDataSync(ChunkData chunkData)
+    {
+        return MeshGenerator.GenerateFlatMesh(pathChunkSize, levelOfDetail);
+        //return MeshGenerator.GenerateTerrainMesh(chunkData.heightMap, meshHeightMultiplier, levelOfDetail);
+    }
+
     public void RequestMeshData(Action<MeshData> callback, ChunkData chunkData)
     {
         ThreadStart threadStart = delegate
@@ -97,11 +124,6 @@ public class PathGenerator : MonoBehaviour
         };
 
         new Thread(threadStart).Start();
-    }
-
-    public MeshData RequestMeshDataSync(ChunkData chunkData)
-    {
-        return MeshGenerator.GenerateTerrainMesh(chunkData.heightMap, meshHeightMultiplier, levelOfDetail);
     }
 
     private void MeshDataThread(Action<MeshData> callback, ChunkData chunkData)
@@ -115,27 +137,51 @@ public class PathGenerator : MonoBehaviour
 
     private ChunkData GenerateChunkData()
     {
-        int numCurvesChunk = 5;
-        Vector3[] curveControlPoints = OldPathGenerator.GenerateWaypoints(pathChunkSize - 1, numCurvesChunk, index, pathChunkSize - 1, pathChunkSize -1, 100);
-        if (index == 0) { bezCurve.Value = new BezierSpline(curveControlPoints, nSamples: 10); }
-        else { bezCurve.Value.AddPathWaypoints(curveControlPoints, index, numCurvesChunk); }
+        int numCurvesChunk = 2;
+        Vector3[] curveControlPoints = GenerateWaypoints(pathChunkSize - 1, numCurvesChunk, chunkIndex, pathChunkSize - 1, pathChunkSize -1, 50);
+        if (chunkIndex == 0) { bezCurve.Value = new BezierSpline(curveControlPoints, nSamples: 10); }
+        else { bezCurve.Value.AddPathWaypoints(curveControlPoints, chunkIndex, numCurvesChunk); }
         
-        SplineDisplacementInfo splineDisplacementInfo = new SplineDisplacementInfo(bezCurve.Value, index, numCurvesChunk);
+        SplineDisplacementInfo splineDisplacementInfo = new SplineDisplacementInfo(bezCurve.Value, chunkIndex, numCurvesChunk);
 
         float[,] uncurvedNoiseMap = new float[PathGenerator.pathChunkSize, PathGenerator.pathChunkSize];
         float[,] noiseMap = Noise.GenerateNoiseMap(pathChunkSize, pathChunkSize, noiseScale, lacunarity, persistance, octaves, offset, normalizeMode, splineDisplacementInfo, ref uncurvedNoiseMap, heightCurve, seed);
         
         //Use uncurved noise map because in that case the entire path is at the same height
         float[,,] splatMaps = SplatMap.GenerateSplatMap(PathGenerator.pathChunkSize, splatHeights, uncurvedNoiseMap);
-        ChunkTree[] chunkTrees = PathGenerator.BuildChunkTrees(trees, pathChunkSize, index, noiseMap, splatMaps);
-        ChunkDetails[] chunkMultiDetails = PathGenerator.BuildChunkDetail(details, pathChunkSize, index, noiseMap, splatMaps);
+        ChunkTree[] chunkTrees = PathGenerator.BuildChunkTrees(trees, pathChunkSize, chunkIndex, noiseMap, splatMaps);
+        ChunkDetails[] chunkMultiDetails = PathGenerator.BuildChunkDetail(details, pathChunkSize, chunkIndex, noiseMap, splatMaps);
 
         Color[] splatmapColors = SplatMap.ConvertToColors(splatMaps, PathGenerator.pathChunkSize, splatHeights);
 
-        index += 1;
-        return new ChunkData(noiseMap, splatMaps, splatmapColors, chunkTrees, chunkMultiDetails);
-        
+        ChunkData chunkData = new ChunkData(noiseMap, splatMaps, splatmapColors, chunkTrees, chunkMultiDetails, grass, chunkIndex);
+        chunkIndex += 1;
+
+        return chunkData;
     }
+
+    public static Vector3[] GenerateWaypoints(float beelineLength, int numCurves, int lastChunkIndex, int chunkZSize, int chunkXSize, float pathMaxWidth)
+    {
+        float step = (beelineLength / (float)numCurves) / 2f;
+        Vector3[] waypoints = new Vector3[numCurves * 3];
+
+        for (int i = 0, c = 0, d = 0; i < waypoints.Length; i++, c++, d++)
+        {
+            if (c == 3)
+            {
+                c = 0;
+                d -= 1;
+            }
+
+            float horOffset = Mathf.PerlinNoise(.01f, (lastChunkIndex * chunkZSize) * .008f + step * d * .008f);
+            float scaledOffset = MathUtils.Remap(horOffset, 0f, 1f, 0f, (float)(pathMaxWidth));
+
+            waypoints[i] = new Vector3(x: scaledOffset + (((chunkXSize) - (pathMaxWidth)) / 2), y: 1, z: (lastChunkIndex * (chunkZSize)) + d * step);
+
+        }
+        return waypoints;
+    }
+
 
     private static ChunkDetails[] BuildChunkDetail(Detail[] sceneDetailTypes, int chunkResolution, int chunkIndex, float[,] heightmap, float[,,] splatMaps)
     {
@@ -145,14 +191,9 @@ public class PathGenerator : MonoBehaviour
             List<Vector2> detailsPos = FastPoissonDiskSampling.Sampling(Vector2.zero, new Vector2(x: chunkResolution, y: chunkResolution), minimumDistance: sceneDetailTypes[i].minDistance);
             detailsPos.Sort((a,b)=>a.y.CompareTo(b.y));
             DetailPrototype detailProto = PathChunk.BuildDetailProto(sceneDetailTypes[i]);
-            int batches = (int)Math.Ceiling(detailsPos.Count / 1023f);
-            Matrix4x4[][] matrixBatches = new Matrix4x4[batches][];
-            for(int j = 0; j < batches; j++)
-            {
-                matrixBatches[j] = new Matrix4x4[1023];
-            }
+
             Vector3[] detailAdjPos = new Vector3[detailsPos.Count];
-            for(int j = 0, batch=0; j < detailsPos.Count; j++) 
+            for(int j = 0; j < detailsPos.Count; j++) 
             {
                 int x = (int)(detailsPos[j].x);
                 int y = (int)(detailsPos[j].y);
@@ -165,13 +206,10 @@ public class PathGenerator : MonoBehaviour
                         elevation * EndlessPath.pathGenerator.meshHeightMultiplier,
                         chunkIndex * chunkResolution + y
                         );
-                    matrixBatches[batch][j % 1023] = DrawMeshInstancedDemo.SetupMatrix(detailAdjPos[j]);
-                    if ((j + 1) % 1023 == 0) batch += 1;
                 }
-
             }
 
-            ChunkDetails chunkDetails = new ChunkDetails(detailProto, detailAdjPos, sceneDetailTypes[i].layerIndex, matrixBatches);
+            ChunkDetails chunkDetails = new ChunkDetails(detailProto, detailAdjPos, sceneDetailTypes[i].layerIndex);
             chunkMultiDetails[i] = chunkDetails;
         }
         
@@ -188,15 +226,8 @@ public class PathGenerator : MonoBehaviour
             TreePrototype tmpTreeProto = new TreePrototype();
             tmpTreeProto.prefab = sceneTreeTypes[i].treeObject;
 
-            int batches = (int)Math.Ceiling(treesPos.Count / 1023f);
-            Matrix4x4[][] matrixBatches = new Matrix4x4[batches][];
-            for (int j = 0; j < batches; j++)
-            {
-                matrixBatches[j] = new Matrix4x4[1023];
-            }
-
             Vector3[] treeAdjPos = new Vector3[treesPos.Count];
-            for (int j = 0, batch = 0; j < treesPos.Count; j++)
+            for (int j = 0; j < treesPos.Count; j++)
             {
                 int x = (int)(treesPos[j].x);
                 int y = (int)(treesPos[j].y);
@@ -209,14 +240,11 @@ public class PathGenerator : MonoBehaviour
                         elevation * EndlessPath.pathGenerator.meshHeightMultiplier,
                         chunkIndex * chunkResolution + y
                         );
-                    matrixBatches[batch][j % 1023] = DrawMeshInstancedDemo.SetupMatrix(treeAdjPos[j]);
-                    if ((j + 1) % 1023 == 0) batch += 1;
                 }
 
             }
-            chunkTrees[i] = new ChunkTree(tmpTreeProto, treeAdjPos, sceneTreeTypes[i].layerIndex, matrixBatches);
+            chunkTrees[i] = new ChunkTree(tmpTreeProto, treeAdjPos, sceneTreeTypes[i].layerIndex);
         }
-        
 
         return chunkTrees;
     }
@@ -239,44 +267,4 @@ public class PathGenerator : MonoBehaviour
             this.parameter = parameter;
         }
     }
-
-    void Update()
-    {
-        if (chunkDataThreadInfoQueue.Count > 0)
-        {
-            for(int i=0; i<chunkDataThreadInfoQueue.Count; i++)
-            {
-                MapThreadInfo<ChunkData> threadInfo = chunkDataThreadInfoQueue.Dequeue();
-                threadInfo.callback(threadInfo.parameter);
-            }
-        }
-
-        if (meshDataThreadInfoQueue.Count > 0)
-        {
-            for (int i = 0; i < meshDataThreadInfoQueue.Count; i++)
-            {
-                MapThreadInfo<MeshData> threadInfo = meshDataThreadInfoQueue.Dequeue();
-                threadInfo.callback(threadInfo.parameter);
-            }
-        }
-    }
-}
-
-public struct ChunkData
-{
-    public float[,] heightMap;
-    public float[,,] splatMaps;
-    public Color[] splatMapColors;
-    public ChunkTree[] chunkTrees;
-    public ChunkDetails[] chunkMultiDetails;
-
-    public ChunkData(float[,] heightMap, float[,,] splatMaps, Color[] splatMapColors, ChunkTree[] chunkTrees, ChunkDetails[] chunkMultiDetails)
-    {
-        this.splatMapColors = splatMapColors;
-        this.heightMap = heightMap;
-        this.splatMaps = splatMaps;
-        this.chunkTrees = chunkTrees;
-        this.chunkMultiDetails = chunkMultiDetails;
-    }
-
 }

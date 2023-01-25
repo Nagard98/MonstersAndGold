@@ -16,7 +16,8 @@ public class TriggerSpawn : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        SendMessageUpwards("InitNewChunk",true);
+
+        SendMessageUpwards("InitNewChunk", true);
     }
 
 }
