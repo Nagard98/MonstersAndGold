@@ -16,7 +16,7 @@ public class CharacterRailMovement : MonoBehaviour
     public BezierCurveVariable bezCurve;
     public Vector3Variable playerPosition;
 
-    void Start()
+    private void OnEnable()
     {
         characterController = GetComponent<CharacterController>();
         animator = GetComponentInChildren<Animator>();
@@ -30,6 +30,7 @@ public class CharacterRailMovement : MonoBehaviour
 
         SetCharacterPosition(nextPos);
     }
+
 
     // Update is called once per frame
     void Update()

@@ -8,4 +8,9 @@ public class BezierCurveVariable : ScriptableObject
 
     public BezierSpline Value;
 
+    public void Destroy()
+    {
+        Value = null;
+    }
+
 }

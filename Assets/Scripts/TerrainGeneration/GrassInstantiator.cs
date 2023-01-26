@@ -11,6 +11,7 @@ public class GrassInstantiator : MonoBehaviour
     public Vector2 offset;
     public Texture heightMap, splatMap;
 
+    public Vector3Variable playerPosition;
     private Bounds bounds;
     public bool updateGrass;
 
@@ -33,6 +34,34 @@ public class GrassInstantiator : MonoBehaviour
         argsBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
 
         updateGrassBuffer();
+    }
+
+    void Update()
+    {
+        //grassMaterial.SetBuffer("positionBuffer", grassDataBuffer);
+        //grassMaterial.SetFloat("_Rotation", 0.0f);
+        //grassMaterial.SetFloat("_DisplacementStrength", grassSettings.displacementStrength);
+        /*grassMaterial2 = new Material(grassMaterial);
+        grassMaterial2.SetBuffer("positionBuffer", grassDataBuffer);
+        grassMaterial2.SetFloat("_Rotation", 50.0f);
+        grassMaterial2.SetFloat("_DisplacementStrength", grassSettings.displacementStrength);
+        grassMaterial3 = new Material(grassMaterial);
+        grassMaterial3.SetBuffer("positionBuffer", grassDataBuffer);
+        grassMaterial3.SetFloat("_Rotation", -50.0f);
+        grassMaterial3.SetFloat("_DisplacementStrength", grassSettings.displacementStrength);*/
+
+        if (offset.y - playerPosition.Value.z < 300f)
+        {
+            Graphics.DrawMeshInstancedIndirect(grassSettings.grassMesh, 0, grassMaterial, bounds, argsBuffer);
+            //Graphics.DrawMeshInstancedIndirect(grassSettings.grassMesh, 0, grassMaterial2, bounds, argsBuffer);
+            Graphics.DrawMeshInstancedIndirect(grassSettings.grassMesh, 0, grassMaterial3, bounds, argsBuffer);
+        }
+
+        if (updateGrass)
+        {
+            updateGrassBuffer();
+            updateGrass = false;
+        }
     }
 
     void updateGrassBuffer()
@@ -68,29 +97,7 @@ public class GrassInstantiator : MonoBehaviour
         grassMaterial3.SetFloat("_DisplacementStrength", grassSettings.displacementStrength);
     }
 
-    void Update()
-    {
-        grassMaterial.SetBuffer("positionBuffer", grassDataBuffer);
-        grassMaterial.SetFloat("_Rotation", 0.0f);
-        grassMaterial.SetFloat("_DisplacementStrength", grassSettings.displacementStrength);
-        grassMaterial2 = new Material(grassMaterial);
-        grassMaterial2.SetBuffer("positionBuffer", grassDataBuffer);
-        grassMaterial2.SetFloat("_Rotation", 50.0f);
-        grassMaterial2.SetFloat("_DisplacementStrength", grassSettings.displacementStrength);
-        grassMaterial3 = new Material(grassMaterial);
-        grassMaterial3.SetBuffer("positionBuffer", grassDataBuffer);
-        grassMaterial3.SetFloat("_Rotation", -50.0f);
-        grassMaterial3.SetFloat("_DisplacementStrength", grassSettings.displacementStrength);
-        Graphics.DrawMeshInstancedIndirect(grassSettings.grassMesh, 0, grassMaterial, bounds, argsBuffer);
-        Graphics.DrawMeshInstancedIndirect(grassSettings.grassMesh, 0, grassMaterial2, bounds, argsBuffer);
-        Graphics.DrawMeshInstancedIndirect(grassSettings.grassMesh, 0, grassMaterial3, bounds, argsBuffer);
 
-        if (updateGrass)
-        {
-            updateGrassBuffer();
-            updateGrass = false;
-        }
-    }
 
     void OnDisable()
     {

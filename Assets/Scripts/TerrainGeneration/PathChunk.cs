@@ -16,10 +16,11 @@ public class PathChunk
 
     private ChunkData chunkData;
     public Bounds bounds;
+    private Vector3Variable playerPosition;
 
     public int Index { get { return chunkData.chunkIndex; } }
 
-    public PathChunk(Vector2 coord, Material material, Transform parent, bool async=true)
+    public PathChunk(Vector2 coord, Material material, Transform parent, Vector3Variable playerPosition, bool async=true)
     {
         meshPointHeightFinder = Resources.Load<ComputeShader>("PositionFinderSurface");
 
@@ -32,6 +33,8 @@ public class PathChunk
         meshRenderer.material = material;
         meshObject.transform.position = new Vector3(coord.x, 0, coord.y);
         meshObject.transform.parent = parent;
+
+        this.playerPosition = playerPosition;
 
         if (async) EndlessPath.pathGenerator.RequestChunkData(onChunkDataReceived);
         else BuildChunkSync();
@@ -74,7 +77,7 @@ public class PathChunk
         heightmap.SetPixels(colors);
         heightmap.Apply();
 
-        SetupGrassInstantiator(chunkData, heightmap, splatmap);
+        SetupGrassInstantiator(chunkData, heightmap, splatmap, playerPosition);
 
         meshRenderer.material.SetTexture("_Mask", splatmap);
         meshRenderer.material.SetTexture("_HeightMap", heightmap);
@@ -127,12 +130,14 @@ public class PathChunk
 
     }
 
-    private void SetupGrassInstantiator(ChunkData chunkData, Texture2D heightmap, Texture2D splatmap)
+    private void SetupGrassInstantiator(ChunkData chunkData, Texture2D heightmap, Texture2D splatmap, Vector3Variable playerPosition)
     {
         GrassInstantiator grassInstantiator = meshObject.AddComponent<GrassInstantiator>();
         grassInstantiator.grassSettings = chunkData.grassSettings;
         grassInstantiator.heightMap = heightmap;
         grassInstantiator.splatMap = splatmap;
+        grassInstantiator.playerPosition = playerPosition;
+
         float zOffset = chunkData.chunkIndex * (PathGenerator.pathChunkSize - 1) + ((PathGenerator.pathChunkSize - 1) / 2f);
         float xOffset = (PathGenerator.pathChunkSize - 1) / 2f;
         grassInstantiator.offset = new Vector2(xOffset, zOffset);
@@ -173,6 +178,11 @@ public class PathChunk
         tmpDetailPrototype = tmpDetail;
         
         return tmpDetailPrototype;
+    }
+
+    public void Destroy()
+    {
+        GameObject.Destroy(meshObject);
     }
 
 }

@@ -8,18 +8,18 @@ using UnityEngine.Events;
 public class EndlessPath : MonoBehaviour
 {
     public static PathGenerator pathGenerator;
-    //List<PathChunk> pathChunks;
     [SerializeField]
     private PathChunksSet pathChunks;
+    public Vector3Variable playerPosition;
     public Material pathMaterial;
     public UnityEvent GeneratedPath;
 
-    private void Start()
+    public void Start()
     {
         pathGenerator = FindObjectOfType<PathGenerator>();
-        foreach(SplatHeight splat in pathGenerator.splatHeights)
+        foreach (SplatHeight splat in pathGenerator.splatHeights)
         {
-            pathMaterial.SetTexture("_MainTex"+splat.layerIndex, splat.texture);
+            pathMaterial.SetTexture("_MainTex" + splat.layerIndex, splat.texture);
             pathMaterial.SetTextureScale("_MainTex" + splat.layerIndex, new Vector2(80, 80));
         }
         StartCoroutine(test());
@@ -27,30 +27,33 @@ public class EndlessPath : MonoBehaviour
 
     IEnumerator test()
     {
-        yield return null;
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 10; i++)
         {
+            yield return null;
             InitNewChunk(false);
         }
         GeneratedPath.Invoke();
-        /*int i = 0;
-        while (true)
-        {
-            pathGenerator.offset = new Vector2(0, i * (PathGenerator.pathChunkSize - 1));
-            pathChunks.Add(new PathChunk(pathGenerator.offset, pathMaterial, transform));
-            i++;
-            yield return new WaitForSeconds(8);
-        }*/
-
     }
 
     public void InitNewChunk(bool async=true)
     {
         pathGenerator.offset = new Vector2(0, pathGenerator.Index * (PathGenerator.pathChunkSize - 1));
-        pathChunks.Add(new PathChunk(pathGenerator.offset, pathMaterial, transform, async));
+        pathChunks.Add(new PathChunk(pathGenerator.offset, pathMaterial, transform, playerPosition, async));
     }
 
+    public void OnDisable()
+    {
+        pathChunks.Destroy();
+    }
     
+    public void OnEnable()
+    {
+        if (pathGenerator != null)
+        {
+            StartCoroutine(test());
+        }
+    }
+
 }
 
 

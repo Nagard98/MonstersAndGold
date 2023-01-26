@@ -6,8 +6,6 @@ using System;
 
 public class PathGenerator : MonoBehaviour
 {
-
-    public Vector3Variable playerPosition;
     public enum DrawMode { NoiseMap, ColourMap, Mesh };
     public DrawMode drawMode;
     public Noise.NormalizeMode normalizeMode;
@@ -23,27 +21,39 @@ public class PathGenerator : MonoBehaviour
     public AnimationCurve heightCurve;
 
     public float noiseScale;
-
     public int octaves;
     [Range(0, 1)] public float persistance;
     public float lacunarity;
 
     public int seed;
     public Vector2 offset;
+
     private int chunkIndex;
     public BezierCurveVariable bezCurve;
-
+    
     private static System.Random rpng;
 
     public bool autoupdate;
 
-    private Queue<MapThreadInfo<ChunkData>> chunkDataThreadInfoQueue = new Queue<MapThreadInfo<ChunkData>>();
-    private Queue<MapThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<MapThreadInfo<MeshData>>();
+    private Queue<MapThreadInfo<ChunkData>> chunkDataThreadInfoQueue;
+    private Queue<MapThreadInfo<MeshData>> meshDataThreadInfoQueue;
 
-    private void Start()
+    public void OnEnable()
+    {
+        StartUp();
+    }
+
+    public void StartUp()
     {
         chunkIndex = 0;
         rpng = new System.Random();
+        chunkDataThreadInfoQueue = new Queue<MapThreadInfo<ChunkData>>();
+        meshDataThreadInfoQueue = new Queue<MapThreadInfo<MeshData>>();
+    }
+
+    public void CleanUp()
+    {
+        bezCurve.Destroy();
     }
 
     private void Update()

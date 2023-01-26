@@ -31,7 +31,14 @@ public class PathChunksSet : RuntimeSet<PathChunk>
         return _tmp;
     }
 
+    public void Destroy()
+    {
+        foreach (PathChunk chunk in this.Items)
+        {
+            chunk.Destroy();
+        }
 
+    }
 }
 
 

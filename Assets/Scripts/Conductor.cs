@@ -69,7 +69,7 @@ public class Conductor : MonoBehaviour
         _attemptedHit = false;
         _numConsecutiveHits = 0;
 
-        dspSongTime = (float)AudioSettings.dspTime;
+        dspSongTime = (float)UnityEngine.AudioSettings.dspTime;
         audioSource.Play();
         beatsShownInAdvance.Value = 3;
     }
@@ -102,7 +102,7 @@ public class Conductor : MonoBehaviour
             _noteToHitIndex += 1;
         }
 
-        songPosition = (float)(AudioSettings.dspTime - dspSongTime);
+        songPosition = (float)(UnityEngine.AudioSettings.dspTime - dspSongTime);
         songPositionInBeats.Value = songPosition / beatDuration;
 
     }
