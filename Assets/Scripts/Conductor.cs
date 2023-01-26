@@ -2,10 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
 enum NoteType
 {
-    None,
     Up,
     Down,
     Left,
@@ -56,6 +57,8 @@ public class Conductor : MonoBehaviour
     public FloatVariable playerSpeed;
     private const float SPEED_STEP = 0.2f;
 
+    public UnityEvent MenuOpen;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -78,9 +81,6 @@ public class Conductor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        manageInput();
-
         if (_noteSpawnIndex < _noteBeats.Length && _noteBeats[_noteSpawnIndex].NoteBeat < songPositionInBeats.Value + beatsShownInAdvance.Value)
         {
             if (!_attemptedHit)
@@ -124,7 +124,7 @@ public class Conductor : MonoBehaviour
 
         for (int i = 0; i < numBeats; i++)
         {
-            int _tmpNoteType = UnityEngine.Random.Range(1, 5);
+            int _tmpNoteType = UnityEngine.Random.Range(0, 4);
             _tmpBeats[i] = new((float)i, _tmpNoteType);
         }
 
@@ -132,36 +132,17 @@ public class Conductor : MonoBehaviour
     }
 
 
-    private void manageInput()
+    private void manageInput(NoteType noteType)
     {
-        NoteType _tmpInputNoteType = NoteType.None;
-
-        if (Input.GetButtonDown("Up"))
-        {
-            _tmpInputNoteType = NoteType.Up;
-        }
-        if (Input.GetButtonDown("Left"))
-        {
-            _tmpInputNoteType = NoteType.Left;
-        }
-        if (Input.GetButtonDown("Right"))
-        {
-            _tmpInputNoteType = NoteType.Right;
-        }
-        if (Input.GetButtonDown("Down"))
-        {
-            _tmpInputNoteType = NoteType.Down;
-        }
-
-        if (_tmpInputNoteType != NoteType.None && _attemptedHit == false)
+        if (_attemptedHit == false)
         {
 #if DEBUG
-            Debug.Log(_tmpInputNoteType.ToString());
+            Debug.Log(noteType.ToString());
 #endif
             _attemptedHit = true;
             if (_noteToHitIndex < _noteBeats.Length)
             { 
-                updateScore(_noteBeats[_noteToHitIndex].NoteType, _tmpInputNoteType);
+                updateScore(_noteBeats[_noteToHitIndex].NoteType, noteType);
             }
         }
     }
@@ -223,10 +204,51 @@ public class Conductor : MonoBehaviour
 
     private void spawnNote(Note noteToSpawn)
     {
-        GameObject noteObject = Instantiate(note, new Vector3(rectTransform.rect.width + 100, 100, 0), rectTransform.rotation);
+        GameObject noteObject = Instantiate(note, rectTransform);
         MusicNote musicNote = noteObject.GetComponent<MusicNote>();
-        musicNote.transform.SetParent(rectTransform);
         musicNote.note = noteToSpawn;
         musicNote.screenWidth = rectTransform.rect.width;
+    }
+
+    private void OnMenu(InputValue input)
+    {
+        if (input.isPressed)
+        {
+            //LockCamera();
+            Debug.Log(input.isPressed);
+            MenuOpen.Invoke();
+        }
+    }
+
+    private void OnDown(InputValue input)
+    {
+        if (input.isPressed)
+        {
+            manageInput(NoteType.Down);
+        }
+    }
+
+    private void OnUp(InputValue input)
+    {
+        if (input.isPressed)
+        {
+            manageInput(NoteType.Up);
+        }
+    }
+
+    private void OnLeft(InputValue input)
+    {
+        if (input.isPressed)
+        {
+            manageInput(NoteType.Left);
+        }
+    }
+
+    private void OnRight(InputValue input)
+    {
+        if (input.isPressed)
+        {
+            manageInput(NoteType.Right);
+        }
     }
 }

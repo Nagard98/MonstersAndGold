@@ -16,6 +16,8 @@ public class MusicNote : MonoBehaviour
     public FloatVariable beatsShownInAdvance;
     public FloatVariable songPositionInBeats;
 
+    private RectTransform noteTransform;
+
     public Texture upArrowTexture, downArrowTexture, leftArrowTexture, rightArrowTexture;
     private RawImage _rawImage;
     
@@ -26,9 +28,10 @@ public class MusicNote : MonoBehaviour
     {
         _rawImage = GetComponent<RawImage>();
         loadNoteTexture((NoteType)note.NoteType);
-        _spawnPosition = transform.position;
-        _hitPosition = new Vector3((screenWidth/2), transform.position.y, 0);
-        _removePosition = new Vector3(-100, transform.position.y, 0);
+        noteTransform = (RectTransform) gameObject.transform;
+        _spawnPosition = noteTransform.localPosition;
+        _hitPosition = new Vector3(-(screenWidth/2), noteTransform.localPosition.y, 0);
+        _removePosition = new Vector3(-screenWidth-100, noteTransform.localPosition.y, 0);
 
         reachedHitPos = false;
     }
@@ -58,7 +61,7 @@ public class MusicNote : MonoBehaviour
     void Update()
     {
 
-        if (transform.position == _hitPosition)
+        if (noteTransform.localPosition == _hitPosition)
         {
             reachedHitPos = true;
         }
@@ -67,14 +70,14 @@ public class MusicNote : MonoBehaviour
         {
             tval = (beatsShownInAdvance.Value - (note.NoteBeat + beatsShownInAdvance.Value - songPositionInBeats.Value)) / beatsShownInAdvance.Value;
             interpolationPos = Vector3.Lerp(_hitPosition, _removePosition, tval);
-            if(transform.position == _removePosition)
+            if(noteTransform.localPosition == _removePosition)
             {
                 Destroy(transform.gameObject);
             }
         }
         else
         {
-            if (transform.position == _hitPosition)
+            if (noteTransform.localPosition == _hitPosition)
             {
                 reachedHitPos = true;
             }
@@ -82,7 +85,7 @@ public class MusicNote : MonoBehaviour
             interpolationPos =  Vector3.Lerp(_spawnPosition, _hitPosition, tval);
         }
 
-        transform.position = interpolationPos;
+        noteTransform.localPosition = interpolationPos;
 
     }
 }
