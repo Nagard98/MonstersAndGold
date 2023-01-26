@@ -24,11 +24,19 @@ public class CharacterRailMovement : MonoBehaviour
         lastPos = Vector3.zero;
 
         Vector3 nextPos = bezCurve.Value.MoveAlong(0);
-        playerPosition.Value = nextPos;
         lastPos = nextPos;
         nextPos.y += 10f;
 
-        SetCharacterPosition(nextPos);
+        playerPosition.Value = GetGroundPosition(nextPos);
+        SetCharacterPosition(playerPosition.Value);
+    }
+
+    private Vector3 GetGroundPosition(Vector3 nextPos)
+    {
+        Ray ray = new Ray(nextPos, Vector3.down);
+        RaycastHit raycastHit;
+        Physics.Raycast(ray, out raycastHit);
+        return raycastHit.point;
     }
 
 
