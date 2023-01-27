@@ -69,7 +69,7 @@ public class BezierSpline : ICloneable
         arcLengths[0] = 0f;
         for (int j = 1; j <= nSamples; j++)
         {
-            _tmp += Vector3.Distance(GetPosition(t: tStep * (j), arcIndex: curveStartIndex), GetPosition(t: tStep * (j - 1), arcIndex: curveStartIndex));
+            _tmp += Vector3.Distance(GetPosition(t: tStep * (j), firstPoint: curveStartIndex), GetPosition(t: tStep * (j - 1), firstPoint: curveStartIndex));
             arcLengths[j] = _tmp;
         }
 
@@ -139,11 +139,11 @@ public class BezierSpline : ICloneable
 
     //-------------------------------------------------------------------------------------------
 
-    public Vector3 GetPosition(float t, int arcIndex)
+    public Vector3 GetPosition(float t, int firstPoint)
     {
-        return _controlPolygon[arcIndex] * Mathf.Pow((1 - t), 2) +
-               _controlPolygon[arcIndex + 1] * 2 * t * (1 - t) +
-               _controlPolygon[arcIndex + 2] * Mathf.Pow(t, 2);
+        return _controlPolygon[firstPoint] * Mathf.Pow((1 - t), 2) +
+               _controlPolygon[firstPoint + 1] * 2 * t * (1 - t) +
+               _controlPolygon[firstPoint + 2] * Mathf.Pow(t, 2);
     }
 
     public Vector3 GetFirstDerivative(float t, int firstPoint = 0)
@@ -230,7 +230,7 @@ public class BezierSpline : ICloneable
         return _pathLUTs[curveIndex][_pathLUTs[curveIndex].Length - 1];
     }
 
-    public Vector3 MoveLongDistance(float distance, out int chunkIndex)
+    public Vector3 MoveLongDistance(float distance, out Vector3 orthoVector)
     {
         float leftoverArcDist = 0;
         float leftoverTotalDist = distance;
@@ -254,7 +254,9 @@ public class BezierSpline : ICloneable
             leftoverTotalDist -= leftoverArcDist;
 
         }
-        chunkIndex = (_currentArcIndex / 10);
+        //TO-DO: cambia 10 con valore giusto
+        //chunkIndex = (_currentArcIndex / 10);
+        orthoVector = Vector3.Cross(GetFirstDerivative(), Vector3.up).normalized;
 
         return destination;
     }

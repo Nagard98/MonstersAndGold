@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4442673112861636349}
   - component: {fileID: -6719722080934056943}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BushFlowers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -67,7 +67,7 @@ GameObject:
   - component: {fileID: 4651671714900319232}
   - component: {fileID: 7519078003171632458}
   - component: {fileID: 6448199990725345758}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: default
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,7 +148,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5259706242058726744}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Bush_Flowers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 4235620737209050317}
   - component: {fileID: 5921912249271093713}
   - component: {fileID: 3242817506674523638}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: default_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

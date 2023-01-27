@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using Unity.AI.Navigation;
+using Unity.AI.Navigation.Samples;
 
 public class PathChunk
 {
@@ -28,6 +30,7 @@ public class PathChunk
         meshRenderer = meshObject.AddComponent<MeshRenderer>();
         meshFilter = meshObject.AddComponent<MeshFilter>();
         meshCollider = meshObject.AddComponent<MeshCollider>();
+        meshObject.AddComponent<NavMeshSourceTag>();
         meshObject.AddComponent<TriggerSpawn>();
 
         meshRenderer.material = material;

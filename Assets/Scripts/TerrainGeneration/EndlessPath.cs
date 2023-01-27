@@ -2,12 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Unity.AI.Navigation.Samples;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class EndlessPath : MonoBehaviour
 {
     public static PathGenerator pathGenerator;
+    public static LocalNavMeshBuilder localNavMeshBuilder;
     [SerializeField]
     private PathChunksSet pathChunks;
     public Vector3Variable playerPosition;
@@ -16,6 +18,7 @@ public class EndlessPath : MonoBehaviour
 
     public void Start()
     {
+        localNavMeshBuilder = GetComponent<LocalNavMeshBuilder>();
         pathGenerator = FindObjectOfType<PathGenerator>();
         foreach (SplatHeight splat in pathGenerator.splatHeights)
         {

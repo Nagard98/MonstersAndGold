@@ -15,5 +15,5 @@ MonoBehaviour:
   gameObject: {fileID: 5054494329289076129, guid: 6b9467016689a0947b6a71ec1fca663c, type: 3}
   isCollectable: 0
   tier: 2
-  onUnloadAction: {fileID: 0}
+  onUnloadAction: {fileID: 11400000, guid: 202e4b393d8fb8649b9adef887c5eadd, type: 2}
   atkDamage: 20

@@ -13,23 +13,39 @@ public class SpawnerPOI : MonoBehaviour
     public void SpawnPOI(POIVariable poi, SpawnSettings spawnSettings)
     {
         BezierSpline tmp = (BezierSpline)path.Value.Clone();
-        int chunkIndex;
-        Vector3 spawnPosition = tmp.MoveLongDistance(spawnSettings.distance, out chunkIndex);
-        PathChunk pc = pathChunks.Get(chunkIndex);
-        if (pc == null)
+        Vector3 orthoVector;
+        Vector3 spawnPosition = tmp.MoveLongDistance(spawnSettings.distance, out orthoVector);
+        //PathChunk pc = pathChunks.Get(chunkIndex);
+        if (spawnPosition == null)
         {
-            print("Variable: " + poi + "   Its null at index: " + chunkIndex);
+            //TO-DO: Aggiungi richiesta spawn uno volta che chunk verrà istanziato
+            print("There is not a chunk instantiated at that distance");
         }
         else
         {
-            float height = pc.GetTerrainHeightAt(spawnPosition) * EndlessPath.pathGenerator.meshHeightMultiplier;
-            spawnPosition.y = height + spawnSettings.groundOffset;
+            spawnPosition.y += 10;
+            Vector3 groundedPos = CharacterRailMovement.GetGroundPosition(spawnPosition);
+            groundedPos.y += spawnSettings.groundOffset;
 
-            GameObject spawnedPOI = Instantiate(poi.gameObject, spawnPosition, Quaternion.identity);
+            GameObject spawnedPOI = Instantiate(poi.gameObject, groundedPos, Quaternion.identity);
+            spawnedPOI.transform.parent = transform;
             if (poi.isCollectable)
             {
                 CollectPOI collectPOI = spawnedPOI.AddComponent<CollectPOI>();
                 collectPOI.CollectableItem = (Collectable)poi;
+            }
+            else
+            {
+                spawnedPOI.transform.localPosition += orthoVector * 3f;
+                EnemyAI enemyAi = spawnedPOI.GetComponent<EnemyAI>();
+                enemyAi.enemyInfo = (EnemyVariable)poi;
+                Vector3 ortho2 = Vector3.Cross(orthoVector, Vector3.up).normalized;
+                Vector3[] navPoints = new Vector3[2];
+                navPoints[0] = spawnedPOI.transform.position + (ortho2 * 5);
+                navPoints[1] = spawnedPOI.transform.position - (ortho2 * 5);
+               
+                enemyAi.navPoints = navPoints;
+                EndlessPath.localNavMeshBuilder.m_Tracked = spawnedPOI.transform;
             }
             UnloadPOI unloadPOI = spawnedPOI.AddComponent<UnloadPOI>();
             unloadPOI.UnloadableObject = poi;

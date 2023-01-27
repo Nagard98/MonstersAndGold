@@ -31,9 +31,10 @@ public class CharacterRailMovement : MonoBehaviour
         SetCharacterPosition(playerPosition.Value);
     }
 
-    private Vector3 GetGroundPosition(Vector3 nextPos)
+    //TO-DO: move to other class
+    public static Vector3 GetGroundPosition(Vector3 hoverPos)
     {
-        Ray ray = new Ray(nextPos, Vector3.down);
+        Ray ray = new Ray(hoverPos, Vector3.down);
         RaycastHit raycastHit;
         Physics.Raycast(ray, out raycastHit);
         return raycastHit.point;

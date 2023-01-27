@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 544382911181117592}
   - component: {fileID: 6619435577499872264}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Rock2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71,7 +71,7 @@ GameObject:
   - component: {fileID: 8368001198194997003}
   - component: {fileID: 5954049826222133662}
   - component: {fileID: 2182431718121844280}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Rock_2_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -154,7 +154,7 @@ GameObject:
   - component: {fileID: 5902709374334637453}
   - component: {fileID: 7310965488498487790}
   - component: {fileID: 8029588250674203237}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Rock_2_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -280,6 +280,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 1c7e8e5602f900b418530eebb8af78ff, type: 3}
       propertyPath: m_Name
       value: Rock_2
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 1c7e8e5602f900b418530eebb8af78ff, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 4742473837712756890, guid: 1c7e8e5602f900b418530eebb8af78ff, type: 3}
       propertyPath: m_FadeMode
