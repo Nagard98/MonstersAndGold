@@ -8145,6 +8145,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 756394652591626175, guid: 118bde7212b4c1c42a04f6505a5b8144, type: 3}
+      propertyPath: footstepVolume
+      value: 0.152
+      objectReference: {fileID: 0}
+    - target: {fileID: 756394652591626175, guid: 118bde7212b4c1c42a04f6505a5b8144, type: 3}
       propertyPath: playerPosition
       value: 
       objectReference: {fileID: 11400000, guid: af054f1f0768b0c4bad4679ea5ad6351, type: 2}
