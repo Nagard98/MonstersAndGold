@@ -28,7 +28,8 @@ public class PathGenerator : MonoBehaviour
     public int seed;
     public Vector2 offset;
 
-    private int chunkIndex;
+    private int lastChunkIndex;
+    private int firstChunkIndex;
     public BezierCurveVariable bezCurve;
     
     private static System.Random rpng;
@@ -45,7 +46,8 @@ public class PathGenerator : MonoBehaviour
 
     public void StartUp()
     {
-        chunkIndex = 0;
+        lastChunkIndex = 0;
+        firstChunkIndex = 0;
         rpng = new System.Random();
         chunkDataThreadInfoQueue = new Queue<MapThreadInfo<ChunkData>>();
         meshDataThreadInfoQueue = new Queue<MapThreadInfo<MeshData>>();
@@ -78,11 +80,13 @@ public class PathGenerator : MonoBehaviour
     }
 
 
-    public int Index { get { return chunkIndex; } set { chunkIndex = value; } }
+    public int LastIndex { get { return lastChunkIndex; } set { lastChunkIndex = value; } }
+    public int FirstIndex { get { return firstChunkIndex; } set { firstChunkIndex = value; } }
+
 
     public void DrawChunkInEditor()
     {
-        chunkIndex = 0;
+        lastChunkIndex = 0;
         ChunkData chunkData = GenerateChunkData();
 
         ChunkDisplay display = FindObjectOfType<ChunkDisplay>();
@@ -148,24 +152,24 @@ public class PathGenerator : MonoBehaviour
     private ChunkData GenerateChunkData()
     {
         int numCurvesChunk = 2;
-        Vector3[] curveControlPoints = GenerateWaypoints(pathChunkSize - 1, numCurvesChunk, chunkIndex, pathChunkSize - 1, pathChunkSize -1, 50);
-        if (chunkIndex == 0) { bezCurve.Value = new BezierSpline(curveControlPoints, nSamples: 10); }
-        else { bezCurve.Value.AddPathWaypoints(curveControlPoints, chunkIndex, numCurvesChunk); }
+        Vector3[] curveControlPoints = GenerateWaypoints(pathChunkSize - 1, numCurvesChunk, lastChunkIndex, pathChunkSize - 1, pathChunkSize -1, 50);
+        if (lastChunkIndex == 0) { bezCurve.Value = new BezierSpline(curveControlPoints, nSamples: 10); }
+        else { bezCurve.Value.AddPathWaypoints(curveControlPoints, lastChunkIndex, numCurvesChunk); }
         
-        SplineDisplacementInfo splineDisplacementInfo = new SplineDisplacementInfo(bezCurve.Value, chunkIndex, numCurvesChunk);
+        SplineDisplacementInfo splineDisplacementInfo = new SplineDisplacementInfo(bezCurve.Value, lastChunkIndex, numCurvesChunk);
 
         float[,] uncurvedNoiseMap = new float[PathGenerator.pathChunkSize, PathGenerator.pathChunkSize];
         float[,] noiseMap = Noise.GenerateNoiseMap(pathChunkSize, pathChunkSize, noiseScale, lacunarity, persistance, octaves, offset, normalizeMode, splineDisplacementInfo, ref uncurvedNoiseMap, heightCurve, seed);
         
         //Use uncurved noise map because in that case the entire path is at the same height
         float[,,] splatMaps = SplatMap.GenerateSplatMap(PathGenerator.pathChunkSize, splatHeights, uncurvedNoiseMap);
-        ChunkTree[] chunkTrees = PathGenerator.BuildChunkTrees(trees, pathChunkSize, chunkIndex, noiseMap, splatMaps);
-        ChunkDetails[] chunkMultiDetails = PathGenerator.BuildChunkDetail(details, pathChunkSize, chunkIndex, noiseMap, splatMaps);
+        ChunkTree[] chunkTrees = PathGenerator.BuildChunkTrees(trees, pathChunkSize, lastChunkIndex, noiseMap, splatMaps);
+        ChunkDetails[] chunkMultiDetails = PathGenerator.BuildChunkDetail(details, pathChunkSize, lastChunkIndex, noiseMap, splatMaps);
 
         Color[] splatmapColors = SplatMap.ConvertToColors(splatMaps, PathGenerator.pathChunkSize, splatHeights);
 
-        ChunkData chunkData = new ChunkData(noiseMap, splatMaps, splatmapColors, chunkTrees, chunkMultiDetails, grass, chunkIndex);
-        chunkIndex += 1;
+        ChunkData chunkData = new ChunkData(noiseMap, splatMaps, splatmapColors, chunkTrees, chunkMultiDetails, grass, lastChunkIndex);
+        lastChunkIndex += 1;
 
         return chunkData;
     }

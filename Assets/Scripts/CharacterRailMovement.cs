@@ -23,7 +23,8 @@ public class CharacterRailMovement : MonoBehaviour
 
         lastPos = Vector3.zero;
 
-        Vector3 nextPos = bezCurve.Value.MoveAlong(0);
+        Vector3 orthoVector;
+        Vector3 nextPos = bezCurve.Value.MoveLongDistance((EndlessPath.pathGenerator.LastIndex * PathGenerator.pathChunkSize) / 2f, out orthoVector);
         lastPos = nextPos;
         nextPos.y += 10f;
 

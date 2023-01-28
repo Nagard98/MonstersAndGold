@@ -40,8 +40,16 @@ public class EndlessPath : MonoBehaviour
 
     public void InitNewChunk(bool async=true)
     {
-        pathGenerator.offset = new Vector2(0, pathGenerator.Index * (PathGenerator.pathChunkSize - 1));
+        pathGenerator.offset = new Vector2(0, pathGenerator.LastIndex * (PathGenerator.pathChunkSize - 1));
         pathChunks.Add(new PathChunk(pathGenerator.offset, pathMaterial, transform, playerPosition, async));
+    }
+
+    public void DestroyFirstChunk()
+    {
+        PathChunk pc = pathChunks.Get(pathGenerator.FirstIndex);
+        pathChunks.Remove(pathGenerator.FirstIndex);
+        pc.Destroy();
+        pathGenerator.FirstIndex += 1;
     }
 
     public void OnDisable()

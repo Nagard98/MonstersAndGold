@@ -3,53 +3,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Events;
-//using UnityEngine.InputSystem;
 
 public class AudioSettings : MonoBehaviour
 {
     public AudioMixer audioMixer;
-    private float masterVolume;
-    private float musicVolume;
-    private float sfxVolume;
-    private bool isMusicMuted;
-    private bool isSFXMuted;
-
-    void Start()
-    {
-        masterVolume = 0f;
-        musicVolume = 0f;
-        sfxVolume = 0f;
-        isMusicMuted = false;
-        isSFXMuted = false;
-    }
+    public SettingsVariable settings;
 
     public void SetMasterVolume(float volume)
     {
         audioMixer.SetFloat("masterVolume", volume);
-        masterVolume = volume;
+        settings.masterVolume = volume;
     }
 
     public void SetMusicVolume(float volume)
     {
-        if(!isMusicMuted) audioMixer.SetFloat("musicVolume", volume);
-        musicVolume = volume;
+        if(!settings.isMusicMuted) audioMixer.SetFloat("musicVolume", volume);
+        settings.musicVolume = volume;
     }
 
     public void SetSFXVolume(float volume)
     {
-        if(!isSFXMuted) audioMixer.SetFloat("SFXVolume", volume);
-        sfxVolume = volume;
+        if(!settings.isSFXMuted) audioMixer.SetFloat("SFXVolume", volume);
+        settings.sfxVolume = volume;
     }
 
     public void muteMusic(bool mute)
     {
-        isMusicMuted = !mute;
-        audioMixer.SetFloat("musicVolume", isMusicMuted ? -80f : musicVolume);
+        settings.isMusicMuted = !mute;
+        audioMixer.SetFloat("musicVolume", settings.isMusicMuted ? -80f : settings.musicVolume);
     }
 
     public void muteSFX(bool mute)
     {
-        isSFXMuted = !mute;
-        audioMixer.SetFloat("SFXVolume", isSFXMuted ? -80f : sfxVolume);
+        settings.isSFXMuted = !mute;
+        audioMixer.SetFloat("SFXVolume", settings.isSFXMuted ? -80f : settings.sfxVolume);
     }
 }

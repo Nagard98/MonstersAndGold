@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93c8133047514ad43ad113ffea299ac4, type: 3}
+  m_Name: DefaultSettings
+  m_EditorClassIdentifier: 
+  resolutions:
+  - {x: 800, y: 600}
+  - {x: 1280, y: 720}
+  - {x: 1600, y: 900}
+  - {x: 1920, y: 1080}
+  qualitySettings:
+  - Very Low
+  - Low
+  - Medium
+  - High
+  - Very High
+  - Ultra
+  isFullscreen: 0
+  currentResolution: 3
+  currentQualityLevel: 2
+  masterVolume: -6.7
+  musicVolume: -17.4
+  sfxVolume: 4.5
+  isMusicMuted: 0
+  isSFXMuted: 0

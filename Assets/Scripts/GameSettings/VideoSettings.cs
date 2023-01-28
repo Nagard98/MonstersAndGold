@@ -4,35 +4,24 @@ using UnityEngine;
 
 public class VideoSettings : MonoBehaviour
 {
-    private Vector2Int[] resolutions;
-    private string[] qualitySettings;
-    private bool isFullscreen;
-    private int currentResolution;
-    private int currentQualityLevel;
-
-    private void Start()
-    {
-        qualitySettings = QualitySettings.names;
-        isFullscreen = true;
-        resolutions = new Vector2Int[4] { new Vector2Int(1920, 1080), new Vector2Int(1600, 900), new Vector2Int(1280, 720), new Vector2Int(800, 600) };
-    }
+    public SettingsVariable settings;
 
     public void SetResolution(int option)
     {
-        currentResolution = option;
-        Screen.SetResolution(resolutions[option].x, resolutions[option].y, isFullscreen);
+        settings.currentResolution = option;
+        Screen.SetResolution(settings.resolutions[option].x, settings.resolutions[option].y, settings.isFullscreen);
     }
 
     public void SetFullscreen(bool value)
     {
-        isFullscreen = value;
+        settings.isFullscreen = value;
         Screen.fullScreen = value;
     }
 
     public void SetQualityPreset(int option)
     {
-        currentQualityLevel = option;
-        if (qualitySettings.Length > option)
+        settings.currentQualityLevel = option;
+        if (settings.qualitySettings.Length > option)
         {
             QualitySettings.SetQualityLevel(option);
         }

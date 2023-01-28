@@ -214,8 +214,6 @@ public class Conductor : MonoBehaviour
     {
         if (input.isPressed)
         {
-            //LockCamera();
-            Debug.Log(input.isPressed);
             MenuOpen.Invoke();
         }
     }
