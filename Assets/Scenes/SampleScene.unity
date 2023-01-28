@@ -7942,7 +7942,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   drawMode: 2
   normalizeMode: 1
-  pathChunks: {fileID: 11400000, guid: 1f3828157ff61db4ba80e2eac665bdb6, type: 2}
   splatHeights:
   - texture: {fileID: 2800000, guid: 95bb46061a77ef14aa49fb4aba394a6d, type: 3}
     layerIndex: 0
@@ -7975,7 +7974,7 @@ MonoBehaviour:
     displacementStrength: 26
     grassMaterial: {fileID: 2100000, guid: 9576d850694cd3441b339706912ec8f2, type: 2}
     grassMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
-  levelOfDetail: 1
+  levelOfDetail: 4
   meshHeightMultiplier: 26
   heightCurve:
     serializedVersion: 2

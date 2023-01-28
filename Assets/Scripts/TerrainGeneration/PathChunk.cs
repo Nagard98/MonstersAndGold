@@ -20,10 +20,12 @@ public class PathChunk
     public Bounds bounds;
     private Vector3Variable playerPosition;
     private PathChunksSet pathChunks;
+    private Dictionary<int, Stack<GameObject>> instantiatedGameObjects;
+    private Dictionary<int, Stack<GameObject>> gameObjectsPool;
 
     public int Index { get { return chunkData.chunkIndex; } }
 
-    public PathChunk(Vector2 coord, Material material, Transform parent, Vector3Variable playerPosition, PathChunksSet pathChunks, bool async=true)
+    public PathChunk(Vector2 coord, Material material, Transform parent, Vector3Variable playerPosition, PathChunksSet pathChunks, ref Dictionary<int,Stack<GameObject>> gameObjectsPool, bool async=true)
     {
         meshPointHeightFinder = Resources.Load<ComputeShader>("PositionFinderSurface");
 
@@ -40,6 +42,8 @@ public class PathChunk
 
         this.playerPosition = playerPosition;
         this.pathChunks = pathChunks;
+        this.instantiatedGameObjects = new Dictionary<int, Stack<GameObject>>();
+        this.gameObjectsPool = gameObjectsPool;
 
         if (async) BuildChunkAsync();
         else BuildChunkSync();
@@ -53,6 +57,19 @@ public class PathChunk
         int x = (int)spawnPosition.x;
         int y = (int)spawnPosition.z;
         return chunkData.heightMap[x, y];
+    }
+
+    internal Dictionary<int, Stack<GameObject>> ReleaseGameObjects(GameObject objectPool)
+    {
+        /*foreach(Stack<GameObject> gList in instantiatedGameObjects.Values)
+        {
+            foreach(GameObject gObj in gList)
+            {
+                gObj.transform.parent = objectPool.transform;
+            }
+        }*/
+
+        return instantiatedGameObjects;
     }
 
     private void BuildChunkSync()
@@ -111,14 +128,38 @@ public class PathChunk
             positionBuffer.GetData(pos);
             positionBuffer.Release();
 
-            for (int j = 0; j < pos.Length; j++)
+            GameObject treePrefab = chunkData.chunkTrees[i].TreePrototype.prefab;
+            int dictKey = treePrefab.name.GetHashCode();
+
+            if (gameObjectsPool.Count == 0)
             {
-                if (pos[j] != Vector3.zero) 
+                Stack<GameObject> tmpStack = new Stack<GameObject>(pos.Length);
+                for (int j = 0; j < pos.Length; j++)
                 {
-                    GameObject tmp = GameObject.Instantiate(chunkData.chunkTrees[i].TreePrototype.prefab, pos[j], Quaternion.identity);
-                    tmp.transform.parent = meshObject.transform;
+                    if (pos[j] != Vector3.zero)
+                    {
+                        GameObject tmp = GameObject.Instantiate(chunkData.chunkTrees[i].TreePrototype.prefab, pos[j], Quaternion.identity);
+                        tmp.transform.parent = EndlessPath.pool.transform;
+                        tmpStack.Push(tmp);
+                    }
                 }
+                instantiatedGameObjects.Add(dictKey, tmpStack);
             }
+            else {
+                Stack<GameObject> tmpStack = new Stack<GameObject>(pos.Length);
+                int poolCount = gameObjectsPool[dictKey].Count;
+                for (int j = 0; j < pos.Length && j < poolCount; j++) 
+                {
+                    if (pos[j] != Vector3.zero)
+                    {
+                        GameObject instancedGameObject = gameObjectsPool[dictKey].Pop();
+                        instancedGameObject.transform.position = pos[j];
+                        tmpStack.Push(instancedGameObject);
+                    }
+                }
+                instantiatedGameObjects.Add(dictKey, tmpStack);
+            }
+            
         }
 
         
@@ -139,16 +180,39 @@ public class PathChunk
             positionBuffer.GetData(pos);
             positionBuffer.Release();
 
-            for (int j = 0; j < pos.Length; j++)
+            GameObject detailPrefab = chunkData.chunkMultiDetails[i].DetailPrototype.prototype;
+            int dictKey = detailPrefab.name.GetHashCode();
+
+            if (gameObjectsPool.Count == 0)
             {
-                if (pos[j] != Vector3.zero) {
-                    GameObject tmp = GameObject.Instantiate(chunkData.chunkMultiDetails[i].DetailPrototype.prototype, pos[j], Quaternion.identity);
-                    tmp.transform.parent = meshObject.transform;
+                Stack<GameObject> tmpStack = new Stack<GameObject>(pos.Length);
+                for (int j = 0; j < pos.Length; j++)
+                {
+                    if (pos[j] != Vector3.zero)
+                    {
+                        GameObject tmp = GameObject.Instantiate(detailPrefab, pos[j], Quaternion.identity);
+                        tmp.transform.parent = EndlessPath.pool.transform;
+                        tmpStack.Push(tmp);
+                    }
                 }
-                
+                instantiatedGameObjects.Add(dictKey, tmpStack);
+            }
+            else
+            {
+                Stack<GameObject> tmpStack = new Stack<GameObject>(pos.Length);
+                int poolCount = gameObjectsPool[dictKey].Count;
+                for (int j = 0; j < pos.Length && j < poolCount; j++)
+                {
+                    if (pos[j] != Vector3.zero)
+                    {
+                        GameObject instancedGameObject = gameObjectsPool[dictKey].Pop();
+                        instancedGameObject.transform.position = pos[j];
+                        tmpStack.Push(instancedGameObject);
+                    }
+                }
+                instantiatedGameObjects.Add(dictKey, tmpStack);
             }
         }
-
     }
 
     private void ApplyMeshData(MeshData meshData)

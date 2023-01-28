@@ -8,7 +8,6 @@ public static class MeshGenerator
 
     public static Vector3[] StitchMeshes(Vector3[] meshVertices, Vector3[] stitchTo, int meshSize)
     {
-        Debug.Log("Stitching...");
         for (int x = 0; x < meshSize; x++)
         {
             float frs = stitchTo[(meshSize*meshSize) - meshSize + x].y;
@@ -17,7 +16,6 @@ public static class MeshGenerator
             meshVertices[x].y = frs;
             //firstVerts[((chunkXSize + 1) * (chunkZSize + 1)) - (chunkXSize + 1) + x].y = avg;
         }
-        Debug.Log("Stitched");
         return meshVertices;
 
         //firstMesh.Invoke("UpdateMesh", 0);
@@ -53,7 +51,6 @@ public static class MeshGenerator
             }
         }
 
-        Debug.Log("About to stitch " + stitchTo);
         if(stitchTo != null)StitchMeshes(meshData.vertices, stitchTo, width);
 
         return meshData;

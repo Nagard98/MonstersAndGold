@@ -5,6 +5,7 @@ using System.IO;
 using Unity.AI.Navigation.Samples;
 using UnityEngine;
 using UnityEngine.Events;
+using System.Linq;
 
 public class EndlessPath : MonoBehaviour
 {
@@ -16,8 +17,16 @@ public class EndlessPath : MonoBehaviour
     public Material pathMaterial;
     public UnityEvent GeneratedPath;
 
+    public static GameObject pool;
+    private Dictionary<int, Stack<GameObject>> poolGameObjects;
+    private Dictionary<int, Stack<GameObject>> test1;
+
     public void Start()
     {
+        pool = new GameObject("GameObjectPool");
+        pool.transform.position = Vector3.zero;
+        poolGameObjects = new Dictionary<int, Stack<GameObject>>();
+
         localNavMeshBuilder = GetComponent<LocalNavMeshBuilder>();
         pathGenerator = FindObjectOfType<PathGenerator>();
         foreach (SplatHeight splat in pathGenerator.splatHeights)
@@ -28,12 +37,24 @@ public class EndlessPath : MonoBehaviour
         StartCoroutine(test());
     }
 
+    public void BuildAdditionalChunk()
+    {
+        Dictionary<int, Stack<GameObject>> releasedGameObjects = DestroyFirstChunk();
+        foreach (int key in releasedGameObjects.Keys)
+        {
+            Stack<GameObject> currentPoolKeyed;
+            bool isKeyPresent = poolGameObjects.TryGetValue(key,out currentPoolKeyed);
+            poolGameObjects[key] = (isKeyPresent) ? new Stack<GameObject>(currentPoolKeyed.Concat(releasedGameObjects[key])) : releasedGameObjects[key];
+        }
+        InitNewChunk();
+    }
+
     IEnumerator test()
     {
         for (int i = 0; i < 5; i++)
         {
             yield return null;
-            InitNewChunk(false);
+            InitNewChunk(async: false);
         }
         GeneratedPath.Invoke();
     }
@@ -41,15 +62,18 @@ public class EndlessPath : MonoBehaviour
     public void InitNewChunk(bool async=true)
     {
         pathGenerator.offset = new Vector2(0, pathGenerator.LastIndex * (PathGenerator.pathChunkSize - 1));
-        new PathChunk(pathGenerator.offset, pathMaterial, transform, playerPosition, pathChunks, async);
+        new PathChunk(pathGenerator.offset, pathMaterial, transform, playerPosition, pathChunks, ref poolGameObjects, async);
     }
 
-    public void DestroyFirstChunk()
+    public Dictionary<int,Stack<GameObject>> DestroyFirstChunk()
     {
         PathChunk pc = pathChunks.Get(pathGenerator.FirstIndex);
+        Dictionary<int, Stack<GameObject>> releasedGameObjects = pc.ReleaseGameObjects(pool);
         pathChunks.Remove(pathGenerator.FirstIndex);
         pc.Destroy();
         pathGenerator.FirstIndex += 1;
+
+        return releasedGameObjects;
     }
 
     public void OnDisable()
