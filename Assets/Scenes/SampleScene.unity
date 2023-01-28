@@ -1536,6 +1536,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d7e76da863ccf234ca4e62d41ce2c132, type: 3}
+--- !u!114 &367727378 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5651675536279652371, guid: 17fc96879f641824e9d7338f532e4fa2, type: 3}
+  m_PrefabInstance: {fileID: 16677206}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &368749300
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5704,8 +5715,8 @@ MonoBehaviour:
   masterVolume: {fileID: 1358668516}
   musicVolume: {fileID: 1814413084}
   sfxVolume: {fileID: 1612893554}
-  muteSfx: {fileID: 0}
-  muteMusic: {fileID: 0}
+  muteSfx: {fileID: 367727378}
+  muteMusic: {fileID: 1857384239}
 --- !u!1 &1413292302
 GameObject:
   m_ObjectHideFlags: 0
@@ -8517,6 +8528,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8207675186946567370, guid: 03cab998daec3914c8e696d4a71def61, type: 3}
   m_PrefabInstance: {fileID: 1857384237}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1857384239 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5694886427812616810, guid: 03cab998daec3914c8e696d4a71def61, type: 3}
+  m_PrefabInstance: {fileID: 1857384237}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1901791931
 GameObject:
   m_ObjectHideFlags: 0
@@ -8949,7 +8971,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4417562504043577747, guid: f1589998a2909cc4f91490429e998357, type: 3}
       propertyPath: m_RootOrder
-      value: 17
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 4417562504043577747, guid: f1589998a2909cc4f91490429e998357, type: 3}
       propertyPath: m_AnchorMax.x

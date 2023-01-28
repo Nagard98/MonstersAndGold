@@ -2,6 +2,8 @@
 
 Texture2D<float4> _HeightMap;
 SamplerState sampler_HeightMap;
+Texture2D<float4> _SplatMap;
+SamplerState sampler_SplatMap;
 RWStructuredBuffer<float3> _Vertices;
 
 float _Dimension;
@@ -12,6 +14,12 @@ void FindPositions(uint3 id : SV_DispatchThreadID) {
     float3 vert = _Vertices[id.x];
     float2 uv = (vert.xz % _Dimension)/_Dimension;
     float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0);
+    float4 color = _SplatMap.SampleLevel(sampler_SplatMap, uv, 0);
 
-    _Vertices[id.x] = float3(vert.x, displacement.r * _HeightMultiplier, vert.z);
+    if (color.g > 0) {
+        _Vertices[id.x] = float3(vert.x, displacement.r * _HeightMultiplier, vert.z);
+    }
+    else {
+        _Vertices[id.x] = float3(0, 0, 0);
+    }
 }

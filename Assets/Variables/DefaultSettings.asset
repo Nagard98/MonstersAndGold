@@ -25,10 +25,10 @@ MonoBehaviour:
   - Very High
   - Ultra
   isFullscreen: 0
-  currentResolution: 3
-  currentQualityLevel: 2
-  masterVolume: -6.7
-  musicVolume: -17.4
-  sfxVolume: 4.5
-  isMusicMuted: 0
-  isSFXMuted: 0
+  currentResolution: 0
+  currentQualityLevel: 3
+  masterVolume: -14.697861
+  musicVolume: -1.8220294
+  sfxVolume: -19.089567
+  isMusicMuted: 1
+  isSFXMuted: 1

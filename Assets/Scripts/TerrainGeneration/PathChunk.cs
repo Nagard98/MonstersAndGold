@@ -63,6 +63,7 @@ public class PathChunk
     {
         Texture2D splatmap = new Texture2D(PathGenerator.pathChunkSize, PathGenerator.pathChunkSize, TextureFormat.RGBA32, false);
         splatmap.wrapMode = TextureWrapMode.Clamp;
+        splatmap.filterMode = FilterMode.Bilinear;
         splatmap.SetPixels(chunkData.splatMapColors);
         splatmap.Apply();
 
@@ -93,6 +94,7 @@ public class PathChunk
 
             meshPointHeightFinder.SetBuffer(0, "_Vertices", positionBuffer);
             meshPointHeightFinder.SetTexture(0, "_HeightMap", heightmap);
+            meshPointHeightFinder.SetTexture(0, "_SplatMap", splatmap);
             meshPointHeightFinder.SetFloat("_HeightMultiplier", EndlessPath.pathGenerator.meshHeightMultiplier);
             meshPointHeightFinder.SetFloat("_Dimension", PathGenerator.pathChunkSize - 1);
             meshPointHeightFinder.Dispatch(0, Mathf.CeilToInt(pos.Length / 64f), 1, 1);
@@ -102,8 +104,11 @@ public class PathChunk
 
             for (int j = 0; j < pos.Length; j++)
             {
-                GameObject tmp = GameObject.Instantiate(chunkData.chunkTrees[i].TreePrototype.prefab, pos[j], Quaternion.identity);
-                tmp.transform.parent = meshObject.transform;
+                if (pos[j] != Vector3.zero) 
+                {
+                    GameObject tmp = GameObject.Instantiate(chunkData.chunkTrees[i].TreePrototype.prefab, pos[j], Quaternion.identity);
+                    tmp.transform.parent = meshObject.transform;
+                }
             }
         }
 
@@ -117,6 +122,7 @@ public class PathChunk
 
             meshPointHeightFinder.SetBuffer(0, "_Vertices", positionBuffer);
             meshPointHeightFinder.SetTexture(0, "_HeightMap", heightmap);
+            meshPointHeightFinder.SetTexture(0, "_SplatMap", splatmap);
             meshPointHeightFinder.SetFloat("_HeightMultiplier", EndlessPath.pathGenerator.meshHeightMultiplier);
             meshPointHeightFinder.SetFloat("_Dimension", PathGenerator.pathChunkSize - 1);
             meshPointHeightFinder.Dispatch(0, Mathf.CeilToInt(pos.Length / 64f), 1, 1);
@@ -126,8 +132,11 @@ public class PathChunk
 
             for (int j = 0; j < pos.Length; j++)
             {
-                GameObject tmp = GameObject.Instantiate(chunkData.chunkMultiDetails[i].DetailPrototype.prototype, pos[j], Quaternion.identity);
-                tmp.transform.parent = meshObject.transform;
+                if (pos[j] != Vector3.zero) {
+                    GameObject tmp = GameObject.Instantiate(chunkData.chunkMultiDetails[i].DetailPrototype.prototype, pos[j], Quaternion.identity);
+                    tmp.transform.parent = meshObject.transform;
+                }
+                
             }
         }
 
