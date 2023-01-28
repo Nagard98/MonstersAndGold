@@ -40,7 +40,7 @@ void InitializeGrass(uint3 id : SV_DispatchThreadID) {
 
         grass.position = pos;
 
-        if (splatMask.g == 1) {
+        if (splatMask.r == 0) {
             _GrassDataBuffer[id.x + id.y * _Dimension] = grass;
         }
         

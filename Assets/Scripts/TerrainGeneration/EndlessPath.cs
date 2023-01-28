@@ -30,7 +30,7 @@ public class EndlessPath : MonoBehaviour
 
     IEnumerator test()
     {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 5; i++)
         {
             yield return null;
             InitNewChunk(false);
@@ -41,7 +41,7 @@ public class EndlessPath : MonoBehaviour
     public void InitNewChunk(bool async=true)
     {
         pathGenerator.offset = new Vector2(0, pathGenerator.LastIndex * (PathGenerator.pathChunkSize - 1));
-        pathChunks.Add(new PathChunk(pathGenerator.offset, pathMaterial, transform, playerPosition, async));
+        new PathChunk(pathGenerator.offset, pathMaterial, transform, playerPosition, pathChunks, async);
     }
 
     public void DestroyFirstChunk()

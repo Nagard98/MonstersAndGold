@@ -19,10 +19,11 @@ public class PathChunk
     private ChunkData chunkData;
     public Bounds bounds;
     private Vector3Variable playerPosition;
+    private PathChunksSet pathChunks;
 
     public int Index { get { return chunkData.chunkIndex; } }
 
-    public PathChunk(Vector2 coord, Material material, Transform parent, Vector3Variable playerPosition, bool async=true)
+    public PathChunk(Vector2 coord, Material material, Transform parent, Vector3Variable playerPosition, PathChunksSet pathChunks, bool async=true)
     {
         meshPointHeightFinder = Resources.Load<ComputeShader>("PositionFinderSurface");
 
@@ -38,11 +39,14 @@ public class PathChunk
         meshObject.transform.parent = parent;
 
         this.playerPosition = playerPosition;
+        this.pathChunks = pathChunks;
 
-        if (async) EndlessPath.pathGenerator.RequestChunkData(onChunkDataReceived);
+        if (async) BuildChunkAsync();
         else BuildChunkSync();
 
     }
+
+    public Vector3[] MeshVertices { get { return meshFilter.mesh.vertices; } }
 
     internal float GetTerrainHeightAt(Vector3 spawnPosition)
     {
@@ -53,14 +57,19 @@ public class PathChunk
 
     private void BuildChunkSync()
     {
-        chunkData = EndlessPath.pathGenerator.RequestChunkDataSync();
-        ApplyChunkData(chunkData);
-        MeshData meshData = EndlessPath.pathGenerator.RequestMeshDataSync(chunkData);
-        ApplyMeshData(meshData);
+        ApplyChunkData(EndlessPath.pathGenerator.RequestChunkDataSync());
+        ApplyMeshData(EndlessPath.pathGenerator.RequestMeshDataSync(chunkData));
+    }
+
+    private void BuildChunkAsync()
+    {
+        EndlessPath.pathGenerator.RequestChunkDataAsync(onChunkDataReceived);
     }
 
     private void ApplyChunkData(ChunkData chunkData)
     {
+        this.chunkData = chunkData;
+
         Texture2D splatmap = new Texture2D(PathGenerator.pathChunkSize, PathGenerator.pathChunkSize, TextureFormat.RGBA32, false);
         splatmap.wrapMode = TextureWrapMode.Clamp;
         splatmap.filterMode = FilterMode.Bilinear;
@@ -142,6 +151,23 @@ public class PathChunk
 
     }
 
+    private void ApplyMeshData(MeshData meshData)
+    {
+        meshData.DisplaceMesh(meshRenderer.material);
+        MakeStitch(meshData);
+        meshFilter.mesh = meshData.CreateMesh();
+        meshCollider.sharedMesh = meshFilter.mesh;
+        bounds = meshCollider.bounds;
+
+        pathChunks.Add(this);
+    }
+
+    private void MakeStitch(MeshData meshData)
+    {
+        if (pathChunks.Items.Count > 0) meshData.stitchTo = pathChunks.Get(EndlessPath.pathGenerator.LastIndex - 2).MeshVertices;
+        if (meshData.stitchTo != null) meshData.vertices = MeshGenerator.StitchMeshes(meshData.vertices, meshData.stitchTo, meshData.meshWidth);
+    }
+
     private void SetupGrassInstantiator(ChunkData chunkData, Texture2D heightmap, Texture2D splatmap, Vector3Variable playerPosition)
     {
         GrassInstantiator grassInstantiator = meshObject.AddComponent<GrassInstantiator>();
@@ -155,18 +181,10 @@ public class PathChunk
         grassInstantiator.offset = new Vector2(xOffset, zOffset);
     }
 
-    private void ApplyMeshData(MeshData meshData)
-    {
-        meshData.DisplaceMesh(meshRenderer.material);
-        meshFilter.mesh = meshData.CreateMesh();
-        meshCollider.sharedMesh = meshFilter.mesh;
-        bounds = meshCollider.bounds;
-    }
-
     void onChunkDataReceived(ChunkData chunkData)
     {
         ApplyChunkData(chunkData);
-        EndlessPath.pathGenerator.RequestMeshData(onMeshDataReceived, chunkData);
+        EndlessPath.pathGenerator.RequestMeshDataAsync(onMeshDataReceived, chunkData);
     }
 
     void onMeshDataReceived(MeshData meshData)

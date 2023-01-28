@@ -102,10 +102,11 @@ public class PathGenerator : MonoBehaviour
 
     public ChunkData RequestChunkDataSync()
     {
-        return GenerateChunkData();
+        ChunkData chunkData = GenerateChunkData();
+        return chunkData;
     }
 
-    public void RequestChunkData(Action<ChunkData> callback)
+    public void RequestChunkDataAsync(Action<ChunkData> callback)
     {
         ThreadStart threadStart = delegate
         {
@@ -118,6 +119,7 @@ public class PathGenerator : MonoBehaviour
     private void ChunkDataThread(Action<ChunkData> callback)
     {
         ChunkData chunkData = GenerateChunkData();
+
         lock (chunkDataThreadInfoQueue)
         {
             chunkDataThreadInfoQueue.Enqueue(new MapThreadInfo<ChunkData>(callback, chunkData));
@@ -126,11 +128,12 @@ public class PathGenerator : MonoBehaviour
 
     public MeshData RequestMeshDataSync(ChunkData chunkData)
     {
-        return MeshGenerator.GenerateFlatMesh(pathChunkSize, levelOfDetail);
+        MeshData meshData = MeshGenerator.GenerateFlatMesh(pathChunkSize, levelOfDetail); 
+        return meshData;
         //return MeshGenerator.GenerateTerrainMesh(chunkData.heightMap, meshHeightMultiplier, levelOfDetail);
     }
 
-    public void RequestMeshData(Action<MeshData> callback, ChunkData chunkData)
+    public void RequestMeshDataAsync(Action<MeshData> callback, ChunkData chunkData)
     {
         ThreadStart threadStart = delegate
         {
@@ -142,7 +145,8 @@ public class PathGenerator : MonoBehaviour
 
     private void MeshDataThread(Action<MeshData> callback, ChunkData chunkData)
     {
-        MeshData meshData = MeshGenerator.GenerateTerrainMesh(chunkData.heightMap, meshHeightMultiplier, levelOfDetail);
+        //MeshData meshData = MeshGenerator.GenerateTerrainMesh(chunkData.heightMap, meshHeightMultiplier, levelOfDetail, chunkData.stitchTo);
+        MeshData meshData = MeshGenerator.GenerateFlatMesh(pathChunkSize, levelOfDetail);
         lock (meshDataThreadInfoQueue)
         {
             meshDataThreadInfoQueue.Enqueue(new MapThreadInfo<MeshData>(callback, meshData));

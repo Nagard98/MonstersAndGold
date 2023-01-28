@@ -6,7 +6,25 @@ public static class MeshGenerator
 {
     public static ComputeShader displacePlane = Resources.Load<ComputeShader>("DisplacePlane");
 
-    public static MeshData GenerateTerrainMesh(float[,] heightmap, float heightMultiplier, int levelOfDetail)
+    public static Vector3[] StitchMeshes(Vector3[] meshVertices, Vector3[] stitchTo, int meshSize)
+    {
+        Debug.Log("Stitching...");
+        for (int x = 0; x < meshSize; x++)
+        {
+            float frs = stitchTo[(meshSize*meshSize) - meshSize + x].y;
+            //float sec = meshVertices[chunkXSize + 1 + x].y;
+            //float avg = (frs + sec) / 2;
+            meshVertices[x].y = frs;
+            //firstVerts[((chunkXSize + 1) * (chunkZSize + 1)) - (chunkXSize + 1) + x].y = avg;
+        }
+        Debug.Log("Stitched");
+        return meshVertices;
+
+        //firstMesh.Invoke("UpdateMesh", 0);
+        //secondMesh.Invoke("UpdateMesh", 0);
+    }
+
+    public static MeshData GenerateTerrainMesh(float[,] heightmap, float heightMultiplier, int levelOfDetail, Vector3[] stitchTo = null)
     {
         int width = heightmap.GetLength(0);
         int height = heightmap.GetLength(1);
@@ -34,6 +52,10 @@ public static class MeshGenerator
                 vertexIndex++;
             }
         }
+
+        Debug.Log("About to stitch " + stitchTo);
+        if(stitchTo != null)StitchMeshes(meshData.vertices, stitchTo, width);
+
         return meshData;
     }
 
@@ -73,14 +95,20 @@ public class MeshData
     public Vector3[] vertices;
     public int[] triangles;
     public Vector2[] uvs;
+    public Vector3[] stitchTo;
+    public int meshWidth;
+    public int meshHeight;
 
     int triangleIndex;
 
-    public MeshData(int meshWidth, int meshHeight)
+    public MeshData(int meshWidth, int meshHeight, Vector3[] stitchTo=null)
     {
         vertices = new Vector3[meshWidth * meshHeight];
         triangles = new int[(meshWidth - 1) * (meshHeight - 1) * 6];
         uvs = new Vector2[meshHeight * meshWidth];
+        this.stitchTo = stitchTo;
+        this.meshHeight = meshHeight;
+        this.meshWidth = meshWidth;
     }
 
     public void AddTriangle(int a, int b, int c)
@@ -158,7 +186,6 @@ public class MeshData
         mesh.uv = uvs;
 
         mesh.normals = CalculateNormals();
-        //mesh.RecalculateNormals();
         mesh.RecalculateBounds();
 
         return mesh;
