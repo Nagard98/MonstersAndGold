@@ -20,4 +20,9 @@ public class GoldVariable : POIVariable, Collectable
         playerGP.Value += valueGP;
         collected.Invoke();
     }
+
+    public override float GetValue()
+    {
+        return valueGP;
+    }
 }

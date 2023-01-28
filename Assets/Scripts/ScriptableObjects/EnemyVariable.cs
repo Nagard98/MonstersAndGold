@@ -6,4 +6,9 @@ using UnityEngine;
 public class EnemyVariable : POIVariable
 {
     public int atkDamage;
+
+    public override float GetValue()
+    {
+        return atkDamage;
+    }
 }

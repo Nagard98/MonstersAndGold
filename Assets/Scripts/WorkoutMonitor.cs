@@ -40,6 +40,7 @@ public class WorkoutMonitor : MonoBehaviour
         isLastPROCGood = true;
         conditionMetPotion = 0;
         conditionMetShield = 0;
+        SetupTiers();
         StartCoroutine(UpdateHR());
         StartCoroutine(StartPROC());
     }
@@ -103,30 +104,54 @@ public class WorkoutMonitor : MonoBehaviour
         }
     }
 
+    private void SetupTiers()
+    {
+        enemyTypes.Sort((poi1, poi2) => poi1.GetValue().CompareTo(poi2.GetValue()));
+        for(int i = 0; i < enemyTypes.Count; i++)
+        {
+            enemyTypes[i].Tier = i + 1;
+        }
+        goldTypes.Sort((poi1, poi2) => poi1.GetValue().CompareTo(poi2.GetValue()));
+        for (int i = 0; i < goldTypes.Count; i++)
+        {
+            goldTypes[i].Tier = i + 1;
+        }
+        shieldTypes.Sort((poi1, poi2) => poi1.GetValue().CompareTo(poi2.GetValue()));
+        for (int i = 0; i < shieldTypes.Count; i++)
+        {
+            shieldTypes[i].Tier = i + 1;
+        }
+        potionTypes.Sort((poi1, poi2) => poi1.GetValue().CompareTo(poi2.GetValue()));
+        for (int i = 0; i < potionTypes.Count; i++)
+        {
+            potionTypes[i].Tier = i + 1;
+        }
+    }
+
     private void SpawnPotion(int tier, float optSpeed, float itemGroundOffset)
     {
         float distance = ConvertValueToDistance(tier);
-        SpawnPOI.Invoke(potionTypes.Find(x => x.tier == tier), new SpawnSettings(distance, distance / optSpeed, itemGroundOffset));
+        SpawnPOI.Invoke(potionTypes.Find(x => x.Tier == tier), new SpawnSettings(distance, distance / optSpeed, itemGroundOffset));
         conditionMetPotion += 1;
     }
 
     private void SpawnShield(int tier, float optSpeed, float groundOffset)
     {
         float distance = ConvertValueToDistance(tier);
-        SpawnPOI.Invoke(shieldTypes.Find(x => x.tier == tier), new SpawnSettings(distance, distance / optSpeed, groundOffset));
+        SpawnPOI.Invoke(shieldTypes.Find(x => x.Tier == tier), new SpawnSettings(distance, distance / optSpeed, groundOffset));
         conditionMetShield += 1;
     }
 
     private void SpawnEnemy(int tier, float optSpeed, float itemGroundOffset = 0)
     {
         float distance = ConvertValueToDistance(tier);
-        SpawnPOI.Invoke(enemyTypes.Find(x => x.tier == tier), new SpawnSettings(distance, distance / optSpeed, itemGroundOffset));
+        SpawnPOI.Invoke(enemyTypes.Find(x => x.Tier == tier), new SpawnSettings(distance, distance / optSpeed, itemGroundOffset));
     }
 
     private void SpawnGold(int tier, float optSpeed, float groundOffset)
     {
         float distance = ConvertValueToDistance(tier);
-        SpawnPOI.Invoke(goldTypes.Find(x => x.tier == tier), new SpawnSettings(distance, distance / optSpeed, groundOffset));
+        SpawnPOI.Invoke(goldTypes.Find(x => x.Tier == tier), new SpawnSettings(distance, distance / optSpeed, groundOffset));
     }
 
     private float ConvertValueToDistance(int tier)

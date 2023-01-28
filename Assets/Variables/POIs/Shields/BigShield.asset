@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameObject: {fileID: 2215065847825774392, guid: 0ff7eb97003f5714ab17eef3a2cddaf3, type: 3}
   isCollectable: 1
-  tier: 3
   onUnloadAction: {fileID: 11400000, guid: 202e4b393d8fb8649b9adef887c5eadd, type: 2}
   _inventory: {fileID: 11400000, guid: d3dc50feebc98af4ba58af1895b95647, type: 2}
   collected:
@@ -32,3 +31,4 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  damageThreshold: 30

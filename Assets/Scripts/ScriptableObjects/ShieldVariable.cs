@@ -9,6 +9,7 @@ public class ShieldVariable : POIVariable, Collectable
     [SerializeField]
     private Inventory _inventory;
     public UnityEvent collected;
+    public float damageThreshold;
 
     private void OnEnable()
     {
@@ -19,5 +20,10 @@ public class ShieldVariable : POIVariable, Collectable
     {
         _inventory.Add(this);
         collected.Invoke();
+    }
+
+    public override float GetValue()
+    {
+        return damageThreshold;
     }
 }

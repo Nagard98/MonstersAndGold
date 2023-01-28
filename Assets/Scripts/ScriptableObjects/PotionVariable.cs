@@ -22,4 +22,9 @@ public class PotionVariable : POIVariable, Collectable
         playerHP.Value = Mathf.Clamp(playerHP.Value + hpRecovered, 0, playerMaxHP.Value);
         collected.Invoke();
     }
+
+    public override float GetValue()
+    {
+        return hpRecovered;
+    }
 }

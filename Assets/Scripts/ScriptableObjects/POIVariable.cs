@@ -7,10 +7,14 @@ public abstract class POIVariable : ScriptableObject, Unloadable
 {
     public GameObject gameObject;
     public bool isCollectable;
-    public int tier;
+    private int tier;
+
+    public int Tier { get { return tier; }  set { tier = value; } }
 
     [SerializeField]
     public GameEvent onUnloadAction;
+
+    public abstract float GetValue();
 
     public void OnUnload()
     {
