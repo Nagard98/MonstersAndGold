@@ -6,13 +6,16 @@ using UnityEngine.UI;
 
 public class MusicNote : MonoBehaviour
 {
-    private Vector3 _spawnPosition;
-    private Vector3 _hitPosition;
-    private Vector3 _removePosition;
+    private Vector2 _spawnPosition;
+    private Vector2 _removePosition;
+    private Vector2 _hitPosition;
+    public RectTransform noteEntryPoint;
+    public RectTransform noteExitPoint;
+    public RectTransform noteHitPoint;
 
     public Note note;
     public float tval;
-    public float screenWidth;
+    //public float screenWidth;
     public FloatVariable beatsShownInAdvance;
     public FloatVariable songPositionInBeats;
 
@@ -29,9 +32,13 @@ public class MusicNote : MonoBehaviour
         _rawImage = GetComponent<RawImage>();
         loadNoteTexture((NoteType)note.NoteType);
         noteTransform = (RectTransform) gameObject.transform;
-        _spawnPosition = noteTransform.localPosition;
-        _hitPosition = new Vector3(-(screenWidth/2), noteTransform.localPosition.y, 0);
-        _removePosition = new Vector3(-screenWidth-100, noteTransform.localPosition.y, 0);
+        _spawnPosition = noteEntryPoint.anchoredPosition;
+        _removePosition = noteExitPoint.anchoredPosition;
+        _hitPosition = noteHitPoint.anchoredPosition;
+        noteTransform.anchoredPosition = _spawnPosition;
+        //_spawnPosition = noteTransform.localPosition;
+        //_hitPosition = new Vector3(-(screenWidth/2), noteTransform.localPosition.y, 0);
+        //_removePosition = new Vector3(-screenWidth-100, noteTransform.localPosition.y, 0);
 
         reachedHitPos = false;
     }
@@ -61,7 +68,7 @@ public class MusicNote : MonoBehaviour
     void Update()
     {
 
-        if (noteTransform.localPosition == _hitPosition)
+        if (noteTransform.anchoredPosition.x == 0)//_hitPosition)
         {
             reachedHitPos = true;
         }
@@ -70,14 +77,14 @@ public class MusicNote : MonoBehaviour
         {
             tval = (beatsShownInAdvance.Value - (note.NoteBeat + beatsShownInAdvance.Value - songPositionInBeats.Value)) / beatsShownInAdvance.Value;
             interpolationPos = Vector3.Lerp(_hitPosition, _removePosition, tval);
-            if(noteTransform.localPosition == _removePosition)
+            if(noteTransform.anchoredPosition == _removePosition)
             {
                 Destroy(transform.gameObject);
             }
         }
         else
         {
-            if (noteTransform.localPosition == _hitPosition)
+            if (noteTransform.anchoredPosition == _hitPosition)
             {
                 reachedHitPos = true;
             }
@@ -85,7 +92,7 @@ public class MusicNote : MonoBehaviour
             interpolationPos =  Vector3.Lerp(_spawnPosition, _hitPosition, tval);
         }
 
-        noteTransform.localPosition = interpolationPos;
+        noteTransform.anchoredPosition = interpolationPos;
 
     }
 }

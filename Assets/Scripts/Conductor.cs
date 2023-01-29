@@ -207,7 +207,7 @@ public class Conductor : MonoBehaviour
         GameObject noteObject = Instantiate(note, rectTransform);
         MusicNote musicNote = noteObject.GetComponent<MusicNote>();
         musicNote.note = noteToSpawn;
-        musicNote.screenWidth = rectTransform.rect.width;
+        //musicNote.screenWidth = rectTransform.rect.width;
     }
 
     private void OnMenu(InputValue input)
