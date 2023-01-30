@@ -12,17 +12,19 @@ enum NoteType
     Left,
     Right
 }
-
+[Serializable]
 public struct Note
 {
+    public float noteBeat;
+    public int noteType;
+
     public Note(float note_beat, int note_type)
     {
-        NoteBeat = note_beat;
-        NoteType = note_type;
+        this.noteType = note_type;
+        this.noteBeat = note_beat;
     }
-
-    public float NoteBeat { get; }
-    public int NoteType { get; }
+    public float NoteBeat { get { return noteBeat; } }
+    public int NoteType { get { return noteType; } }
 }
 
 [RequireComponent(typeof(AudioSource))]
@@ -48,8 +50,10 @@ public class Conductor : MonoBehaviour
     public RectTransform rectTransform;
     private AudioSource audioSource;
 
-    private Note[] _noteBeats;
-    private int _noteSpawnIndex;
+    [SerializeField]
+    public Note[] _noteBeats;
+    private MusicNote[] instancedNotes;
+    private int _noteToSpawnIndex;
     private int _noteToHitIndex;
     private bool _attemptedHit;
     public float startOffsetBeats;
@@ -58,6 +62,7 @@ public class Conductor : MonoBehaviour
     private const float SPEED_STEP = 0.2f;
 
     public UnityEvent MenuOpen;
+    public UnityEvent<float> AttemptedHit;
 
     // Start is called before the first frame update
     void Start()
@@ -71,35 +76,47 @@ public class Conductor : MonoBehaviour
         multiplier = 1f;
         _attemptedHit = false;
         _numConsecutiveHits = 0;
+        playerSpeed.Value = 2f;
+        instancedNotes = InstantiateNotes(30);
 
         dspSongTime = (float)UnityEngine.AudioSettings.dspTime;
         audioSource.Play();
         beatsShownInAdvance.Value = 3;
     }
 
-
     // Update is called once per frame
     void Update()
     {
-        if (_noteSpawnIndex < _noteBeats.Length && _noteBeats[_noteSpawnIndex].NoteBeat < songPositionInBeats.Value + beatsShownInAdvance.Value)
+        if (Time.timeScale == 0f) return;
+
+        if (_noteToSpawnIndex < _noteBeats.Length && _noteBeats[_noteToSpawnIndex].NoteBeat <= songPositionInBeats.Value)
+        {
+            instancedNotes[_noteToSpawnIndex % 30].StartNote(_noteBeats[_noteToSpawnIndex], beatDuration + beatDuration*beatsShownInAdvance.Value);
+            _noteToSpawnIndex += 1;
+        }
+
+        /*if (_noteToHitIndex < _noteBeats.Length && _noteBeats[_noteToHitIndex].NoteBeat < songPositionInBeats.Value + beatsShownInAdvance.Value)
+        {
+
+
+            //spawnNote(_noteBeats[_noteSpawnIndex]);
+            //instancedNotes[_noteSpawnIndex % 15].StartNote(_noteBeats[_noteSpawnIndex]);
+            //_attemptedHit = false;
+            //_noteSpawnIndex += 1;
+            
+        }*/
+
+        if (_noteToHitIndex < _noteBeats.Length && _noteBeats[_noteToHitIndex].NoteBeat+ beatsShownInAdvance.Value + 0.5f <= songPositionInBeats.Value - 1)
         {
             if (!_attemptedHit)
             {
-                //Debug.Log("Not Attempted");
                 _numConsecutiveHits = 0;
                 playerSpeed.Value = Mathf.Clamp(playerSpeed.Value - SPEED_STEP, 1f, 4f);
                 updateMultiplier();
             }
-
-            spawnNote(_noteBeats[_noteSpawnIndex]);
-            _attemptedHit = false;
-            _noteSpawnIndex += 1;
-        }
-
-
-        if (_noteToHitIndex < _noteBeats.Length && _noteBeats[_noteToHitIndex].NoteBeat + 0.2f < songPositionInBeats.Value)
-        {
             _noteToHitIndex += 1;
+            _attemptedHit = false;
+
         }
 
         songPosition = (float)(UnityEngine.AudioSettings.dspTime - dspSongTime);
@@ -111,9 +128,10 @@ public class Conductor : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         beatDuration = 60f / bpm;
-        _noteSpawnIndex = 0;
+        _noteToSpawnIndex = 0;
         _noteToHitIndex = 0;
         startOffsetBeats = 5f;
+        songPositionInBeats.Value = 0f;
 
         _noteBeats = createBeats(60);
     }
@@ -131,17 +149,26 @@ public class Conductor : MonoBehaviour
         return _tmpBeats;
     }
 
+    private MusicNote[] InstantiateNotes(int poolDim = 15)
+    {
+        MusicNote[] musicNotes = new MusicNote[poolDim];
+        for (int i = 0; i < poolDim; i++)
+        {
+            MusicNote musicNote = Instantiate(note, rectTransform).GetComponent<MusicNote>();
+            musicNotes[i] = musicNote;
+        }
+        return musicNotes;
+    }
+
 
     private void manageInput(NoteType noteType)
     {
         if (_attemptedHit == false)
         {
-#if DEBUG
-            Debug.Log(noteType.ToString());
-#endif
             _attemptedHit = true;
             if (_noteToHitIndex < _noteBeats.Length)
-            { 
+            {
+                AttemptedHit.Invoke(measureError());
                 updateScore(_noteBeats[_noteToHitIndex].NoteType, noteType);
             }
         }
@@ -149,7 +176,7 @@ public class Conductor : MonoBehaviour
 
     private float measureError()
     {
-        float distance = Mathf.Abs(_noteBeats[_noteToHitIndex].NoteBeat - songPositionInBeats.Value);
+        float distance = Mathf.Abs(_noteBeats[_noteToHitIndex].NoteBeat - songPositionInBeats.Value + 1 + beatsShownInAdvance.Value);
         return distance;
     }
 
@@ -157,9 +184,6 @@ public class Conductor : MonoBehaviour
     {
         if (noteTypeHit == ((int)expectedType))
         {
-#if DEBUG
-            Debug.Log("Correct");
-#endif
             playerSpeed.Value = Mathf.Clamp(playerSpeed.Value + SPEED_STEP, 1f, 4f);
             score += (BASE_HIT_POINTS * multiplier);
 
@@ -167,9 +191,6 @@ public class Conductor : MonoBehaviour
         }
         else
         {
-#if DEBUG
-            Debug.Log("Wrong");
-#endif
             _numConsecutiveHits = 0;
             playerSpeed.Value = Mathf.Clamp(playerSpeed.Value - SPEED_STEP, 1f, 4f);
             score -= BASE_HIT_POINTS;
@@ -177,9 +198,7 @@ public class Conductor : MonoBehaviour
 
         updateMultiplier();
 
-#if DEBUG
-        Debug.Log(measureError());
-#endif
+
     }
 
     private void updateMultiplier()

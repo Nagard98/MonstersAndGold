@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class MusicNote : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class MusicNote : MonoBehaviour
 
     public Note note;
     public float tval;
-    //public float screenWidth;
+    private bool moving;
     public FloatVariable beatsShownInAdvance;
     public FloatVariable songPositionInBeats;
 
@@ -36,11 +37,9 @@ public class MusicNote : MonoBehaviour
         _removePosition = noteExitPoint.anchoredPosition;
         _hitPosition = noteHitPoint.anchoredPosition;
         noteTransform.anchoredPosition = _spawnPosition;
-        //_spawnPosition = noteTransform.localPosition;
-        //_hitPosition = new Vector3(-(screenWidth/2), noteTransform.localPosition.y, 0);
-        //_removePosition = new Vector3(-screenWidth-100, noteTransform.localPosition.y, 0);
 
         reachedHitPos = false;
+        moving = false;
     }
 
     private void loadNoteTexture(NoteType noteType)
@@ -68,31 +67,45 @@ public class MusicNote : MonoBehaviour
     void Update()
     {
 
-        if (noteTransform.anchoredPosition.x == 0)//_hitPosition)
+        if (moving) 
         {
-            reachedHitPos = true;
-        }
-
-        if (reachedHitPos)
-        {
-            tval = (beatsShownInAdvance.Value - (note.NoteBeat + beatsShownInAdvance.Value - songPositionInBeats.Value)) / beatsShownInAdvance.Value;
-            interpolationPos = Vector3.Lerp(_hitPosition, _removePosition, tval);
-            if(noteTransform.anchoredPosition == _removePosition)
-            {
-                Destroy(transform.gameObject);
-            }
-        }
-        else
-        {
-            if (noteTransform.anchoredPosition == _hitPosition)
+            if (noteTransform.anchoredPosition.x == 0)//_hitPosition)
             {
                 reachedHitPos = true;
             }
-            tval = (beatsShownInAdvance.Value - (note.NoteBeat - songPositionInBeats.Value)) / beatsShownInAdvance.Value;
-            interpolationPos =  Vector3.Lerp(_spawnPosition, _hitPosition, tval);
+
+            if (reachedHitPos)
+            {
+                tval = (beatsShownInAdvance.Value - (note.NoteBeat + beatsShownInAdvance.Value - songPositionInBeats.Value)) / beatsShownInAdvance.Value;
+                interpolationPos = Vector3.Lerp(_hitPosition, _removePosition, tval);
+                if (noteTransform.anchoredPosition == _removePosition)
+                {
+                    moving = false;
+                }
+            }
+            else
+            {
+                if (noteTransform.anchoredPosition == _hitPosition)
+                {
+                    reachedHitPos = true;
+                }
+                tval = (beatsShownInAdvance.Value - (note.NoteBeat - songPositionInBeats.Value)) / beatsShownInAdvance.Value;
+                interpolationPos = Vector3.Lerp(_spawnPosition, _hitPosition, tval);
+            }
+
+            noteTransform.anchoredPosition = interpolationPos;
+
         }
+    }
 
-        noteTransform.anchoredPosition = interpolationPos;
-
+    public void StartNote(Note note, float beatDuration=0f)
+    {
+        //this.note = note;
+        //moving = true;
+        noteTransform.anchoredPosition = _spawnPosition;
+        loadNoteTexture((NoteType)note.noteType);
+        //reachedHitPos = false;
+        //moving = true; ;
+        noteTransform.DOAnchorPos(_removePosition, beatDuration * 2f, true).SetEase(Ease.Linear);
     }
 }
