@@ -25,4 +25,9 @@ public class GoldVariable : POIVariable, Collectable
     {
         return valueGP;
     }
+
+    public override Color GetSpriteColor()
+    {
+        return Color.yellow;
+    }
 }

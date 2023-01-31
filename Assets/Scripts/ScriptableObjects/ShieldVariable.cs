@@ -11,6 +11,11 @@ public class ShieldVariable : POIVariable, Collectable
     public UnityEvent collected;
     public float damageThreshold;
 
+    public override Color GetSpriteColor()
+    {
+        return Color.green;
+    }
+
     private void OnEnable()
     {
         isCollectable = true;

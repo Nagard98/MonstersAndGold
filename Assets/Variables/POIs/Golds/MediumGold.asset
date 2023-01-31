@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameObject: {fileID: 5531464331518721006, guid: 3736c32d2fa1c244496dc7d920db9412, type: 3}
   isCollectable: 1
-  tier: 2
+  sprite: {fileID: 21300000, guid: db51b2925a6397842b287a2eb3e669f2, type: 3}
+  poiName: Gold Ingot
   onUnloadAction: {fileID: 11400000, guid: 202e4b393d8fb8649b9adef887c5eadd, type: 2}
   playerGP: {fileID: 11400000, guid: eded1c4ae388187429d92f06d5063046, type: 2}
   valueGP: 100

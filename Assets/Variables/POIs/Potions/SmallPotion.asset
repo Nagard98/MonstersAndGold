@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameObject: {fileID: 9161500708173513846, guid: 6728e200dabe3ff4598dc213abd7e31c, type: 3}
   isCollectable: 1
-  tier: 1
+  sprite: {fileID: 21300000, guid: 00ab251fe6f3ac244ab35e389015372f, type: 3}
+  poiName: Small Potion
   onUnloadAction: {fileID: 11400000, guid: 202e4b393d8fb8649b9adef887c5eadd, type: 2}
   playerHP: {fileID: 11400000, guid: 9d6ef550a20cdac4da27c4211bc3aae2, type: 2}
   playerMaxHP: {fileID: 11400000, guid: 18b3bc6b843e0fa4a8c0f8bc6c8e84e4, type: 2}
