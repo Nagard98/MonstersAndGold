@@ -6,6 +6,12 @@ public class VideoSettings : MonoBehaviour
 {
     public SettingsVariable settings;
 
+    private void Start()
+    {
+        Screen.SetResolution(settings.resolutions[settings.currentResolution].x, settings.resolutions[settings.currentResolution].y, settings.isFullscreen);
+        QualitySettings.SetQualityLevel(settings.currentQualityLevel);
+    }
+
     public void SetResolution(int option)
     {
         settings.currentResolution = option;

@@ -19,7 +19,7 @@ public class LoadSettings : MonoBehaviour
     public Toggle muteSfx;
     public Toggle muteMusic;
 
-    private void OnEnable()
+    private void Awake()
     {
         qualityDropdown.value = settings.currentQualityLevel;
         resolutionDropdown.value = settings.currentResolution;

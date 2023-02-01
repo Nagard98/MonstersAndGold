@@ -11,9 +11,9 @@ public class SettingsVariable : ScriptableObject
     [Range(0, 3)]public int currentResolution;
     [Range(0, 5)] public int currentQualityLevel;
 
-    [Range(-80, 20)] public float masterVolume;
-    [Range(-80, 20)] public float musicVolume;
-    [Range(-80, 20)] public float sfxVolume;
+    [Range(-80, 0)] public float masterVolume;
+    [Range(-80, 0)] public float musicVolume;
+    [Range(-80, 0)] public float sfxVolume;
     public bool isMusicMuted;
     public bool isSFXMuted;
 

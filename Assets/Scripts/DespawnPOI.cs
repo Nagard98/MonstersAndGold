@@ -17,8 +17,8 @@ public class DespawnPOI : MonoBehaviour
     private IEnumerator DespawnTimerCoroutine(float seconds)
     {
         yield return new WaitForSeconds(seconds);
-        despawnParticleEffect.transform.parent = transform.parent;
         despawnParticleEffect.SetActive(true);
+        despawnParticleEffect.transform.parent = transform.parent;
         Destroy(transform.gameObject);
         if (despawnableObject != null) despawnableObject.OnDespawn();
         else Debug.LogError("ERROR: A Despawnable was not associated with this object: " + this.name);
@@ -27,6 +27,5 @@ public class DespawnPOI : MonoBehaviour
     private void OnDestroy()
     {
         despawnParticleEffect.transform.parent = transform.parent;
-        despawnParticleEffect.SetActive(false);
     }
 }

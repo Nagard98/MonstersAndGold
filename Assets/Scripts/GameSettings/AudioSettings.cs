@@ -9,6 +9,13 @@ public class AudioSettings : MonoBehaviour
     public AudioMixer audioMixer;
     public SettingsVariable settings;
 
+    private void Start()
+    {
+        audioMixer.SetFloat("masterVolume", settings.masterVolume);
+        audioMixer.SetFloat("musicVolume", settings.isMusicMuted ? -80f : settings.musicVolume);
+        audioMixer.SetFloat("SFXVolume", settings.isSFXMuted ? -80f : settings.sfxVolume);
+    }
+
     public void SetMasterVolume(float volume)
     {
         audioMixer.SetFloat("masterVolume", volume);
@@ -29,13 +36,13 @@ public class AudioSettings : MonoBehaviour
 
     public void muteMusic(bool mute)
     {
-        settings.isMusicMuted = !mute;
+        settings.isMusicMuted = mute;
         audioMixer.SetFloat("musicVolume", settings.isMusicMuted ? -80f : settings.musicVolume);
     }
 
     public void muteSFX(bool mute)
     {
-        settings.isSFXMuted = !mute;
+        settings.isSFXMuted = mute;
         audioMixer.SetFloat("SFXVolume", settings.isSFXMuted ? -80f : settings.sfxVolume);
     }
 }
