@@ -67,12 +67,14 @@ public class Conductor : MonoBehaviour
     public float startOffsetBeats;
 
     private bool isRunning;
+    private GameStateVariable gameState;
 
     public FloatVariable playerSpeed;
     private const float SPEED_STEP = 0.2f;
 
     public UnityEvent MenuOpen;
     public UnityEvent<float> AttemptedHit;
+    public UnityEvent ShowTutorial;
 
     private void OnEnable()
     {
@@ -88,6 +90,28 @@ public class Conductor : MonoBehaviour
         isRunning = false;
     }
 
+    public void Init()
+    {
+        gameState = Resources.Load<GameStateVariable>("GameState");
+
+        loadSong();
+        score = 0f;
+        multiplier = 1f;
+        _attemptedHit = false;
+        _numConsecutiveHits = 0;
+        playerSpeed.Value = 2f;
+        instancedNotes = InstantiateNotes(30);
+
+        beatsShownInAdvance.Value = 3;
+        isRunning = false;
+
+        if (gameState.isFirstTutorial)
+        {
+            ShowTutorial.Invoke();
+            gameState.isFirstTutorial = false;
+        }
+    }
+
     public void StartConductor()
     {
         dspSongTime = (float)UnityEngine.AudioSettings.dspTime;
@@ -100,7 +124,7 @@ public class Conductor : MonoBehaviour
     {
         if (isRunning)
         {
-            if (Time.timeScale == 0f) return;
+            if (gameState.isPaused == true) return;
 
             if (_noteToSpawnIndex < _noteBeats.Length && _noteBeats[_noteToSpawnIndex].NoteBeat <= songPositionInBeats.Value)
             {

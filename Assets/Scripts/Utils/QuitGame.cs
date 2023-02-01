@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class QuitGame : MonoBehaviour
 {
+    private GameStateVariable gameState;
+
+    private void Start()
+    {
+        gameState = Resources.Load<GameStateVariable>("GameState");
+    }
 
     public void Quit()
     {
@@ -14,11 +20,13 @@ public class QuitGame : MonoBehaviour
     {
         AudioListener.pause = true;
         Time.timeScale = 0;
+        gameState.isPaused = true;
     }
 
     public void UnpauseGame()
     {
         AudioListener.pause = false;
         Time.timeScale = 1;
+        gameState.isPaused = false;
     }
 }

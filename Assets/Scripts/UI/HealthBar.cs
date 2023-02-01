@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class HealthBar : MonoBehaviour
 {
     public FloatVariable maxHealth;
     public FloatVariable currentHealth;
+    public float healtAnimDuration;
     private Image bar;
     private Rect rct;
 
@@ -17,10 +19,8 @@ public class HealthBar : MonoBehaviour
         rct.width = currentHealth.Value;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void UpdateHealthBar()
     {
-        rct.width = currentHealth.Value;
-        bar.fillAmount = (currentHealth.Value / maxHealth.Value);
+        bar.DOFillAmount(currentHealth.Value/ maxHealth.Value, healtAnimDuration);
     }
 }

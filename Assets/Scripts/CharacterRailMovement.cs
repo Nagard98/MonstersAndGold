@@ -17,12 +17,18 @@ public class CharacterRailMovement : MonoBehaviour
     public Vector3Variable playerPosition;
     private bool isRunning;
 
+    private GameStateVariable gameState;
+
     private void OnEnable()
     {
-        isRunning = false;
+        gameState = Resources.Load<GameStateVariable>("GameState");
         characterController = GetComponent<CharacterController>();
         animator = GetComponentInChildren<Animator>();
+    }
 
+    public void Init()
+    {
+        isRunning = false;
         lastPos = Vector3.zero;
 
         Vector3 orthoVector;
@@ -32,6 +38,12 @@ public class CharacterRailMovement : MonoBehaviour
 
         playerPosition.Value = GetGroundPosition(nextPos);
         SetCharacterPosition(playerPosition.Value);
+    }
+
+    public void CleanUp()
+    {
+        isRunning = false;
+        animator.SetFloat("Speed", 0);
     }
 
     //TO-DO: move to other class
@@ -52,7 +64,7 @@ public class CharacterRailMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isRunning)
+        if (isRunning && !gameState.isPaused)
         {
             Move();
             Animate();
