@@ -15,9 +15,11 @@ public class CharacterRailMovement : MonoBehaviour
     public FloatReference speed;
     public BezierCurveVariable bezCurve;
     public Vector3Variable playerPosition;
+    private bool isRunning;
 
     private void OnEnable()
     {
+        isRunning = false;
         characterController = GetComponent<CharacterController>();
         animator = GetComponentInChildren<Animator>();
 
@@ -42,11 +44,20 @@ public class CharacterRailMovement : MonoBehaviour
     }
 
 
+    public void StartRunning()
+    {
+        isRunning = true;
+    }
+
     // Update is called once per frame
     void Update()
     {
-        Move();
-        Animate();
+        if (isRunning)
+        {
+            Move();
+            Animate();
+        }
+
 
         //TO-DO: add updateT to derivative function
         //transform.forward = _quadBezierCurve.GetFirstDerivative(_t, firstPoint: _pathwayIndex).normalized;

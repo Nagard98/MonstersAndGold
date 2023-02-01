@@ -52,8 +52,16 @@ Material:
         m_Texture: {fileID: 2800000, guid: 95bb46061a77ef14aa49fb4aba394a6d, type: 3}
         m_Scale: {x: 80, y: 80}
         m_Offset: {x: 0, y: 0}
+    - _MainTex0Normal:
+        m_Texture: {fileID: 2800000, guid: 4ac62515b782fd6479fa3187c98202db, type: 3}
+        m_Scale: {x: 80, y: 80}
+        m_Offset: {x: 0, y: 0}
     - _MainTex1:
         m_Texture: {fileID: 2800000, guid: 3d7e23f397bd4e347bc2a33df00d0897, type: 3}
+        m_Scale: {x: 80, y: 80}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex1Normal:
+        m_Texture: {fileID: 2800000, guid: fe6fd64e2bb6d8c48984a7d963570348, type: 3}
         m_Scale: {x: 80, y: 80}
         m_Offset: {x: 0, y: 0}
     - _Mask:

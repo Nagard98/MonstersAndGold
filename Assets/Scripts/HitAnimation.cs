@@ -37,19 +37,23 @@ public class HitAnimation : MonoBehaviour
 
     }
 
-    public void AnimateHit(float error)
+    public void AnimateHit(float level)
     {
+        switch ((Accuracy)(int)level)
+        {
+            case Accuracy.Perfect:
+                image.color = Color.cyan;
+                break;
+            case Accuracy.Great:
+                image.color = Color.green;
+                break;
+            case Accuracy.Good:
+                image.color = Color.yellow;
+                break;
+            case Accuracy.Miss:
+                image.color = Color.red;
+                break;
 
-        if (error < 0.05f)
-        {
-            image.color = Color.green;
-        }else if (error < 0.2f)
-        {
-            image.color = Color.yellow;
-        }
-        else
-        {
-            image.color = Color.red;
         }
         fade = true;
         fadingIn = true;

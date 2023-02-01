@@ -15,5 +15,6 @@ MonoBehaviour:
   gameObject: {fileID: 2304667210925906314, guid: 8c70d29b64ca43548811ffb09e6481ee, type: 3}
   isCollectable: 0
   sprite: {fileID: 21300000, guid: 4f62d6cec47566342a85b0f2f16387b0, type: 3}
-  onUnloadAction: {fileID: 11400000, guid: 202e4b393d8fb8649b9adef887c5eadd, type: 2}
+  poiName: Small Enemy
+  onUnloadAction: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
   atkDamage: 10

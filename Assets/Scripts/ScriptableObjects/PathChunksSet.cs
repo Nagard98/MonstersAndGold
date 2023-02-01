@@ -37,6 +37,7 @@ public class PathChunksSet : RuntimeSet<PathChunk>
         {
             chunk.Destroy();
         }
+        Items.Clear();
 
     }
 }

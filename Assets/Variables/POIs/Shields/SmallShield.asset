@@ -16,12 +16,24 @@ MonoBehaviour:
   isCollectable: 1
   sprite: {fileID: 21300000, guid: 1e6df78cdd761514ca6a3ce0be1ce933, type: 3}
   poiName: Small Shield
-  onUnloadAction: {fileID: 11400000, guid: 202e4b393d8fb8649b9adef887c5eadd, type: 2}
+  onUnloadAction: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
   _inventory: {fileID: 11400000, guid: d3dc50feebc98af4ba58af1895b95647, type: 2}
   collected:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 11400000, guid: 93b8b7f78f5e8f740ab1bb0ae09dd3e9, type: 2}
+        m_TargetAssemblyTypeName: GameEvent, Assembly-CSharp
+        m_MethodName: Raise
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
         m_TargetAssemblyTypeName: GameEvent, Assembly-CSharp
         m_MethodName: Raise
         m_Mode: 1

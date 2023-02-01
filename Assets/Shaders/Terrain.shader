@@ -5,8 +5,10 @@ Shader "Custom/Terrain"
         _Color ("Color", Color) = (1,1,1,1)
         _HeightMap("Height Map", 2D) = "Height Map" {}
         _DisplacementStrength("Displacement Strength", Range(0.1, 200)) = 5
-        _MainTex0 ("Albedo (RGB)", 2D) = "white" {}
+        _MainTex0 ("Albedo (RGB) 1", 2D) = "white" {}
+        _MainTex0Normal("Normal Map 1", 2D)= "Normal Map 1" {}
         _MainTex1("Albedo (RGB) 2", 2D) = "white" {}
+        _MainTex1Normal("Normal Map 2", 2D) = "Normal Map 2" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
         _Mask("SplatMask (RGBA)", 2D) = "white" {}
@@ -24,7 +26,9 @@ Shader "Custom/Terrain"
         #pragma target 3.0
 
         sampler2D _MainTex0;
+        sampler2D _MainTex0Normal;
         sampler2D _MainTex1;
+        sampler2D _MainTex1Normal;
         sampler2D _Mask;
 
         struct Input
@@ -52,12 +56,12 @@ Shader "Custom/Terrain"
             fixed4 mask = tex2D(_Mask, IN.uv_Mask);
             fixed4 c = color0 * mask.r + color1 * mask.g;
 
-            //fixed3 normal1 = UnpackNormal(tex2D(_MainTexNormal, IN.uv_MainTex));
-            //fixed3 normal2 = UnpackNormal(tex2D(_MainTex2, IN.uv_MainTex2));
-            //fixed3 n = normal1 * mask.r + normal2 * mask.g;
+            fixed3 normal1 = UnpackNormal(tex2D(_MainTex0Normal, IN.uv_MainTex0));
+            fixed3 normal2 = UnpackNormal(tex2D(_MainTex1Normal, IN.uv_MainTex1));
+            fixed3 n = normal1 * mask.r + normal2 * mask.g;
 
             o.Albedo = c;
-            //o.Normal = n;
+            o.Normal = n;
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
             o.Alpha = c.a;

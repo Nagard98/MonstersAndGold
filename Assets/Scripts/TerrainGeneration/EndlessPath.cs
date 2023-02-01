@@ -15,13 +15,13 @@ public class EndlessPath : MonoBehaviour
     private PathChunksSet pathChunks;
     public Vector3Variable playerPosition;
     public Material pathMaterial;
+
     public UnityEvent GeneratedPath;
 
     public static GameObject pool;
     private Dictionary<int, Stack<GameObject>> poolGameObjects;
-    private Dictionary<int, Stack<GameObject>> test1;
 
-    public void Start()
+    public void StartUp()
     {
         pool = new GameObject("GameObjectPool");
         pool.transform.position = Vector3.zero;
@@ -76,18 +76,20 @@ public class EndlessPath : MonoBehaviour
         return releasedGameObjects;
     }
 
+    public void CleanUp()
+    {
+        pathChunks.Destroy();
+        playerPosition.Value = Vector3.zero;
+        Destroy(pool);
+        poolGameObjects.Clear();
+        pathGenerator.CleanUp();
+    }
+
     public void OnDisable()
     {
         pathChunks.Destroy();
     }
     
-    public void OnEnable()
-    {
-        if (pathGenerator != null)
-        {
-            StartCoroutine(test());
-        }
-    }
 
 }
 
