@@ -5,6 +5,7 @@ using UnityEngine;
 public class DespawnPOI : MonoBehaviour
 {
     private Despawnable despawnableObject;
+    public GameObject despawnParticleEffect;
 
     public Despawnable DespawnableObject { set { despawnableObject = value; } }
     
@@ -16,14 +17,16 @@ public class DespawnPOI : MonoBehaviour
     private IEnumerator DespawnTimerCoroutine(float seconds)
     {
         yield return new WaitForSeconds(seconds);
+        despawnParticleEffect.transform.parent = transform.parent;
+        despawnParticleEffect.SetActive(true);
         Destroy(transform.gameObject);
         if (despawnableObject != null) despawnableObject.OnDespawn();
         else Debug.LogError("ERROR: A Despawnable was not associated with this object: " + this.name);
     }
 
-    /*private void OnDestroy()
+    private void OnDestroy()
     {
-        if (despawnableObject != null) despawnableObject.OnDespawn();
-        else Debug.LogError("ERROR: A Despawnable was not associated with this object: " + this.name);
-    }*/
+        despawnParticleEffect.transform.parent = transform.parent;
+        despawnParticleEffect.SetActive(false);
+    }
 }

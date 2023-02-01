@@ -16,7 +16,7 @@ MonoBehaviour:
   isCollectable: 1
   sprite: {fileID: 21300000, guid: 2814dfe1a9bfbf544bcf8ba1672728e0, type: 3}
   poiName: Medium Shield
-  onUnloadAction: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
+  onDespawnAction: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
   _inventory: {fileID: 11400000, guid: d3dc50feebc98af4ba58af1895b95647, type: 2}
   collected:
     m_PersistentCalls:

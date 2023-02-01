@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: faea9cee76ddd0441b0eca66989e57ca, type: 3}
   m_Name: BeatsShownInAdvance
   m_EditorClassIdentifier: 
-  Value: 0
+  Value: 3

@@ -114,6 +114,11 @@ public class Conductor : MonoBehaviour
         }
     }
 
+    public void CleanUp()
+    {
+        //TODO: implementa
+    }
+
     public void StartConductor()
     {
         _currentPhase = 0;

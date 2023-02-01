@@ -9,7 +9,25 @@ public class SpawnerPOI : MonoBehaviour
 
     public PathChunksSet pathChunks;
     public BezierCurveVariable path;
-    
+    public GameObject collectableParticleEffect;
+    public GameObject despawnParticleEffect;
+
+    private void Awake()
+    {
+        collectableParticleEffect = Instantiate(collectableParticleEffect, transform);
+        collectableParticleEffect.SetActive(false);
+        despawnParticleEffect = Instantiate(despawnParticleEffect, transform);
+        despawnParticleEffect.SetActive(false);
+    }
+
+    public void CleanUp()
+    {
+        collectableParticleEffect.transform.parent = transform;
+        collectableParticleEffect.SetActive(false);
+        despawnParticleEffect.transform.parent = transform;
+        despawnParticleEffect.SetActive(false);
+    }
+
     public void SpawnPOI(POIVariable poi, SpawnSettings spawnSettings)
     {
         BezierSpline tmp = (BezierSpline)path.Value.Clone();
@@ -33,6 +51,10 @@ public class SpawnerPOI : MonoBehaviour
             {
                 CollectPOI collectPOI = spawnedPOI.AddComponent<CollectPOI>();
                 collectPOI.CollectableItem = (Collectable)poi;
+                collectableParticleEffect.transform.position = spawnedPOI.transform.position;
+                collectableParticleEffect.transform.parent = spawnedPOI.transform;
+                collectPOI.collectableParticleEffect = collectableParticleEffect;
+                collectableParticleEffect.SetActive(true);
             }
             else
             {
@@ -50,6 +72,10 @@ public class SpawnerPOI : MonoBehaviour
             }
             DespawnPOI despawnPOI = spawnedPOI.AddComponent<DespawnPOI>();
             despawnPOI.DespawnableObject = poi;
+            despawnParticleEffect.transform.position = spawnedPOI.transform.position;
+            despawnParticleEffect.transform.parent = spawnedPOI.transform;
+            despawnPOI.despawnParticleEffect = despawnParticleEffect;
+            despawnParticleEffect.SetActive(false);
             despawnPOI.SetDespawnTimer(spawnSettings.TTL);
 
             //Destroy(spawnedPOI, spawnSettings.TTL);

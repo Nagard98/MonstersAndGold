@@ -11,6 +11,7 @@ public class PotionVariable : POIVariable, Collectable
 
     public UnityEvent collected;
     public float hpRecovered;
+    
 
     public override Color GetSpriteColor()
     {

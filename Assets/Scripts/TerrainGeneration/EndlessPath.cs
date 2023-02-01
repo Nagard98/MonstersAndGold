@@ -21,14 +21,23 @@ public class EndlessPath : MonoBehaviour
     public static GameObject pool;
     private Dictionary<int, Stack<GameObject>> poolGameObjects;
 
+    private void Awake()
+    {
+        localNavMeshBuilder = GetComponent<LocalNavMeshBuilder>();
+        poolGameObjects = new Dictionary<int, Stack<GameObject>>();
+    }
+
+    private void Start()
+    {
+        pathGenerator = FindObjectOfType<PathGenerator>();
+    }
+
     public void StartUp()
     {
         pool = new GameObject("GameObjectPool");
         pool.transform.position = Vector3.zero;
         poolGameObjects = new Dictionary<int, Stack<GameObject>>();
 
-        localNavMeshBuilder = GetComponent<LocalNavMeshBuilder>();
-        pathGenerator = FindObjectOfType<PathGenerator>();
         foreach (SplatHeight splat in pathGenerator.splatHeights)
         {
             pathMaterial.SetTexture("_MainTex" + splat.layerIndex, splat.texture);

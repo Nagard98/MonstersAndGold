@@ -58,6 +58,11 @@ public class WorkoutMonitor : MonoBehaviour
         SetupTiers();
     }
 
+    public void CleanUp()
+    {
+        //TODO: implementa
+    }
+
     public void StartWorkout()
     {
         float beatDuration = 60f / (float)workoutPhases.Value[currentPhase].bpm;

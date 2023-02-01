@@ -16,7 +16,7 @@ MonoBehaviour:
   isCollectable: 1
   sprite: {fileID: 21300000, guid: 6deffd3fff0a0214a943b5ab3022ae93, type: 3}
   poiName: Small Coin
-  onUnloadAction: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
+  onDespawnAction: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
   playerGP: {fileID: 11400000, guid: eded1c4ae388187429d92f06d5063046, type: 2}
   valueGP: 50
   collected:
