@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public abstract class POIVariable : ScriptableObject, Unloadable
+public abstract class POIVariable : ScriptableObject, Despawnable
 {
     public GameObject gameObject;
     public bool isCollectable;
@@ -14,14 +14,14 @@ public abstract class POIVariable : ScriptableObject, Unloadable
     public int Tier { get { return tier; }  set { tier = value; } }
 
     [SerializeField]
-    public GameEvent onUnloadAction;
+    public GameEvent onDespawnAction;
 
     public abstract Color GetSpriteColor();
 
     public abstract float GetValue();
 
-    public void OnUnload()
+    public void OnDespawn()
     {
-        onUnloadAction.Raise();
+        onDespawnAction.Raise();
     }
 }

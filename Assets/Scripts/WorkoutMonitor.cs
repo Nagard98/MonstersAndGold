@@ -14,9 +14,11 @@ public class WorkoutMonitor : MonoBehaviour
     public List<EnemyVariable> enemyTypes;
 
     [SerializeField]
-    private WorkoutPhase[] workoutPhases;
+    private WorkoutPhasesVariable workoutPhases;
     private int currentPhase;
     private float phaseTimer;
+
+    public FloatVariable beatsShownInAdvance;
 
     [SerializeField]
     private Inventory inventory;
@@ -33,14 +35,19 @@ public class WorkoutMonitor : MonoBehaviour
     public FloatVariable meanHR;
     public float currentHR;
     public float durationPROC;
+    public float itemGroundOffset;
 
     public UnityEvent<POIVariable, SpawnSettings> SpawnPOI;
-    public UnityEvent<float> PhaseStarted;
+    public UnityEvent<float> PhaseStarted, PhaseEnded;
+    private bool waitingPhaseUpdate;
+    private float totalPhaseDuration;
     public UnityEvent EndWorkout;
-    public float itemGroundOffset;
+    private bool hasWorkoutStarted;
 
     void Start()
     {
+        hasWorkoutStarted = false;
+        waitingPhaseUpdate = false;
         phaseTimer = 0;
         currentPhase = 0;
         currentHR = 0;
@@ -53,47 +60,59 @@ public class WorkoutMonitor : MonoBehaviour
 
     public void StartWorkout()
     {
+        float beatDuration = 60f / (float)workoutPhases.Value[currentPhase].bpm;
+        totalPhaseDuration = workoutPhases.Value[currentPhase].totalSongDuration + beatsShownInAdvance.Value * beatDuration;
         StartCoroutine(UpdateHR());
         PhaseStarted.Invoke(currentPhase);
         ContinuePhase();
+        hasWorkoutStarted = true;
     }
 
-    private void NextPhase()
+    public void ContinuePhase()
     {
+        if (phaseTimer < workoutPhases.Value[currentPhase].totalSongDuration)
+        {
+            //Debug.Log("Fase" + currentPhase + " iniziata");
+            StartCoroutine(ContinuePhaseCoroutine());
+        }
+        else
+        {
+            //Debug.Log("Fase" + currentPhase + " completamente terminata");
+            PhaseEnded.Invoke(currentPhase);
+            StartCoroutine(NextPhase(workoutPhases.delayBetweenPhases));
+        }
+    }
+
+    public IEnumerator ContinuePhaseCoroutine()
+    {
+        //print("InizioPROC");
+        yield return new WaitForSeconds(durationPROC);
+        //print("FinePROC");
+        Debug.LogWarning("ROAV iniziato");
+        StartROAV();
+    }
+
+
+    private IEnumerator NextPhase(float phaseDelay)
+    {
+        yield return new WaitForSeconds(phaseDelay);
         phaseTimer = 0f;
         currentPhase += 1;
-        if (currentPhase < workoutPhases.Length)
+        if (currentPhase < workoutPhases.Value.Length)
         {
+            float beatDuration = 60f / (float)workoutPhases.Value[currentPhase].bpm;
+            totalPhaseDuration = workoutPhases.Value[currentPhase].totalSongDuration + beatsShownInAdvance.Value * beatDuration;
+            waitingPhaseUpdate = false;
             ContinuePhase();
             PhaseStarted.Invoke(currentPhase);
         }
         else EndWorkout.Invoke();
     }
 
-    public void ContinuePhase()
-    {
-        if (phaseTimer < workoutPhases[currentPhase].totalDuration)
-        {
-            Debug.Log("Fase"+currentPhase+" iniziata");
-            StartCoroutine(ContinuePhaseCoroutine());
-        }
-        else
-        {
-            Debug.Log("Fase" + currentPhase + " completamente terminata");
-            NextPhase();
-        }
-    }
-
-    public IEnumerator ContinuePhaseCoroutine()
-    {
-        print("InizioPROC");
-        yield return new WaitForSeconds(durationPROC);
-        print("FinePROC");
-        StartROAV();        
-    }
 
     public float StartROAV()
     {
+        
         meanSpeed = 0.9f * meanSpeed + 0.1f * speed.Value;
         float optHR = (optRange.lowerBound + optRange.higherBound) / 2;
         optSpeed = meanSpeed * (optHR - restHR.Value) / (meanHR.Value - restHR.Value);
@@ -167,31 +186,48 @@ public class WorkoutMonitor : MonoBehaviour
     private float SpawnPotion(int tier, float optSpeed, float itemGroundOffset)
     {
         float distance = ConvertValueToDistance(tier);
-        SpawnPOI.Invoke(potionTypes.Find(x => x.Tier == tier), new SpawnSettings(distance, distance / optSpeed, itemGroundOffset));
-        conditionMetPotion += 1;
-        return distance / optSpeed;
+        float ttl = distance / optSpeed;
+        if (phaseTimer + ttl <= workoutPhases.Value[currentPhase].totalSongDuration)
+        {
+            SpawnPOI.Invoke(potionTypes.Find(x => x.Tier == tier), new SpawnSettings(distance, ttl, itemGroundOffset));
+            conditionMetPotion += 1;
+        }
+        return ttl;
     }
 
     private float SpawnShield(int tier, float optSpeed, float groundOffset)
     {
         float distance = ConvertValueToDistance(tier);
-        SpawnPOI.Invoke(shieldTypes.Find(x => x.Tier == tier), new SpawnSettings(distance, distance / optSpeed, groundOffset));
-        conditionMetShield += 1;
-        return distance / optSpeed;
+        float ttl = distance / optSpeed;
+        if (phaseTimer + ttl <= workoutPhases.Value[currentPhase].totalSongDuration)
+        {
+            SpawnPOI.Invoke(shieldTypes.Find(x => x.Tier == tier), new SpawnSettings(distance, ttl, groundOffset));
+            conditionMetShield += 1;
+        }
+        return ttl;
     }
 
     private float SpawnEnemy(int tier, float optSpeed, float itemGroundOffset = 0)
     {
         float distance = ConvertValueToDistance(tier);
-        SpawnPOI.Invoke(enemyTypes.Find(x => x.Tier == tier), new SpawnSettings(distance, distance / optSpeed, itemGroundOffset));
-        return distance / optSpeed;
+        float ttl = distance / optSpeed;
+        if (phaseTimer + ttl <= workoutPhases.Value[currentPhase].totalSongDuration)
+        {
+            SpawnPOI.Invoke(enemyTypes.Find(x => x.Tier == tier), new SpawnSettings(distance, ttl, itemGroundOffset));
+        }
+        return ttl;
     }
 
     private float SpawnGold(int tier, float optSpeed, float groundOffset)
     {
         float distance = ConvertValueToDistance(tier);
-        SpawnPOI.Invoke(goldTypes.Find(x => x.Tier == tier), new SpawnSettings(distance, distance / optSpeed, groundOffset));
-        return distance / optSpeed;
+        float ttl = distance / optSpeed;
+        if (phaseTimer + ttl <= workoutPhases.Value[currentPhase].totalSongDuration)
+        {
+            //Debug.LogWarning("Chiamato");
+            SpawnPOI.Invoke(goldTypes.Find(x => x.Tier == tier), new SpawnSettings(distance, ttl, groundOffset));
+        }
+        return ttl;
     }
 
     private float ConvertValueToDistance(int tier)
@@ -211,10 +247,18 @@ public class WorkoutMonitor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Time.timeScale != 0)
+        if (Time.timeScale != 0 && hasWorkoutStarted)
         {
             currentHR = MathUtils.Remap(speed.Value, 1, 10, 70, 200);
             phaseTimer += Time.deltaTime;
+            if (!waitingPhaseUpdate && phaseTimer >= totalPhaseDuration)
+            {
+                Debug.LogWarning(phaseTimer + " " + totalPhaseDuration);
+                Debug.Log("Fase" + currentPhase + " completamente terminata");
+                waitingPhaseUpdate = true;
+                PhaseEnded.Invoke(currentPhase);
+                StartCoroutine(NextPhase(workoutPhases.delayBetweenPhases));
+            }
         }
         
     }
@@ -222,13 +266,3 @@ public class WorkoutMonitor : MonoBehaviour
 
 }
 
-[Serializable]
-public struct WorkoutPhase
-{
-    public float totalDuration;
-
-    public WorkoutPhase(float totalDuration)
-    {
-        this.totalDuration = totalDuration;
-    }
-}

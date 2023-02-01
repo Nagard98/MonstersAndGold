@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5062e451d5695c4d892bfaeea7955cc, type: 3}
+  m_Name: WorkoutPhases
+  m_EditorClassIdentifier: 
+  Value:
+  - totalSongDuration: 90
+    phaseSong: {fileID: 8300000, guid: 76ee9b0a790c90a4e8138ce664180b5e, type: 3}
+    bpm: 90
+  - totalSongDuration: 180
+    phaseSong: {fileID: 8300000, guid: 29af8b30c8a7de34c8b4e76014895b0c, type: 3}
+    bpm: 120
+  - totalSongDuration: 90
+    phaseSong: {fileID: 8300000, guid: 76ee9b0a790c90a4e8138ce664180b5e, type: 3}
+    bpm: 90
+  delayBetweenPhases: 10

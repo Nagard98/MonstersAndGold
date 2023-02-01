@@ -47,19 +47,20 @@ public class Conductor : MonoBehaviour
     public const float BASE_HIT_POINTS = 100f;
     private int _numConsecutiveHits;
 
-    public float bpm;
+    //public float bpm;
     public float songPosition;
-    public float beatDuration;
+    private SongInfo[] songsInfo;
+    //public float beatDuration;
     public FloatVariable songPositionInBeats;
     public float dspSongTime;
     public GameObject note;
     public FloatVariable beatsShownInAdvance;
     
     public RectTransform rectTransform;
-    private AudioSource audioSource;
+    public AudioSource audioSource;
 
     [SerializeField]
-    public Note[] _noteBeats;
+    //public Note[] _noteBeats;
     private MusicNote[] instancedNotes;
     private int _noteToSpawnIndex;
     private int _noteToHitIndex;
@@ -68,6 +69,9 @@ public class Conductor : MonoBehaviour
 
     private bool isRunning;
     private GameStateVariable gameState;
+
+    public WorkoutPhasesVariable workoutPhases;
+    private int _currentPhase;
 
     public FloatVariable playerSpeed;
     private const float SPEED_STEP = 0.2f;
@@ -78,7 +82,9 @@ public class Conductor : MonoBehaviour
 
     private void OnEnable()
     {
-        loadSong();
+        gameState = Resources.Load<GameStateVariable>("GameState");
+        audioSource = GetComponent<AudioSource>();
+        loadWorkoutSongs();
         score = 0f;
         multiplier = 1f;
         _attemptedHit = false;
@@ -86,15 +92,12 @@ public class Conductor : MonoBehaviour
         playerSpeed.Value = 2f;
         instancedNotes = InstantiateNotes(30);
 
-        beatsShownInAdvance.Value = 3;
         isRunning = false;
     }
 
     public void Init()
     {
-        gameState = Resources.Load<GameStateVariable>("GameState");
-
-        loadSong();
+        loadWorkoutSongs();
         score = 0f;
         multiplier = 1f;
         _attemptedHit = false;
@@ -102,7 +105,6 @@ public class Conductor : MonoBehaviour
         playerSpeed.Value = 2f;
         instancedNotes = InstantiateNotes(30);
 
-        beatsShownInAdvance.Value = 3;
         isRunning = false;
 
         if (gameState.isFirstTutorial)
@@ -114,6 +116,7 @@ public class Conductor : MonoBehaviour
 
     public void StartConductor()
     {
+        _currentPhase = 0;
         dspSongTime = (float)UnityEngine.AudioSettings.dspTime;
         audioSource.Play();
         isRunning = true;
@@ -124,11 +127,12 @@ public class Conductor : MonoBehaviour
     {
         if (isRunning)
         {
+            Note[] _noteBeats = songsInfo[_currentPhase].noteBeats;
             if (gameState.isPaused == true) return;
 
             if (_noteToSpawnIndex < _noteBeats.Length && _noteBeats[_noteToSpawnIndex].NoteBeat <= songPositionInBeats.Value)
             {
-                instancedNotes[_noteToSpawnIndex % 30].StartNote(_noteBeats[_noteToSpawnIndex], beatDuration + beatDuration * beatsShownInAdvance.Value);
+                instancedNotes[_noteToSpawnIndex % 30].StartNote(_noteBeats[_noteToSpawnIndex], songsInfo[_currentPhase].beatDuration + songsInfo[_currentPhase].beatDuration * beatsShownInAdvance.Value);
                 _noteToSpawnIndex += 1;
             }
 
@@ -146,20 +150,37 @@ public class Conductor : MonoBehaviour
             }
 
             songPosition = (float)(UnityEngine.AudioSettings.dspTime - dspSongTime);
-            songPositionInBeats.Value = songPosition / beatDuration;
+            songPositionInBeats.Value = songPosition / songsInfo[_currentPhase].beatDuration;
         }
     }
 
-    private void loadSong()
+    public void StartPhaseSong(float phase)
     {
-        audioSource = GetComponent<AudioSource>();
-        beatDuration = 60f / bpm;
+        _currentPhase = (int)phase;
         _noteToSpawnIndex = 0;
         _noteToHitIndex = 0;
-        startOffsetBeats = 5f;
         songPositionInBeats.Value = 0f;
+        audioSource.clip = workoutPhases.Value[(int)phase].phaseSong;
+        dspSongTime = (float)UnityEngine.AudioSettings.dspTime;
+        audioSource.Play();
+    }
 
+    private void loadWorkoutSongs()
+    {
+        songsInfo = new SongInfo[workoutPhases.Value.Length];
+        for (int i = 0; i < workoutPhases.Value.Length; i++)
+        {
+            float beatDur = 60f / workoutPhases.Value[i].bpm;
+            int numBeats = Mathf.FloorToInt(workoutPhases.Value[i].totalSongDuration / beatDur);
+            songsInfo[i] = new SongInfo(beatDur, 0f, createBeats(numBeats));
+        }
+        //audioSource.clip = workoutPhases.Value[]
+        /*beatDuration = 60f / bpm;
+        startOffsetBeats = 5f;
         _noteBeats = createBeats(60);
+        */
+        //TODO:resetta a zero quando inizia fase
+
     }
 
     private Note[] createBeats(int numBeats)
@@ -192,19 +213,19 @@ public class Conductor : MonoBehaviour
         if (_attemptedHit == false)
         {
             _attemptedHit = true;
-            if (_noteToHitIndex < _noteBeats.Length)
+            if (_noteToHitIndex < songsInfo[_currentPhase].noteBeats.Length)
             {
                 Accuracy accuracy;
                 measureError(out accuracy);
                 AttemptedHit.Invoke(((float)accuracy));
-                updateScore(_noteBeats[_noteToHitIndex].NoteType, noteType, accuracy);
+                updateScore(songsInfo[_currentPhase].noteBeats[_noteToHitIndex].NoteType, noteType, accuracy);
             }
         }
     }
 
     private float measureError(out Accuracy accuracyLevel)
     {
-        float distance = Mathf.Abs(_noteBeats[_noteToHitIndex].NoteBeat - songPositionInBeats.Value + 1 + beatsShownInAdvance.Value);
+        float distance = Mathf.Abs(songsInfo[_currentPhase].noteBeats[_noteToHitIndex].NoteBeat - songPositionInBeats.Value + 1 + beatsShownInAdvance.Value);
         if (distance < 0.05f)
         {
             accuracyLevel = Accuracy.Perfect;
@@ -286,12 +307,11 @@ public class Conductor : MonoBehaviour
         GameObject noteObject = Instantiate(note, rectTransform);
         MusicNote musicNote = noteObject.GetComponent<MusicNote>();
         musicNote.note = noteToSpawn;
-        //musicNote.screenWidth = rectTransform.rect.width;
     }
 
     private void OnMenu(InputValue input)
     {
-        if (input.isPressed)
+        if (input.isPressed && gameState.isInGame)
         {
             MenuOpen.Invoke();
         }
@@ -327,5 +347,19 @@ public class Conductor : MonoBehaviour
         {
             manageInput(NoteType.Right);
         }
+    }
+}
+
+struct SongInfo
+{
+    public float beatDuration;
+    public float startOffsetBeats;
+    public Note[] noteBeats;
+
+    public SongInfo(float beatDuration, float startOffsetBeats, Note[] noteBeats)
+    {
+        this.beatDuration = beatDuration;
+        this.startOffsetBeats = startOffsetBeats;
+        this.noteBeats = noteBeats;
     }
 }

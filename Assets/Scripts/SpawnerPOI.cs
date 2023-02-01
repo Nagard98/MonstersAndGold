@@ -38,6 +38,7 @@ public class SpawnerPOI : MonoBehaviour
             {
                 spawnedPOI.transform.localPosition += orthoVector * 3f;
                 EnemyAI enemyAi = spawnedPOI.GetComponent<EnemyAI>();
+                //TO-DO: forse non è necessario fare così
                 enemyAi.enemyInfo = (EnemyVariable)poi;
                 Vector3 ortho2 = Vector3.Cross(orthoVector, Vector3.up).normalized;
                 Vector3[] navPoints = new Vector3[2];
@@ -47,10 +48,11 @@ public class SpawnerPOI : MonoBehaviour
                 enemyAi.navPoints = navPoints;
                 EndlessPath.localNavMeshBuilder.m_Tracked = spawnedPOI.transform;
             }
-            UnloadPOI unloadPOI = spawnedPOI.AddComponent<UnloadPOI>();
-            unloadPOI.UnloadableObject = poi;
+            DespawnPOI despawnPOI = spawnedPOI.AddComponent<DespawnPOI>();
+            despawnPOI.DespawnableObject = poi;
+            despawnPOI.SetDespawnTimer(spawnSettings.TTL);
 
-            Destroy(spawnedPOI, spawnSettings.TTL);
+            //Destroy(spawnedPOI, spawnSettings.TTL);
         }
 
     }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface Unloadable
+public interface Despawnable
 {
-    public void OnUnload();
+    public void OnDespawn();
 }

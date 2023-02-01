@@ -31,7 +31,7 @@ public class StartCountdown : MonoBehaviour
         if (!source.isPlaying && !gameState.isPaused && hasPlayed)
         {
             CountdownTerminated.Invoke();
-            Debug.Log("Count terminato");
+            //Debug.Log("Count terminato");
             hasPlayed = false;
         }
     }

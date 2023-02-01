@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: GameState
   m_EditorClassIdentifier: 
   isPaused: 0
-  isFirstTutorial: 1
-  isInGame: 0
+  isFirstTutorial: 0
+  isInGame: 1
+  isInGameMenuOpen: 0
+  isTutorialOpen: 0
