@@ -26,6 +26,6 @@ public class DespawnPOI : MonoBehaviour
 
     private void OnDestroy()
     {
-        despawnParticleEffect.transform.parent = transform.parent;
+        StopAllCoroutines();
     }
 }

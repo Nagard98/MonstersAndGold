@@ -15,8 +15,8 @@ public class MusicNote : MonoBehaviour
     public RectTransform noteHitPoint;
 
     public Note note;
-    public float tval;
-    private bool moving;
+    //public float tval;
+    //private bool moving;
     public FloatVariable beatsShownInAdvance;
     public FloatVariable songPositionInBeats;
 
@@ -25,8 +25,8 @@ public class MusicNote : MonoBehaviour
     public Texture upArrowTexture, downArrowTexture, leftArrowTexture, rightArrowTexture;
     private RawImage _rawImage;
     
-    private bool reachedHitPos;
-    private Vector3 interpolationPos;
+    //private bool reachedHitPos;
+    //private Vector3 interpolationPos;
         
     void Start()
     {
@@ -38,8 +38,14 @@ public class MusicNote : MonoBehaviour
         _hitPosition = noteHitPoint.anchoredPosition;
         noteTransform.anchoredPosition = _spawnPosition;
 
-        reachedHitPos = false;
-        moving = false;
+        //reachedHitPos = false;
+        //moving = false;
+    }
+
+    public void CleanUp()
+    {
+        noteTransform.DOKill();
+        noteTransform.anchoredPosition = noteEntryPoint.anchoredPosition;
     }
 
     private void loadNoteTexture(NoteType noteType)
@@ -63,7 +69,7 @@ public class MusicNote : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
+    /*// Update is called once per frame
     void Update()
     {
 
@@ -96,7 +102,7 @@ public class MusicNote : MonoBehaviour
             noteTransform.anchoredPosition = interpolationPos;
 
         }
-    }
+    }*/
 
     public void StartNote(Note note, float beatDuration=0f)
     {
@@ -108,4 +114,5 @@ public class MusicNote : MonoBehaviour
         //moving = true; ;
         noteTransform.DOAnchorPos(_removePosition, beatDuration * 2f, true).SetEase(Ease.Linear);
     }
+
 }

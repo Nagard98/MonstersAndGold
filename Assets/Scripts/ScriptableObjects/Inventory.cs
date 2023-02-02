@@ -7,4 +7,9 @@ public class Inventory : RuntimeSet<ShieldVariable>
     public int maxShields;
 
     public bool IsFull { get { return maxShields == this.Items.Count; } }
+
+    public void Clear()
+    {
+        Items.Clear();
+    }
 }

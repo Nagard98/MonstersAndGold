@@ -12,6 +12,7 @@ enum Accuracy
     Good,
     Miss
 }
+
 enum NoteType
 {
     Up,
@@ -19,6 +20,7 @@ enum NoteType
     Left,
     Right
 }
+
 [Serializable]
 public struct Note
 {
@@ -59,8 +61,6 @@ public class Conductor : MonoBehaviour
     public RectTransform rectTransform;
     public AudioSource audioSource;
 
-    [SerializeField]
-    //public Note[] _noteBeats;
     private MusicNote[] instancedNotes;
     private int _noteToSpawnIndex;
     private int _noteToHitIndex;
@@ -80,7 +80,7 @@ public class Conductor : MonoBehaviour
     public UnityEvent<float> AttemptedHit;
     public UnityEvent ShowTutorial;
 
-    private void OnEnable()
+    private void Awake()
     {
         gameState = Resources.Load<GameStateVariable>("GameState");
         audioSource = GetComponent<AudioSource>();
@@ -116,7 +116,13 @@ public class Conductor : MonoBehaviour
 
     public void CleanUp()
     {
-        //TODO: implementa
+        _currentPhase = 0;
+        isRunning = false;
+        songPositionInBeats.Value = 0;
+        foreach(MusicNote note in instancedNotes)
+        {
+            note.CleanUp();
+        }
     }
 
     public void StartConductor()

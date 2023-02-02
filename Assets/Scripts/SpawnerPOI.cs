@@ -9,6 +9,7 @@ public class SpawnerPOI : MonoBehaviour
 
     public PathChunksSet pathChunks;
     public BezierCurveVariable path;
+    private GameObject spawnedPOI;
     public GameObject collectableParticleEffect;
     public GameObject despawnParticleEffect;
 
@@ -26,6 +27,7 @@ public class SpawnerPOI : MonoBehaviour
         collectableParticleEffect.SetActive(false);
         despawnParticleEffect.transform.parent = transform;
         despawnParticleEffect.SetActive(false);
+        Destroy(spawnedPOI);
     }
 
     public void SpawnPOI(POIVariable poi, SpawnSettings spawnSettings)
@@ -33,7 +35,7 @@ public class SpawnerPOI : MonoBehaviour
         BezierSpline tmp = (BezierSpline)path.Value.Clone();
         Vector3 orthoVector;
         Vector3 spawnPosition = tmp.MoveLongDistance(spawnSettings.distance, out orthoVector);
-        //PathChunk pc = pathChunks.Get(chunkIndex);
+
         if (spawnPosition == null)
         {
             //TO-DO: Aggiungi richiesta spawn uno volta che chunk verrà istanziato
@@ -45,7 +47,7 @@ public class SpawnerPOI : MonoBehaviour
             Vector3 groundedPos = CharacterRailMovement.GetGroundPosition(spawnPosition);
             groundedPos.y += spawnSettings.groundOffset;
 
-            GameObject spawnedPOI = Instantiate(poi.gameObject, groundedPos, Quaternion.identity);
+            spawnedPOI = Instantiate(poi.gameObject, groundedPos, Quaternion.identity);
             spawnedPOI.transform.parent = transform;
             if (poi.isCollectable)
             {

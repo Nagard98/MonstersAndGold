@@ -39,13 +39,28 @@ public class WorkoutMonitor : MonoBehaviour
 
     public UnityEvent<POIVariable, SpawnSettings> SpawnPOI;
     public UnityEvent<float> PhaseStarted, PhaseEnded;
+    public UnityEvent EndWorkout;
+
     private bool waitingPhaseUpdate;
     private float totalPhaseDuration;
-    public UnityEvent EndWorkout;
     private bool hasWorkoutStarted;
+
+
+    private void Awake()
+    {
+        SetupTiers();
+    }
 
     void Start()
     {
+        CleanUp();        
+    }
+
+    public void CleanUp()
+    {
+        StopAllCoroutines();
+        inventory.Clear();
+        playerHealth.Value = fullHealth.Value;
         hasWorkoutStarted = false;
         waitingPhaseUpdate = false;
         phaseTimer = 0;
@@ -55,12 +70,6 @@ public class WorkoutMonitor : MonoBehaviour
         isLastPROCGood = true;
         conditionMetPotion = 0;
         conditionMetShield = 0;
-        SetupTiers();
-    }
-
-    public void CleanUp()
-    {
-        //TODO: implementa
     }
 
     public void StartWorkout()
@@ -229,7 +238,6 @@ public class WorkoutMonitor : MonoBehaviour
         float ttl = distance / optSpeed;
         if (phaseTimer + ttl <= workoutPhases.Value[currentPhase].totalSongDuration)
         {
-            //Debug.LogWarning("Chiamato");
             SpawnPOI.Invoke(goldTypes.Find(x => x.Tier == tier), new SpawnSettings(distance, ttl, groundOffset));
         }
         return ttl;
@@ -258,8 +266,6 @@ public class WorkoutMonitor : MonoBehaviour
             phaseTimer += Time.deltaTime;
             if (!waitingPhaseUpdate && phaseTimer >= totalPhaseDuration)
             {
-                Debug.LogWarning(phaseTimer + " " + totalPhaseDuration);
-                Debug.Log("Fase" + currentPhase + " completamente terminata");
                 waitingPhaseUpdate = true;
                 PhaseEnded.Invoke(currentPhase);
                 StartCoroutine(NextPhase(workoutPhases.delayBetweenPhases));

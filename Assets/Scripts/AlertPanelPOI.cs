@@ -10,7 +10,7 @@ public class AlertPanelPOI : MonoBehaviour
 {
     private RectTransform rectTransform;
     private float poiDuration, poiDistance;
-    private string poiName;
+    //private string poiName;
     private bool countdownRunning, endCountdownStarted;
     private TextMeshProUGUI timerText, alertText;
     private Image poiImage;
@@ -45,6 +45,18 @@ public class AlertPanelPOI : MonoBehaviour
     {
         countdownRunning = false;
         rectTransform.DOScale(0f, scaleDuration).SetDelay(delay);
+    }
+
+    public void CleanUp()
+    {
+        countdownRunning = false;
+        rectTransform.DOKill();
+        rectTransform.localScale = Vector3.zero;
+    }
+
+    private void OnDisable()
+    {
+        CleanUp();
     }
 
     // Update is called once per frame

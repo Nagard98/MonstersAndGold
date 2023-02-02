@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.Events;
 
 public class HealthBar : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class HealthBar : MonoBehaviour
     public float healtAnimDuration;
     private Image bar;
     private Rect rct;
+    public UnityEvent Death;
 
     void Start()
     {
@@ -22,5 +24,6 @@ public class HealthBar : MonoBehaviour
     public void UpdateHealthBar()
     {
         bar.DOFillAmount(currentHealth.Value/ maxHealth.Value, healtAnimDuration);
+        if (currentHealth.Value <= 0f) Death.Invoke();
     }
 }

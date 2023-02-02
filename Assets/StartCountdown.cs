@@ -25,6 +25,12 @@ public class StartCountdown : MonoBehaviour
         hasPlayed = true;
     }
 
+    public void CleanUp()
+    {
+        hasPlayed = false;
+        source.Stop();
+    }
+
     // Update is called once per frame
     void Update()
     {
