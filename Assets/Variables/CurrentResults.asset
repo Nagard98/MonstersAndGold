@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 452cc8e04cc49ff459472017ddff1f6d, type: 3}
   m_Name: CurrentResults
   m_EditorClassIdentifier: 
-  perfectHits: 35
-  greatHits: 24
-  goodHits: 62
-  missHits: 25
-  longestStreak: 11
-  time: 236
+  perfectHits: 0
+  greatHits: 0
+  goodHits: 0
+  missHits: 0
+  longestStreak: 0
+  time: 0
   score: 0

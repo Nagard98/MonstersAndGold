@@ -130,39 +130,7 @@ public static class Noise
         return sum;
     }
 
-    /*public static float[,] UpdateWithCurvature(float[,] noiseMap, int mapSize, SplineDisplacementInfo splineDisplacementInfo)
-    {
-        double chunkDist = splineDisplacementInfo.displacementSpline.GetPathChunkDist(splineDisplacementInfo.chunkIndex, splineDisplacementInfo.numCurvesChunk);
-        double stepCurve = chunkDist / (mapSize - 1);
-
-        splineDisplacementInfo.displacementSpline._buildArcDist = .0f;
-        splineDisplacementInfo.displacementSpline._buildArcIndex = splineDisplacementInfo.numCurvesChunk * splineDisplacementInfo.chunkIndex;
-
-        Vector3 splineCoord = splineDisplacementInfo.displacementSpline.BuildAlong(0);
-        float lastZ = splineCoord.z;
-        float totalZTraversed = 0f;
-        float zError = 0f;
-
-        for (int x = 0; x < mapSize; x++)
-        {
-            for (int y = 0; y < mapSize; y++)
-            {
-                if (y > 0)
-                {
-                    splineCoord = splineDisplacementInfo.displacementSpline.BuildAlong((float)stepCurve + zError);
-                    float pzStep = splineCoord.z - lastZ;
-                    totalZTraversed += pzStep;
-                    zError = y - totalZTraversed;
-                    lastZ = splineCoord.z;
-                }
-
-                float pathCurvatureNoise = Mathf.Clamp01(Mathf.PerlinNoise(0.01f, ((splineDisplacementInfo.chunkIndex * mapSize) + y) * 0.02f));
-                float scaledPathCurvature = MathUtils.Remap(pathCurvatureNoise, 0f, 1f, 0f, 0.5f);
-                noiseMap[x, y] += scaledPathCurvature;
-            }
-        }
-    }*/
-
+    //Displaces height with bezier spline in order to create path
     private static float GetSplineDisplacement(float noiseHeight, float splineX, int chunkWidth, int x)
     {
         float t = MathUtils.Remap(x, 0f, (float)(chunkWidth), 0f, 1f);

@@ -15,10 +15,10 @@ MonoBehaviour:
   gameObject: {fileID: 8864744096420776161, guid: b1a0d44e520f51d47b652d30ba9112cd, type: 3}
   isCollectable: 1
   sprite: {fileID: 21300000, guid: 3a4217e8eb3d3824bbd06ac997baa115, type: 3}
-  poiName: Medium Potion
+  alertMessage: E' apparsa una media pozione a
   onDespawnAction: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
-  playerHP: {fileID: 11400000, guid: 9d6ef550a20cdac4da27c4211bc3aae2, type: 2}
-  playerMaxHP: {fileID: 11400000, guid: 18b3bc6b843e0fa4a8c0f8bc6c8e84e4, type: 2}
+  _playerHP: {fileID: 11400000, guid: 9d6ef550a20cdac4da27c4211bc3aae2, type: 2}
+  _playerMaxHP: {fileID: 11400000, guid: 18b3bc6b843e0fa4a8c0f8bc6c8e84e4, type: 2}
   collected:
     m_PersistentCalls:
       m_Calls:

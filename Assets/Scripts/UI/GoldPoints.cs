@@ -6,16 +6,16 @@ using TMPro;
 public class GoldPoints : MonoBehaviour
 {
     public FloatVariable playerGP;
-    private TextMeshProUGUI score;
+    private TextMeshProUGUI _score;
 
     void Start()
     {
-        score = GetComponentInChildren<TextMeshProUGUI>();
+        _score = GetComponentInChildren<TextMeshProUGUI>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        score.SetText(((int)playerGP.Value).ToString());
+        _score.SetText(((int)playerGP.Value).ToString());
     }
 }

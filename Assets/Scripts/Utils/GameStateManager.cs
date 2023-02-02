@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class GameStateManager : MonoBehaviour
 {
-    private GameStateVariable gameState;
+    private GameStateVariable _gameState;
 
     private void Start()
     {
-        gameState = Resources.Load<GameStateVariable>("GameState");
+        _gameState = Resources.Load<GameStateVariable>("GameState");
     }
 
     public void Quit()
@@ -18,30 +18,30 @@ public class GameStateManager : MonoBehaviour
 
     public void SetInGame(bool value)
     {
-        gameState.isInGame = value;
+        _gameState.isInGame = value;
     }
 
     public void SetIsTutorialOpen(bool value)
     {
-        gameState.isTutorialOpen = value;
+        _gameState.isTutorialOpen = value;
     }
 
     public void SetIsInGameMenuOpen(bool value)
     {
-        gameState.isInGameMenuOpen = value;
+        _gameState.isInGameMenuOpen = value;
     }
 
     public void PauseGame()
     {
-        AudioListener.pause = gameState.isInGameMenuOpen || gameState.isTutorialOpen;
-        Time.timeScale = gameState.isInGameMenuOpen || gameState.isTutorialOpen ? 0 : 1;
-        gameState.isPaused = gameState.isTutorialOpen || gameState.isInGameMenuOpen;
+        AudioListener.pause = _gameState.isInGameMenuOpen || _gameState.isTutorialOpen;
+        Time.timeScale = _gameState.isInGameMenuOpen || _gameState.isTutorialOpen ? 0 : 1;
+        _gameState.isPaused = _gameState.isTutorialOpen || _gameState.isInGameMenuOpen;
     }
 
     public void UnpauseGame()
     {
-        AudioListener.pause = !(!gameState.isInGameMenuOpen && !gameState.isTutorialOpen);
-        Time.timeScale = (!gameState.isInGameMenuOpen && !gameState.isTutorialOpen) ? 1 : 0;
-        gameState.isPaused = !(!gameState.isInGameMenuOpen && !gameState.isTutorialOpen);
+        AudioListener.pause = !(!_gameState.isInGameMenuOpen && !_gameState.isTutorialOpen);
+        Time.timeScale = (!_gameState.isInGameMenuOpen && !_gameState.isTutorialOpen) ? 1 : 0;
+        _gameState.isPaused = !(!_gameState.isInGameMenuOpen && !_gameState.isTutorialOpen);
     }
 }

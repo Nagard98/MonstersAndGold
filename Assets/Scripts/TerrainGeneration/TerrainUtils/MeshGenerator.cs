@@ -6,20 +6,15 @@ public static class MeshGenerator
 {
     public static ComputeShader displacePlane = Resources.Load<ComputeShader>("DisplacePlane");
 
+    //Stitches the last line of vertices from one mesh to the last line of vertices from another mesh
     public static Vector3[] StitchMeshes(Vector3[] meshVertices, Vector3[] stitchTo, int meshSize)
     {
         for (int x = 0; x < meshSize; x++)
         {
             float frs = stitchTo[(meshSize*meshSize) - meshSize + x].y;
-            //float sec = meshVertices[chunkXSize + 1 + x].y;
-            //float avg = (frs + sec) / 2;
             meshVertices[x].y = frs;
-            //firstVerts[((chunkXSize + 1) * (chunkZSize + 1)) - (chunkXSize + 1) + x].y = avg;
         }
         return meshVertices;
-
-        //firstMesh.Invoke("UpdateMesh", 0);
-        //secondMesh.Invoke("UpdateMesh", 0);
     }
 
     public static MeshData GenerateTerrainMesh(float[,] heightmap, float heightMultiplier, int levelOfDetail, Vector3[] stitchTo = null)
@@ -152,6 +147,7 @@ public class MeshData
         return Vector3.Cross(sideAB, sideAC).normalized;
     }
 
+    //Uses compute shader to displace flat mesh with a heightmap
     public void DisplaceMesh(Material terrainMat)
     {
         Vector3[] verts = vertices;

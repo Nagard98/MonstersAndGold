@@ -1,3 +1,5 @@
+//Compute shader for finding the height at a certain point on the terrain mesh
+//Used for tree/details placement on terrain
 #pragma kernel FindPositions
 
 Texture2D<float4> _HeightMap;

@@ -1,0 +1,223 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3270919276583623303
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3270919276583623305}
+  - component: {fileID: 3270919276583623306}
+  - component: {fileID: 3270919276583623307}
+  - component: {fileID: 3270919276583623308}
+  - component: {fileID: 3270919276583623309}
+  m_Layer: 0
+  m_Name: WorkoutSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3270919276583623305
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3270919276583623303}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3270919276583623306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3270919276583623303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48212c74e32224241849fd5848b5a0e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  goldTypes:
+  - {fileID: 11400000, guid: 5ab12593b554b6b489a560de49bbb31d, type: 2}
+  - {fileID: 11400000, guid: bc9c0cd840a9ace46b6aa21e6e18d104, type: 2}
+  - {fileID: 11400000, guid: 25cf525d6355f2046b01a85114eab5e3, type: 2}
+  potionTypes:
+  - {fileID: 11400000, guid: d40a0e74cdd535d4cbac9c016dfae23a, type: 2}
+  - {fileID: 11400000, guid: 4c671b4522e6046439f3bdf07a434aee, type: 2}
+  - {fileID: 11400000, guid: e3c763e092a37da469ffc57a5cef89e6, type: 2}
+  shieldTypes:
+  - {fileID: 11400000, guid: 1881a5d8efa52c340a26224ff993c370, type: 2}
+  - {fileID: 11400000, guid: 54f09f4b10f7ad54f8c6b84a0293d31e, type: 2}
+  - {fileID: 11400000, guid: 43fe0f7f7c35e7f40a5178db92d6ead3, type: 2}
+  enemyTypes:
+  - {fileID: 11400000, guid: fbb943b2ef624554581d4d01841e81ba, type: 2}
+  - {fileID: 11400000, guid: 43c57aa5ab91f384f93421dfec07cc93, type: 2}
+  - {fileID: 11400000, guid: a94bacba71161394085d4868a10e940c, type: 2}
+  _workoutPhases: {fileID: 11400000, guid: e6144befe67b3164eb163eb5b25b6337, type: 2}
+  beatsShownInAdvance: {fileID: 11400000, guid: cb7db34c6fe618840929f1d0a57ac4a1, type: 2}
+  _inventory: {fileID: 11400000, guid: d3dc50feebc98af4ba58af1895b95647, type: 2}
+  _playerHealth: {fileID: 11400000, guid: 9d6ef550a20cdac4da27c4211bc3aae2, type: 2}
+  _fullHealth: {fileID: 11400000, guid: 18b3bc6b843e0fa4a8c0f8bc6c8e84e4, type: 2}
+  _speed: {fileID: 11400000, guid: 84678ac053dc3ff4cb28306e2e01bcf5, type: 2}
+  _restHR: {fileID: 11400000, guid: f53004633208c744bad09bd38c4b3c7a, type: 2}
+  _optSpeed: {fileID: 11400000, guid: 75d5e0c3230bc3844aec244dd4f2074a, type: 2}
+  _meanHR: {fileID: 11400000, guid: 7f8e149813766c9478dc1f4ddbfbb9fa, type: 2}
+  _maxHR: {fileID: 11400000, guid: 4e438fa79506cc34ca8cf907a0696060, type: 2}
+  optRange: {fileID: 11400000, guid: a8077715619d8474face23329ce3c289, type: 2}
+  _currentHR: 0
+  durationPROC: 10
+  itemGroundOffset: 1
+  SpawnPOI:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 11400000, guid: 936ebc0fb308b4f46acc25cba69cf6b5, type: 2}
+        m_TargetAssemblyTypeName: GameEvent`2[[POIVariable, Assembly-CSharp
+        m_MethodName: Raise
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  PhaseStarted:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 11400000, guid: 865556bf2c0510e4589b8f6a06c591dd, type: 2}
+        m_TargetAssemblyTypeName: GameEvent`1[[System.Single, mscorlib
+        m_MethodName: Raise
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  PhaseEnded:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 11400000, guid: 5ef7950ab332197499cb5ea77b73ad58, type: 2}
+        m_TargetAssemblyTypeName: GameEvent`1[[System.Single, mscorlib
+        m_MethodName: Raise
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  EndWorkout:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 11400000, guid: 8cafe04c2cdaee946b511739a99bfba4, type: 2}
+        m_TargetAssemblyTypeName: GameEvent, Assembly-CSharp
+        m_MethodName: Raise
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &3270919276583623307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3270919276583623303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3902f9c081fc1384a84f4cdfeff5ee0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Event: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
+  Response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3270919276583623306}
+        m_TargetAssemblyTypeName: WorkoutMonitor, Assembly-CSharp
+        m_MethodName: ContinuePhase
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &3270919276583623308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3270919276583623303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3902f9c081fc1384a84f4cdfeff5ee0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Event: {fileID: 11400000, guid: 8787b0c4b8dc58349b4ce2cdecc05914, type: 2}
+  Response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3270919276583623306}
+        m_TargetAssemblyTypeName: WorkoutMonitor, Assembly-CSharp
+        m_MethodName: StartWorkout
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &3270919276583623309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3270919276583623303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3902f9c081fc1384a84f4cdfeff5ee0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Event: {fileID: 11400000, guid: 8379a289587ed0445b3b18104e64ff4e, type: 2}
+  Response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3270919276583623306}
+        m_TargetAssemblyTypeName: WorkoutMonitor, Assembly-CSharp
+        m_MethodName: CleanUp
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2

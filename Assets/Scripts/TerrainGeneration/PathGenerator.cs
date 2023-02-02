@@ -4,10 +4,9 @@ using UnityEngine;
 using System.Threading;
 using System;
 
+//Delegated to building chunks on request
 public class PathGenerator : MonoBehaviour
 {
-    public enum DrawMode { NoiseMap, ColourMap, Mesh };
-    public DrawMode drawMode;
     public Noise.NormalizeMode normalizeMode;
 
     public SplatHeight[] splatHeights;
@@ -32,12 +31,15 @@ public class PathGenerator : MonoBehaviour
     private int firstChunkIndex;
     public BezierCurveVariable bezCurve;
     
-    private static System.Random rpng;
-
-    public bool autoupdate;
-
+    public static System.Random rpng;
+    
     private Queue<MapThreadInfo<ChunkData>> chunkDataThreadInfoQueue;
     private Queue<MapThreadInfo<MeshData>> meshDataThreadInfoQueue;
+
+    private void Awake()
+    {
+        rpng = new System.Random();
+    }
 
     public void OnEnable()
     {
@@ -46,9 +48,9 @@ public class PathGenerator : MonoBehaviour
 
     public void StartUp()
     {
+        seed = rpng.Next();
         lastChunkIndex = 0;
         firstChunkIndex = 0;
-        rpng = new System.Random();
         chunkDataThreadInfoQueue = new Queue<MapThreadInfo<ChunkData>>();
         meshDataThreadInfoQueue = new Queue<MapThreadInfo<MeshData>>();
     }
@@ -58,6 +60,7 @@ public class PathGenerator : MonoBehaviour
         bezCurve.Destroy();
     }
 
+    //Here the main thread controls if the new threads have finished their job
     private void Update()
     {
         if (chunkDataThreadInfoQueue.Count > 0)
@@ -82,23 +85,6 @@ public class PathGenerator : MonoBehaviour
 
     public int LastIndex { get { return lastChunkIndex; } set { lastChunkIndex = value; } }
     public int FirstIndex { get { return firstChunkIndex; } set { firstChunkIndex = value; } }
-
-
-    public void DrawChunkInEditor()
-    {
-        lastChunkIndex = 0;
-        ChunkData chunkData = GenerateChunkData();
-
-        ChunkDisplay display = FindObjectOfType<ChunkDisplay>();
-        if (drawMode == DrawMode.NoiseMap)
-        {
-            display.DrawTexture(TextureGenerator.TextureFromHeightMap(chunkData.heightMap));
-        }
-        else if (drawMode == DrawMode.Mesh)
-        {
-            display.DrawMesh(MeshGenerator.GenerateTerrainMesh(chunkData.heightMap, meshHeightMultiplier, levelOfDetail), TextureGenerator.TextureFromColorMap(chunkData.splatMapColors,pathChunkSize,pathChunkSize));
-        }
-    }
 
     public ChunkData RequestChunkDataSync()
     {
@@ -130,7 +116,6 @@ public class PathGenerator : MonoBehaviour
     {
         MeshData meshData = MeshGenerator.GenerateFlatMesh(pathChunkSize, levelOfDetail); 
         return meshData;
-        //return MeshGenerator.GenerateTerrainMesh(chunkData.heightMap, meshHeightMultiplier, levelOfDetail);
     }
 
     public void RequestMeshDataAsync(Action<MeshData> callback, ChunkData chunkData)
@@ -145,7 +130,6 @@ public class PathGenerator : MonoBehaviour
 
     private void MeshDataThread(Action<MeshData> callback, ChunkData chunkData)
     {
-        //MeshData meshData = MeshGenerator.GenerateTerrainMesh(chunkData.heightMap, meshHeightMultiplier, levelOfDetail, chunkData.stitchTo);
         MeshData meshData = MeshGenerator.GenerateFlatMesh(pathChunkSize, levelOfDetail);
         lock (meshDataThreadInfoQueue)
         {
@@ -153,6 +137,7 @@ public class PathGenerator : MonoBehaviour
         }
     }
 
+    //Generate all the necessary data to then create the chunk
     private ChunkData GenerateChunkData()
     {
         int numCurvesChunk = 2;
@@ -206,6 +191,7 @@ public class PathGenerator : MonoBehaviour
         ChunkDetails[] chunkMultiDetails = new ChunkDetails[sceneDetailTypes.Length];
         for(int i=0; i < sceneDetailTypes.Length; i++)
         {
+            //Use poisson disk sampling to get a pleasing spread of positions
             List<Vector2> detailsPos = FastPoissonDiskSampling.Sampling(Vector2.zero, new Vector2(x: chunkResolution, y: chunkResolution), minimumDistance: sceneDetailTypes[i].minDistance);
             detailsPos.Sort((a,b)=>a.y.CompareTo(b.y));
             DetailPrototype detailProto = PathChunk.BuildDetailProto(sceneDetailTypes[i]);
@@ -239,6 +225,7 @@ public class PathGenerator : MonoBehaviour
         ChunkTree[] chunkTrees = new ChunkTree[sceneTreeTypes.Length];
         for (int i = 0; i < sceneTreeTypes.Length; i++)
         {
+            //Use poisson disk sampling to get a pleasing spread of positions
             List<Vector2> treesPos = FastPoissonDiskSampling.Sampling(Vector2.zero, new Vector2(x: chunkResolution, y: chunkResolution), minimumDistance: sceneTreeTypes[i].minDistance);
             
             TreePrototype tmpTreeProto = new TreePrototype();

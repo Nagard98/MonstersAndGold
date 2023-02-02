@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//Triggers the build of a new chunk
 [RequireComponent(typeof(BoxCollider))]
 public class TriggerSpawn : MonoBehaviour
 {

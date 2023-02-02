@@ -3,6 +3,8 @@ using UnityEngine;
 
 // The algorithm is from the "Fast Poisson Disk Sampling in Arbitrary Dimensions" paper by Robert Bridson.
 // https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf
+
+//I only modified the random number generator, so that I could use it with Threads
 public static class FastPoissonDiskSampling
 {
     public const float InvertRootTwo = 0.70710678118f; // Becaust two dimension grid.

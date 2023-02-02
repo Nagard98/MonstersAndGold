@@ -1,3 +1,4 @@
+//Originally created by Acerola (https://github.com/GarrettGunnell)
 Shader "Unlit/BillboardGrass" {
     Properties {
         _MainTex ("Texture", 2D) = "white" {}

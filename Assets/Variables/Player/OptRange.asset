@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab5fcb5c1e7de1a47baaa3b0a7e45aca, type: 3}
   m_Name: OptRange
   m_EditorClassIdentifier: 
-  lowerBound: 80
-  higherBound: 120
+  lowerBound: 50
+  higherBound: 60

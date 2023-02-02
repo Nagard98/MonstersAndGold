@@ -15,9 +15,9 @@ MonoBehaviour:
   gameObject: {fileID: 2423661281730234448, guid: 8f84cc8c0f847af4bbe57d4c9c36ebf8, type: 3}
   isCollectable: 1
   sprite: {fileID: 21300000, guid: f69816b3693c8db449588a72a23f476d, type: 3}
-  poiName: Treasure Chest
+  alertMessage: E' apparsa una cassa del tesoro a
   onDespawnAction: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
-  playerGP: {fileID: 11400000, guid: eded1c4ae388187429d92f06d5063046, type: 2}
+  _playerGP: {fileID: 11400000, guid: eded1c4ae388187429d92f06d5063046, type: 2}
   valueGP: 200
   collected:
     m_PersistentCalls:

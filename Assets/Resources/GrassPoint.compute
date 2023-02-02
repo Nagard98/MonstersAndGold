@@ -1,3 +1,5 @@
+//Originally created by Acerola (https://github.com/GarrettGunnell)
+//Made some modifications to allow the use of splatmaps
 #pragma kernel InitializeGrass
 
 #include "Simplex.compute"

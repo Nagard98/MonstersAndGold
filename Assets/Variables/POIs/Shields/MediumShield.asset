@@ -15,7 +15,7 @@ MonoBehaviour:
   gameObject: {fileID: 5600012184017523648, guid: 82f5b0da650162a43a9980b4223e39b9, type: 3}
   isCollectable: 1
   sprite: {fileID: 21300000, guid: 2814dfe1a9bfbf544bcf8ba1672728e0, type: 3}
-  poiName: Medium Shield
+  alertMessage: E' apparso uno scudo medio a
   onDespawnAction: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
   _inventory: {fileID: 11400000, guid: d3dc50feebc98af4ba58af1895b95647, type: 2}
   collected:
@@ -45,4 +45,4 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  damageThreshold: 20
+  damageThreshold: 35

@@ -1,4 +1,5 @@
-﻿#pragma kernel DisplacePlane
+﻿//Originally created by Acerola (https://github.com/GarrettGunnell)
+#pragma kernel DisplacePlane
 
 Texture2D<float4> _HeightMap;
 SamplerState sampler_HeightMap;

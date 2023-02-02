@@ -16,10 +16,13 @@ MonoBehaviour:
   - totalSongDuration: 90
     phaseSong: {fileID: 8300000, guid: 76ee9b0a790c90a4e8138ce664180b5e, type: 3}
     bpm: 90
+    phaseName: Warm-Up
   - totalSongDuration: 180
     phaseSong: {fileID: 8300000, guid: 29af8b30c8a7de34c8b4e76014895b0c, type: 3}
     bpm: 120
+    phaseName: Principale
   - totalSongDuration: 90
     phaseSong: {fileID: 8300000, guid: 76ee9b0a790c90a4e8138ce664180b5e, type: 3}
     bpm: 90
+    phaseName: Cooldown
   delayBetweenPhases: 10

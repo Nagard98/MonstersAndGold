@@ -1,3 +1,4 @@
+//Originally created by Acerola (https://github.com/GarrettGunnell)
 uint rng_state;
 
 //Hash invented by Thomas Wang

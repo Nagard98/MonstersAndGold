@@ -1,0 +1,188 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2498940365825209021
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2498940365825209022}
+  - component: {fileID: 2498940365825209023}
+  - component: {fileID: 2498940365825209008}
+  - component: {fileID: 2498940365825209009}
+  m_Layer: 0
+  m_Name: ChunkGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2498940365825209022
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2498940365825209021}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2498940365825209023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2498940365825209021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3465b727a6e4cf45afc84356e06092f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  normalizeMode: 1
+  splatHeights:
+  - texture: {fileID: 2800000, guid: 95bb46061a77ef14aa49fb4aba394a6d, type: 3}
+    layerIndex: 0
+    height: -1
+    overlap: 0.0007
+  - texture: {fileID: 2800000, guid: 3d7e23f397bd4e347bc2a33df00d0897, type: 3}
+    layerIndex: 1
+    height: 0.001
+    overlap: 0
+  trees:
+  - treeObject: {fileID: 8170771414181748873, guid: 7afe022fe0a9b9e4c8db7b1dcf689b23, type: 3}
+    layerIndex: 1
+    minDistance: 17
+  - treeObject: {fileID: 8170771414181748873, guid: 15b4c525d93b6454b86f8f16e973d0e0, type: 3}
+    layerIndex: 1
+    minDistance: 17
+  - treeObject: {fileID: 4188314072482485274, guid: 56dfe5b869cea484ebfcec35e7d2f910, type: 3}
+    layerIndex: 1
+    minDistance: 30
+  details:
+  - gameObject: {fileID: 7706297648167984340, guid: 6cf3f711e9cec5341a7d026d239a9631, type: 3}
+    minDistance: 14
+    layerIndex: 1
+  - gameObject: {fileID: 9132093369970485569, guid: ff80e186a16595e4a85683aa1fd2220f, type: 3}
+    minDistance: 25
+    layerIndex: 1
+  grass:
+    resolution: 240
+    scale: 2
+    displacementStrength: 26
+    grassMaterial: {fileID: 2100000, guid: 9576d850694cd3441b339706912ec8f2, type: 2}
+    grassMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  levelOfDetail: 2
+  meshHeightMultiplier: 26
+  heightCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.13557133
+      value: 0.043357223
+      inSlope: 0.9066128
+      outSlope: 0.9066128
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.40710023
+      value: 0.53891075
+      inSlope: 1.9544684
+      outSlope: 1.9544684
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.053790886
+    - serializedVersion: 3
+      time: 1
+      value: 0.9913732
+      inSlope: 0.1429997
+      outSlope: 0.1429997
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.11082376
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  noiseScale: 100
+  octaves: 1
+  persistance: 0
+  lacunarity: 0.5
+  seed: 210
+  offset: {x: 0, y: 0}
+  bezCurve: {fileID: 11400000, guid: 76dae87b8f6a44349933942e9d0231f5, type: 2}
+--- !u!114 &2498940365825209008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2498940365825209021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3902f9c081fc1384a84f4cdfeff5ee0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Event: {fileID: 11400000, guid: 8379a289587ed0445b3b18104e64ff4e, type: 2}
+  Response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2498940365825209023}
+        m_TargetAssemblyTypeName: PathGenerator, Assembly-CSharp
+        m_MethodName: CleanUp
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &2498940365825209009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2498940365825209021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3902f9c081fc1384a84f4cdfeff5ee0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Event: {fileID: 11400000, guid: 4575613337455114097a896daac4d1f1, type: 2}
+  Response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2498940365825209023}
+        m_TargetAssemblyTypeName: PathGenerator, Assembly-CSharp
+        m_MethodName: StartUp
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2

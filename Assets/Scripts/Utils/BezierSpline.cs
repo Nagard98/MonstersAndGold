@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+//Implementation of a Bezier Spline composed of Quadratic Bezier Curves
+//Used to build the path on the chunks of terrain and as a path following mechanism for the player
+//I used the word curve and arc interchangeably
 public class BezierSpline : ICloneable
 {
     public Vector3[] _controlPolygon;
     private int _nSamples;
     public List<float[]> _pathLUTs;
-
 
     private float _currentArcDist;
     private int _currentArcIndex;
@@ -19,7 +21,7 @@ public class BezierSpline : ICloneable
     public int _buildArcIndex;
 
 
-    public BezierSpline(Vector3[] controlPoints,/* int numCurves, float beelineLength,*/ int nSamples = 5)
+    public BezierSpline(Vector3[] controlPoints, int nSamples = 5)
     {
          _controlPolygon = BuildControlPolygon(controlPoints);
          _nSamples = nSamples;
@@ -32,11 +34,9 @@ public class BezierSpline : ICloneable
 
         _buildArcDist = 0f;
         _buildArcIndex = 0;
-
-        //float beelineLengthSingleCurve = beelineLength / numCurves;
-
     }
 
+    //Builds the Lookup Tables
     private List<float[]> BuildPathLUTs(Vector3[] controlPoly, int firstChunkPointIndex,ref float totalDist)
     {
         List<float[]> tmp = new List<float[]>();
@@ -48,13 +48,12 @@ public class BezierSpline : ICloneable
         return tmp;
     }
 
+    //Extends the original bezier spline with new controlpoints
     public void AddPathWaypoints(Vector3[] controlPoints, int chunkIndex, int numCurvesChunk)
     {
-
         Vector3[] newChunkControlPoly = BuildControlPolygon(controlPoints, start: false);
 
         _controlPolygon = _controlPolygon.Concat(newChunkControlPoly).ToArray();
-        //TODO implementa starting index
         List<float[]> newChunkPathLUTs = BuildPathLUTs(newChunkControlPoly, chunkIndex * numCurvesChunk * 3, ref _totalDist);
         _pathLUTs = _pathLUTs.Concat(newChunkPathLUTs).ToList();
 
@@ -92,23 +91,15 @@ public class BezierSpline : ICloneable
     public float GetPathChunkDist(int chunkIndex, int numCurvesChunk)
     {
         float tmpDist = 0f;
-        //il 2 è il numero di archi per chunk
         for(int i = 0; i < numCurvesChunk; i++)
         {
-            /*if (chunkIndex > 0 && i==0)
-            {
-                tmpDist += (_pathLUTs[(chunkIndex * 10) - 1][_nSamples] / 2f);
-            }*/
             tmpDist += _pathLUTs[(chunkIndex * numCurvesChunk) + i][_nSamples];
-            /*if (i == 9)
-            {
-                tmpDist -= ((_pathLUTs[(chunkIndex * 10) + i][_nSamples]) / 2f);
-            }*/
         }
         return tmpDist;
     }
 
     //-------------------------------------------------------------------------------------------
+    //Gets the position on the path at a certain distance from the current position
     public Vector3 MoveAlong(float dist)
     {
         float t = UpdateT(dist);
@@ -230,6 +221,7 @@ public class BezierSpline : ICloneable
         return _pathLUTs[curveIndex][_pathLUTs[curveIndex].Length - 1];
     }
 
+    //Allows moving along the spline by distances bigger than the lengths of the single curves
     public Vector3 MoveLongDistance(float distance, out Vector3 orthoVector)
     {
         float leftoverArcDist = 0;

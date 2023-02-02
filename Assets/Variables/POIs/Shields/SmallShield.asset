@@ -15,7 +15,7 @@ MonoBehaviour:
   gameObject: {fileID: 2568634358774879810, guid: 555f4bf259500ba45afe87dd7c28b346, type: 3}
   isCollectable: 1
   sprite: {fileID: 21300000, guid: 1e6df78cdd761514ca6a3ce0be1ce933, type: 3}
-  poiName: Small Shield
+  alertMessage: E' apparso uno scudo piccolo a
   onDespawnAction: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
   _inventory: {fileID: 11400000, guid: d3dc50feebc98af4ba58af1895b95647, type: 2}
   collected:
@@ -45,4 +45,4 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  damageThreshold: 10
+  damageThreshold: 20

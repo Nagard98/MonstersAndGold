@@ -15,7 +15,7 @@ MonoBehaviour:
   gameObject: {fileID: 2215065847825774392, guid: 0ff7eb97003f5714ab17eef3a2cddaf3, type: 3}
   isCollectable: 1
   sprite: {fileID: 21300000, guid: e23f0d4eccb1e3646b077412f5689c4e, type: 3}
-  poiName: Big Shield
+  alertMessage: E' apparso un grande scudo a
   onDespawnAction: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
   _inventory: {fileID: 11400000, guid: d3dc50feebc98af4ba58af1895b95647, type: 2}
   collected:
@@ -45,4 +45,4 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  damageThreshold: 30
+  damageThreshold: 60

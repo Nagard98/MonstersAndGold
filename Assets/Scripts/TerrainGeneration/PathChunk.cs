@@ -8,74 +8,66 @@ using Unity.AI.Navigation.Samples;
 
 public class PathChunk
 {
-    GameObject meshObject;
-    MeshRenderer meshRenderer;
-    MeshFilter meshFilter;
-    MeshCollider meshCollider;
+    private GameObject _meshObject;
+    private MeshRenderer _meshRenderer;
+    private MeshFilter _meshFilter;
+    private MeshCollider _meshCollider;
 
-    private ComputeShader meshPointHeightFinder;
-    private ComputeBuffer positionBuffer;
+    private ComputeShader _meshPointHeightFinder;
+    private ComputeBuffer _positionBuffer;
 
-    private ChunkData chunkData;
+    private ChunkData _chunkData;
     public Bounds bounds;
-    private Vector3Variable playerPosition;
-    private PathChunksSet pathChunks;
-    private Dictionary<int, Stack<GameObject>> instantiatedGameObjects;
-    private Dictionary<int, Stack<GameObject>> gameObjectsPool;
+    private Vector3Variable _playerPosition;
+    private PathChunksSet _pathChunks;
+    private Dictionary<int, Stack<GameObject>> _instantiatedGameObjects;
+    private Dictionary<int, Stack<GameObject>> _gameObjectsPool;
 
-    public int Index { get { return chunkData.chunkIndex; } }
+    public int Index { get { return _chunkData.chunkIndex; } }
 
     public PathChunk(Vector2 coord, Material material, Transform parent, Vector3Variable playerPosition, PathChunksSet pathChunks, ref Dictionary<int,Stack<GameObject>> gameObjectsPool, bool async=true)
     {
-        meshPointHeightFinder = Resources.Load<ComputeShader>("PositionFinderSurface");
+        _meshPointHeightFinder = Resources.Load<ComputeShader>("PositionFinderSurface");
 
-        meshObject = new GameObject("Path Chunk");
-        meshRenderer = meshObject.AddComponent<MeshRenderer>();
-        meshFilter = meshObject.AddComponent<MeshFilter>();
-        meshCollider = meshObject.AddComponent<MeshCollider>();
-        meshObject.AddComponent<NavMeshSourceTag>();
-        meshObject.AddComponent<TriggerSpawn>();
+        _meshObject = new GameObject("Path Chunk");
+        _meshRenderer = _meshObject.AddComponent<MeshRenderer>();
+        _meshFilter = _meshObject.AddComponent<MeshFilter>();
+        _meshCollider = _meshObject.AddComponent<MeshCollider>();
+        _meshObject.AddComponent<NavMeshSourceTag>();
+        _meshObject.AddComponent<TriggerSpawn>();
 
-        meshRenderer.material = material;
-        meshObject.transform.position = new Vector3(coord.x, 0, coord.y);
-        meshObject.transform.parent = parent;
+        _meshRenderer.material = material;
+        _meshObject.transform.position = new Vector3(coord.x, 0, coord.y);
+        _meshObject.transform.parent = parent;
 
-        this.playerPosition = playerPosition;
-        this.pathChunks = pathChunks;
-        this.instantiatedGameObjects = new Dictionary<int, Stack<GameObject>>();
-        this.gameObjectsPool = gameObjectsPool;
+        this._playerPosition = playerPosition;
+        this._pathChunks = pathChunks;
+        this._instantiatedGameObjects = new Dictionary<int, Stack<GameObject>>();
+        this._gameObjectsPool = gameObjectsPool;
 
         if (async) BuildChunkAsync();
         else BuildChunkSync();
 
     }
 
-    public Vector3[] MeshVertices { get { return meshFilter.mesh.vertices; } }
+    public Vector3[] MeshVertices { get { return _meshFilter.mesh.vertices; } }
 
     internal float GetTerrainHeightAt(Vector3 spawnPosition)
     {
         int x = (int)spawnPosition.x;
         int y = (int)spawnPosition.z;
-        return chunkData.heightMap[x, y];
+        return _chunkData.heightMap[x, y];
     }
 
     internal Dictionary<int, Stack<GameObject>> ReleaseGameObjects(GameObject objectPool)
     {
-        /*foreach(Stack<GameObject> gList in instantiatedGameObjects.Values)
-        {
-            foreach(GameObject gObj in gList)
-            {
-                gObj.transform.parent = objectPool.transform;
-            }
-        }*/
-
-        return instantiatedGameObjects;
+        return _instantiatedGameObjects;
     }
 
     private void BuildChunkSync()
     {
         ApplyChunkData(EndlessPath.pathGenerator.RequestChunkDataSync());
-        ApplyMeshData(EndlessPath.pathGenerator.RequestMeshDataSync(chunkData));
+        ApplyMeshData(EndlessPath.pathGenerator.RequestMeshDataSync(_chunkData));
     }
 
     private void BuildChunkAsync()
@@ -85,7 +77,7 @@ public class PathChunk
 
     private void ApplyChunkData(ChunkData chunkData)
     {
-        this.chunkData = chunkData;
+        this._chunkData = chunkData;
 
         Texture2D splatmap = new Texture2D(PathGenerator.pathChunkSize, PathGenerator.pathChunkSize, TextureFormat.RGBA32, false);
         splatmap.wrapMode = TextureWrapMode.Clamp;
@@ -96,6 +88,7 @@ public class PathChunk
         Texture2D heightmap = new Texture2D(PathGenerator.pathChunkSize, PathGenerator.pathChunkSize, TextureFormat.RGBA32, false);
         heightmap.wrapMode = TextureWrapMode.Clamp;
         heightmap.filterMode = FilterMode.Bilinear;
+
         Color[] colors = new Color[PathGenerator.pathChunkSize * PathGenerator.pathChunkSize];
         for(int i=0;i< PathGenerator.pathChunkSize; i++)
         {
@@ -107,83 +100,45 @@ public class PathChunk
         heightmap.SetPixels(colors);
         heightmap.Apply();
 
-        SetupGrassInstantiator(chunkData, heightmap, splatmap, playerPosition);
+        SetupGrassInstantiator(chunkData, heightmap, splatmap, _playerPosition);
 
-        meshRenderer.material.SetTexture("_Mask", splatmap);
-        meshRenderer.material.SetTexture("_HeightMap", heightmap);
+        _meshRenderer.material.SetTexture("_Mask", splatmap);
+        _meshRenderer.material.SetTexture("_HeightMap", heightmap);
 
-        for(int i = 0; i < chunkData.chunkTrees.Length; i++)
-        {
-            Vector3[] pos = chunkData.chunkTrees[i].TreePos;
-            positionBuffer = new ComputeBuffer(pos.Length, sizeof(float) * 3);
-            positionBuffer.SetData(pos);
+        BuildTrees(chunkData, heightmap, splatmap);
+        BuildDetails(chunkData, heightmap, splatmap);       
+    }
 
-            meshPointHeightFinder.SetBuffer(0, "_Vertices", positionBuffer);
-            meshPointHeightFinder.SetTexture(0, "_HeightMap", heightmap);
-            meshPointHeightFinder.SetTexture(0, "_SplatMap", splatmap);
-            meshPointHeightFinder.SetFloat("_HeightMultiplier", EndlessPath.pathGenerator.meshHeightMultiplier);
-            meshPointHeightFinder.SetFloat("_Dimension", PathGenerator.pathChunkSize - 1);
-            meshPointHeightFinder.Dispatch(0, Mathf.CeilToInt(pos.Length / 64f), 1, 1);
+    private void RunComputeShaderHeightFinder(Vector3[] pos, ChunkData chunkData, Texture2D heightmap, Texture2D splatmap)
+    {
+        _positionBuffer = new ComputeBuffer(pos.Length, sizeof(float) * 3);
+        _positionBuffer.SetData(pos);
 
-            positionBuffer.GetData(pos);
-            positionBuffer.Release();
+        _meshPointHeightFinder.SetBuffer(0, "_Vertices", _positionBuffer);
+        _meshPointHeightFinder.SetTexture(0, "_HeightMap", heightmap);
+        _meshPointHeightFinder.SetTexture(0, "_SplatMap", splatmap);
+        _meshPointHeightFinder.SetFloat("_HeightMultiplier", EndlessPath.pathGenerator.meshHeightMultiplier);
+        _meshPointHeightFinder.SetFloat("_Dimension", PathGenerator.pathChunkSize - 1);
+        _meshPointHeightFinder.Dispatch(0, Mathf.CeilToInt(pos.Length / 64f), 1, 1);
 
-            GameObject treePrefab = chunkData.chunkTrees[i].TreePrototype.prefab;
-            int dictKey = treePrefab.name.GetHashCode();
+        _positionBuffer.GetData(pos);
+        _positionBuffer.Release();
+    }
 
-            if (gameObjectsPool.Count == 0)
-            {
-                Stack<GameObject> tmpStack = new Stack<GameObject>(pos.Length);
-                for (int j = 0; j < pos.Length; j++)
-                {
-                    if (pos[j] != Vector3.zero)
-                    {
-                        GameObject tmp = GameObject.Instantiate(chunkData.chunkTrees[i].TreePrototype.prefab, pos[j], Quaternion.identity);
-                        tmp.transform.parent = EndlessPath.pool.transform;
-                        tmpStack.Push(tmp);
-                    }
-                }
-                instantiatedGameObjects.Add(dictKey, tmpStack);
-            }
-            else {
-                Stack<GameObject> tmpStack = new Stack<GameObject>(pos.Length);
-                int poolCount = gameObjectsPool[dictKey].Count;
-                for (int j = 0; j < pos.Length && j < poolCount; j++) 
-                {
-                    if (pos[j] != Vector3.zero)
-                    {
-                        GameObject instancedGameObject = gameObjectsPool[dictKey].Pop();
-                        instancedGameObject.transform.position = pos[j];
-                        tmpStack.Push(instancedGameObject);
-                    }
-                }
-                instantiatedGameObjects.Add(dictKey, tmpStack);
-            }
-            
-        }
-
-        
-
+    //Creates chunk details either by instantiating new ones or by taking from pool
+    private void BuildDetails(ChunkData chunkData, Texture2D heightmap, Texture2D splatmap)
+    {
         for (int i = 0; i < chunkData.chunkMultiDetails.Length; i++)
         {
             Vector3[] pos = chunkData.chunkMultiDetails[i].DetailPos;
-            positionBuffer = new ComputeBuffer(pos.Length, sizeof(float) * 3);
-            positionBuffer.SetData(pos);
 
-            meshPointHeightFinder.SetBuffer(0, "_Vertices", positionBuffer);
-            meshPointHeightFinder.SetTexture(0, "_HeightMap", heightmap);
-            meshPointHeightFinder.SetTexture(0, "_SplatMap", splatmap);
-            meshPointHeightFinder.SetFloat("_HeightMultiplier", EndlessPath.pathGenerator.meshHeightMultiplier);
-            meshPointHeightFinder.SetFloat("_Dimension", PathGenerator.pathChunkSize - 1);
-            meshPointHeightFinder.Dispatch(0, Mathf.CeilToInt(pos.Length / 64f), 1, 1);
-
-            positionBuffer.GetData(pos);
-            positionBuffer.Release();
+            RunComputeShaderHeightFinder(pos, chunkData, heightmap, splatmap);
 
             GameObject detailPrefab = chunkData.chunkMultiDetails[i].DetailPrototype.prototype;
             int dictKey = detailPrefab.name.GetHashCode();
 
-            if (gameObjectsPool.Count == 0)
+            //If there are no objects in the pool instantiate them
+            if (_gameObjectsPool.Count == 0)
             {
                 Stack<GameObject> tmpStack = new Stack<GameObject>(pos.Length);
                 for (int j = 0; j < pos.Length; j++)
@@ -195,46 +150,94 @@ public class PathChunk
                         tmpStack.Push(tmp);
                     }
                 }
-                instantiatedGameObjects.Add(dictKey, tmpStack);
+                _instantiatedGameObjects.Add(dictKey, tmpStack);
             }
+            //Otherwise take necessary object instances from the pool
             else
             {
                 Stack<GameObject> tmpStack = new Stack<GameObject>(pos.Length);
-                int poolCount = gameObjectsPool[dictKey].Count;
+                int poolCount = _gameObjectsPool[dictKey].Count;
                 for (int j = 0; j < pos.Length && j < poolCount; j++)
                 {
                     if (pos[j] != Vector3.zero)
                     {
-                        GameObject instancedGameObject = gameObjectsPool[dictKey].Pop();
+                        GameObject instancedGameObject = _gameObjectsPool[dictKey].Pop();
                         instancedGameObject.transform.position = pos[j];
                         tmpStack.Push(instancedGameObject);
                     }
                 }
-                instantiatedGameObjects.Add(dictKey, tmpStack);
+                _instantiatedGameObjects.Add(dictKey, tmpStack);
             }
+        }
+    }
+
+    //Creates chunk trees either by instantiating new ones or by taking from pool
+    private void BuildTrees(ChunkData chunkData, Texture2D heightmap, Texture2D splatmap)
+    {
+        for (int i = 0; i < chunkData.chunkTrees.Length; i++)
+        {
+            Vector3[] pos = chunkData.chunkTrees[i].TreePos;
+
+            RunComputeShaderHeightFinder(pos, chunkData, heightmap, splatmap);
+
+            GameObject treePrefab = chunkData.chunkTrees[i].TreePrototype.prefab;
+            int dictKey = treePrefab.name.GetHashCode();
+
+            //If there are no objects in the pool instantiate them
+            if (_gameObjectsPool.Count == 0)
+            {
+                Stack<GameObject> tmpStack = new Stack<GameObject>(pos.Length);
+                for (int j = 0; j < pos.Length; j++)
+                {
+                    if (pos[j] != Vector3.zero)
+                    {
+                        GameObject tmp = GameObject.Instantiate(chunkData.chunkTrees[i].TreePrototype.prefab, pos[j], Quaternion.identity);
+                        tmp.transform.parent = EndlessPath.pool.transform;
+                        tmpStack.Push(tmp);
+                    }
+                }
+                _instantiatedGameObjects.Add(dictKey, tmpStack);
+            }
+            //Otherwise take necessary object instances from the pool
+            else
+            {
+                Stack<GameObject> tmpStack = new Stack<GameObject>(pos.Length);
+                int poolCount = _gameObjectsPool[dictKey].Count;
+                for (int j = 0; j < pos.Length && j < poolCount; j++)
+                {
+                    if (pos[j] != Vector3.zero)
+                    {
+                        GameObject instancedGameObject = _gameObjectsPool[dictKey].Pop();
+                        instancedGameObject.transform.position = pos[j];
+                        tmpStack.Push(instancedGameObject);
+                    }
+                }
+                _instantiatedGameObjects.Add(dictKey, tmpStack);
+            }
+
         }
     }
 
     private void ApplyMeshData(MeshData meshData)
     {
-        meshData.DisplaceMesh(meshRenderer.material);
+        meshData.DisplaceMesh(_meshRenderer.material);
         MakeStitch(meshData);
-        meshFilter.mesh = meshData.CreateMesh();
-        meshCollider.sharedMesh = meshFilter.mesh;
-        bounds = meshCollider.bounds;
+        _meshFilter.mesh = meshData.CreateMesh();
+        _meshCollider.sharedMesh = _meshFilter.mesh;
+        bounds = _meshCollider.bounds;
 
-        pathChunks.Add(this);
+        _pathChunks.Add(this);
     }
 
     private void MakeStitch(MeshData meshData)
     {
-        if (pathChunks.Items.Count > 0) meshData.stitchTo = pathChunks.Get(EndlessPath.pathGenerator.LastIndex - 2).MeshVertices;
+        if (_pathChunks.Items.Count > 0) meshData.stitchTo = _pathChunks.Get(EndlessPath.pathGenerator.LastIndex - 2).MeshVertices;
         if (meshData.stitchTo != null) meshData.vertices = MeshGenerator.StitchMeshes(meshData.vertices, meshData.stitchTo, meshData.meshWidth);
     }
 
     private void SetupGrassInstantiator(ChunkData chunkData, Texture2D heightmap, Texture2D splatmap, Vector3Variable playerPosition)
     {
-        GrassInstantiator grassInstantiator = meshObject.AddComponent<GrassInstantiator>();
+        GrassInstantiator grassInstantiator = _meshObject.AddComponent<GrassInstantiator>();
         grassInstantiator.grassSettings = chunkData.grassSettings;
         grassInstantiator.heightMap = heightmap;
         grassInstantiator.splatMap = splatmap;
@@ -276,7 +279,7 @@ public class PathChunk
 
     public void Destroy()
     {
-        GameObject.Destroy(meshObject);
+        GameObject.Destroy(_meshObject);
     }
 
 }

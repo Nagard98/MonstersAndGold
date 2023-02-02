@@ -1389,10 +1389,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3eb22cc7fa379f447af8f3824578c5c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyInfo: {fileID: 0}
-  navPoints: []
-  playerHP: {fileID: 0}
-  senseDistance: 0
+  enemyInfo: {fileID: 11400000, guid: 43c57aa5ab91f384f93421dfec07cc93, type: 2}
+  playerHP: {fileID: 11400000, guid: 9d6ef550a20cdac4da27c4211bc3aae2, type: 2}
+  inventory: {fileID: 11400000, guid: d3dc50feebc98af4ba58af1895b95647, type: 2}
+  senseDistance: 5
   Attack:
     m_PersistentCalls:
       m_Calls:
@@ -1423,6 +1423,45 @@ MonoBehaviour:
       - m_Target: {fileID: -3625725991916750475}
         m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
         m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  ShieldBrake:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 11400000, guid: ee126673ada994a418827ed865b79bb5, type: 2}
+        m_TargetAssemblyTypeName: GameEvent, Assembly-CSharp
+        m_MethodName: Raise
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: -3625725991916750475}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 11400000, guid: d0a92ab8281b9184a8b788854b6ac4a5, type: 2}
+        m_TargetAssemblyTypeName: GameEvent, Assembly-CSharp
+        m_MethodName: Raise
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
