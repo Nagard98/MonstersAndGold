@@ -27,8 +27,8 @@ MonoBehaviour:
   isFullscreen: 1
   currentResolution: 3
   currentQualityLevel: 3
-  masterVolume: -14.596548
-  musicVolume: -7.708311
-  sfxVolume: 0
+  masterVolume: 0
+  musicVolume: -15
+  sfxVolume: -20
   isMusicMuted: 0
   isSFXMuted: 0
