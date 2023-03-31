@@ -74,10 +74,14 @@ public class Conductor : MonoBehaviour
     {
         _gameState = Resources.Load<GameStateVariable>("GameState");
         _audioSource = GetComponent<AudioSource>();
+
+        //TO-DO: change so that the player can choose
         loadWorkoutSongs();
         _attemptedHit = false;
         results.Reset();
         playerSpeed.Value = 2f;
+
+        //TO-DO: remove 
         instancedNotes = InstantiateNotes(30);
 
         isIncreasingSpeed = false;
@@ -90,6 +94,8 @@ public class Conductor : MonoBehaviour
         results.Reset();
         _attemptedHit = false;
         playerSpeed.Value = 2f;
+
+        //TO-DO: remove note instantiation
         instancedNotes = InstantiateNotes(30);
         
         _isRunning = false;
@@ -105,6 +111,8 @@ public class Conductor : MonoBehaviour
     {
         _currentPhase = 0;
         _isRunning = false;
+
+        //TODO: remove
         songPositionInBeats.Value = 0;
         foreach(MusicNote note in instancedNotes)
         {
@@ -127,9 +135,12 @@ public class Conductor : MonoBehaviour
     {
         if (_isRunning)
         {
+            //TODO: remove
             Note[] _noteBeats = songsInfo[_currentPhase].noteBeats;
+
             if (_gameState.isPaused == true) return;
 
+            //TODO: remove
             //When its time activates the next note
             if (_noteToSpawnIndex < _noteBeats.Length && _noteBeats[_noteToSpawnIndex].NoteBeat <= songPositionInBeats.Value)
             {
@@ -137,6 +148,7 @@ public class Conductor : MonoBehaviour
                 _noteToSpawnIndex += 1;
             }
 
+            //TODO: remove
             if (_noteToHitIndex < _noteBeats.Length && _noteBeats[_noteToHitIndex].NoteBeat + beatsShownInAdvance.Value + 0.5f <= songPositionInBeats.Value - 1)
             {
                 if (!_attemptedHit)
@@ -147,6 +159,7 @@ public class Conductor : MonoBehaviour
                 _attemptedHit = false;
             }
 
+            //TODO: remove
             _songPosition = (float)(UnityEngine.AudioSettings.dspTime - _dspSongTime);
             songPositionInBeats.Value = _songPosition / songsInfo[_currentPhase].beatDuration;
         }
@@ -154,13 +167,21 @@ public class Conductor : MonoBehaviour
 
     public void StartPhaseSong(float phase)
     {
+        //TODO: remove
         isIncreasingSpeed = (PathGenerator.rpng.Next() % 2) == 1 ? true : false;
+
         _currentPhase = (int)phase;
+
+        //TODO: remove
         _noteToSpawnIndex = 0;
         _noteToHitIndex = 0;
         songPositionInBeats.Value = 0f;
+
         _audioSource.clip = workoutPhases.Value[(int)phase].phaseSong;
+
+        //TODO: remove
         _dspSongTime = (float)UnityEngine.AudioSettings.dspTime;
+
         _audioSource.Play();
     }
 
@@ -268,6 +289,8 @@ public class Conductor : MonoBehaviour
 
     private void UpdateSpeed(Accuracy accuracy)
     {
+
+        //TODO: remove
         if (isIncreasingSpeed)
         {
             if(Accuracy.Miss == accuracy)
@@ -279,6 +302,7 @@ public class Conductor : MonoBehaviour
                 playerSpeed.Value = Mathf.Clamp(playerSpeed.Value - SPEED_STEP, optSpeed.Value - SPEED_STEP, optSpeed.Value + 2f);
             }
         }
+        //TODO: remove
         else
         {
             if (Accuracy.Miss == accuracy)
@@ -293,12 +317,14 @@ public class Conductor : MonoBehaviour
         
     }
 
+    //TODO: remove
     private void spawnNote(Note noteToSpawn)
     {
         GameObject noteObject = Instantiate(note, rectTransform);
         MusicNote musicNote = noteObject.GetComponent<MusicNote>();
         musicNote.note = noteToSpawn;
     }
+
 
     private void OnMenu(InputValue input)
     {
