@@ -19,6 +19,8 @@ public class KATXRWalker : MonoBehaviour
         MovePosition
     }
 
+    public Vector3Variable playerPosition;
+
     public ExecuteMethod executeMethod = ExecuteMethod.RigidBody;
 
     protected Vector3 lastPosition = Vector3.zero;
@@ -40,7 +42,8 @@ public class KATXRWalker : MonoBehaviour
         //ÓÒ½Åpitch
         //Debug.Log(device.R_Pitch);
         //×ó½Åpitch
-        Debug.Log(device.L_Pitch);
+        //Debug.Log(device.L_Pitch);
+        //Debug.Log(transform.position);
 
         if (!ws.connected)
         {
