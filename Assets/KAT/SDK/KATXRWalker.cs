@@ -43,7 +43,7 @@ public class KATXRWalker : MonoBehaviour
         //Debug.Log(device.R_Pitch);
         //×ó½Åpitch
         //Debug.Log(device.L_Pitch);
-        //Debug.Log(transform.position);
+        Debug.Log(playerPosition.Value);
 
         if (!ws.connected)
         {
@@ -55,8 +55,6 @@ public class KATXRWalker : MonoBehaviour
 
         //DeviceData [0] is the calibration button. After pressing the calibration button, the head display direction will be positive by default
         //Check if need calibration
-
-     
 
 
         if (ws.deviceDatas[0].btnPressed || lastCalibrationTime < 0.08)                                               
