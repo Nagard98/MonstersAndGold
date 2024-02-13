@@ -78,7 +78,7 @@ public class KATXRWalker : MonoBehaviour
         //Debug.Log(device.R_Pitch);
         //×ó½Åpitch
         //Debug.Log(device.L_Pitch);
-        Debug.Log(playerPosition.Value);
+        Debug.Log(ws.moveSpeed);
 
         if (!ws.connected)
         {
