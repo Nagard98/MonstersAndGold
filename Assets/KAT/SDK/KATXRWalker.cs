@@ -11,6 +11,10 @@ public class KATXRWalker : MonoBehaviour
 
     public GameObject xr;
     public GameObject eye;
+    public BezierCurveVariable bezCurve;
+
+    private Vector3 _lastPos;
+    private CharacterController _characterController;
 
     public enum ExecuteMethod
     {
@@ -28,9 +32,40 @@ public class KATXRWalker : MonoBehaviour
     //Unity is the left-handed coordinate system. The yaw value from the SDK should be assigned to the y-axis of the object
     protected float yawCorrection;
 
+    public void Init()
+    {
+        _lastPos = Vector3.zero;
+
+        //Sets up the player at the initial position
+        Vector3 orthoVector;
+        Vector3 nextPos = bezCurve.Value.MoveLongDistance((EndlessPath.pathGenerator.LastIndex * PathGenerator.pathChunkSize) / 2f, out orthoVector);
+        _lastPos = nextPos;
+        nextPos.y += 10f;
+
+        playerPosition.Value = GetGroundPosition(nextPos);
+        playerPosition.Value.y += (_characterController.height / 2.0f);
+        SetCharacterPosition(playerPosition.Value);
+        _characterController.transform.forward = Vector3.Cross(Vector3.up, orthoVector);
+    }
+
+    public static Vector3 GetGroundPosition(Vector3 hoverPos)
+    {
+        Ray ray = new Ray(hoverPos, Vector3.down);
+        RaycastHit raycastHit;
+        Physics.Raycast(ray, out raycastHit);
+        return raycastHit.point;
+    }
+
+    private void SetCharacterPosition(Vector3 position)
+    {
+        _characterController.enabled = false;
+        _characterController.transform.position = position;
+        _characterController.enabled = true;
+    }
+
     void Start()
     {
-        
+        _characterController = GetComponent<CharacterController>();
     }
 
    
