@@ -60,6 +60,11 @@ public class PathGenerator : MonoBehaviour
         bezCurve.Destroy();
     }
 
+    private void Start()
+    {
+        StartUp();
+    }
+
     //Here the main thread controls if the new threads have finished their job
     private void Update()
     {

@@ -33,6 +33,7 @@ public class EndlessPath : MonoBehaviour
     private void Start()
     {
         pathGenerator = FindObjectOfType<PathGenerator>();
+        StartUp();
     }
 
     public void StartUp()
