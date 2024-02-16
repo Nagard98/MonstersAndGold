@@ -484,7 +484,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7763994944399447894, guid: d7e76da863ccf234ca4e62d41ce2c132, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8003124538831125866, guid: d7e76da863ccf234ca4e62d41ce2c132, type: 3}
       propertyPath: Response.m_PersistentCalls.m_Calls.Array.data[1].m_Target
@@ -1335,6 +1335,56 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 10
   m_TargetDisplay: 0
+--- !u!1 &1754702186 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2098502292540074099, guid: 360562d19fa7bdf44a2e042b753727c8, type: 3}
+  m_PrefabInstance: {fileID: 7651561307882949808}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1754702188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754702186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a10725233cc74b479182f195a91f8d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  endWorkoutAction: {fileID: -6439360481350433359, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+  startWorkoutAction: {fileID: -4494283849104594019, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+  calibrate: {fileID: 187161793506945269, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+  RightTriggerHeld:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 11400000, guid: 8cafe04c2cdaee946b511739a99bfba4, type: 2}
+        m_TargetAssemblyTypeName: GameEvent, Assembly-CSharp
+        m_MethodName: Raise
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  LeftTriggerHeld:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 11400000, guid: 8787b0c4b8dc58349b4ce2cdecc05914, type: 2}
+        m_TargetAssemblyTypeName: GameEvent, Assembly-CSharp
+        m_MethodName: Raise
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &1895051597
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3001,7 +3051,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2098502292540074099, guid: 360562d19fa7bdf44a2e042b753727c8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1754702188}
   m_SourcePrefab: {fileID: 100100000, guid: 360562d19fa7bdf44a2e042b753727c8, type: 3}
 --- !u!114 &8119285021334914281
 MonoBehaviour:

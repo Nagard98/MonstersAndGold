@@ -10,4 +10,5 @@ public class GameStateVariable : ScriptableObject
     public bool isInGame;
     public bool isInGameMenuOpen;
     public bool isTutorialOpen;
+    public bool isWorkoutStarted;
 }
