@@ -12,6 +12,9 @@ public class KATXRWalker : MonoBehaviour
     public GameObject xr;
     public GameObject eye;
     public BezierCurveVariable bezCurve;
+    public FloatReference speed;
+    public Vector3Variable playerPositionAlongPath;
+    public Vector3Variable playerPosition;
 
     private Vector3 _lastPos;
     private CharacterController _characterController;
@@ -23,7 +26,6 @@ public class KATXRWalker : MonoBehaviour
         MovePosition
     }
 
-    public Vector3Variable playerPosition;
 
     public ExecuteMethod executeMethod = ExecuteMethod.RigidBody;
 
@@ -38,13 +40,14 @@ public class KATXRWalker : MonoBehaviour
 
         //Sets up the player at the initial position
         Vector3 orthoVector;
-        Vector3 nextPos = bezCurve.Value.MoveLongDistance((EndlessPath.pathGenerator.LastIndex * PathGenerator.pathChunkSize) / 2f, out orthoVector);
+        Vector3 nextPos = bezCurve.Value.MoveLongDistance((EndlessPath.pathGenerator.LastIndex * PathGenerator.pathChunkSize) / 2.0f, out orthoVector);
         _lastPos = nextPos;
         nextPos.y += 10f;
 
-        playerPosition.Value = GetGroundPosition(nextPos);
+        playerPositionAlongPath.Value = playerPosition.Value = GetGroundPosition(nextPos);
+        playerPositionAlongPath.Value.y += (_characterController.height / 2.0f);
         playerPosition.Value.y += (_characterController.height / 2.0f);
-        SetCharacterPosition(playerPosition.Value);
+        SetCharacterPosition(playerPositionAlongPath.Value);
         _characterController.transform.forward = Vector3.Cross(Vector3.up, orthoVector);
     }
 
@@ -63,25 +66,27 @@ public class KATXRWalker : MonoBehaviour
         _characterController.enabled = true;
     }
 
+
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
     }
 
-   
+
     void FixedUpdate()
     {
-         
+
         var ws = KATNativeSDK.GetWalkStatus();
         var device = LocoSExtraData.GetExtraInfoLoco(ws);
         //ÓÒ½Åpitch
         //Debug.Log(device.R_Pitch);
         //×ó½Åpitch
         //Debug.Log(device.L_Pitch);
-        Debug.Log(ws.moveSpeed);
+        //Debug.Log(ws.moveSpeed);
 
         if (!ws.connected)
         {
+            speed.variable.Value = 0.0f;
             return;
         }
 
@@ -99,7 +104,6 @@ public class KATXRWalker : MonoBehaviour
             var bodyYaw = ws.bodyRotationRaw.eulerAngles.y;
 
             yawCorrection = bodyYaw - hmdYaw;
-
             //Pos is the position of the current prefabricated body
             var pos = transform.position;
             var eyePos = eye.transform.position;
@@ -111,8 +115,6 @@ public class KATXRWalker : MonoBehaviour
         }
 
         transform.rotation = ws.bodyRotationRaw * Quaternion.Inverse( Quaternion.Euler(new Vector3(0,yawCorrection,0)));
-
-      
 
         switch(executeMethod)
         {
@@ -133,7 +135,23 @@ public class KATXRWalker : MonoBehaviour
                     r.velocity = transform.rotation * ws.moveSpeed;
                 }
                 break;
-        } 
+        }
+
+        speed.variable.Value = ws.moveSpeed.z;
+        {
+            playerPosition.Value = _characterController.transform.position;
+            float zOffset = playerPosition.Value.z - playerPositionAlongPath.Value.z;
+            if (zOffset > -1.0f)
+            {
+                Vector3 moveVec = _characterController.transform.forward * speed.Value * Time.deltaTime;
+                Vector3 pathDir = bezCurve.Value.GetFirstDerivative();
+
+                Vector3 nextPos = bezCurve.Value.MoveAlong(Vector3.Dot(moveVec, Vector3.Normalize(pathDir)));
+
+                playerPositionAlongPath.Value = nextPos;
+            }
+
+        }
     }
 
 

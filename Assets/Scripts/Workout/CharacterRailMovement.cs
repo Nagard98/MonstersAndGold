@@ -33,7 +33,7 @@ public class CharacterRailMovement : MonoBehaviour
 
         //Sets up the player at the initial position
         Vector3 orthoVector;
-        Vector3 nextPos = bezCurve.Value.MoveLongDistance((EndlessPath.pathGenerator.LastIndex * PathGenerator.pathChunkSize) / 2f, out orthoVector);
+        Vector3 nextPos = bezCurve.Value.MoveLongDistance((EndlessPath.pathGenerator.LastIndex * PathGenerator.pathChunkSize) / 2.0f, out orthoVector);
         _lastPos = nextPos;
         nextPos.y += 10f;
 

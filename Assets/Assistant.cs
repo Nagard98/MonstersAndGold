@@ -51,9 +51,11 @@ public class Assistant : MonoBehaviour
 
     public void appearAndInstruct(POIVariable poi, SpawnSettings spawnSettings)
     {
+        float delay = 3.0f;
+        float extraReadingDelay = 2.0f;
         m_animationController.SetTrigger("Appear");
-        string msg = poi.alertMessage + (int)spawnSettings.distance + " metri di distanza. Mantieni questo ritmo per raggiungerlo in " + spawnSettings.TTL + " secondi.";
-        StartCoroutine(DelayedSpeech(msg, 3.0f));
+        string msg = poi.alertMessage + (int)spawnSettings.distance + " metri di distanza. Mantieni questo ritmo per raggiungerlo in " + (int)(spawnSettings.TTL - delay - extraReadingDelay) + " secondi.";
+        StartCoroutine(DelayedSpeech(msg, delay));
     }
 
     public void appearAndInstructTest()

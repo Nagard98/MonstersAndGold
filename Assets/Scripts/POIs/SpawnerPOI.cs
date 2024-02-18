@@ -35,6 +35,8 @@ public class SpawnerPOI : MonoBehaviour
         BezierSpline tmp = (BezierSpline)path.Value.Clone();
         Vector3 orthoVector;
         Vector3 spawnPosition = tmp.MoveLongDistance(spawnSettings.distance, out orthoVector);
+        Debug.Log(spawnSettings.distance);
+        Debug.Log("Spawn pos:" +spawnPosition);
 
         if (spawnPosition == null)
         {
