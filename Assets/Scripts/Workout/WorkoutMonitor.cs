@@ -91,6 +91,20 @@ public class WorkoutMonitor : MonoBehaviour
         _shieldCooldownEnded = true;
     }
 
+    public IEnumerator PotionCooldownCoroutine()
+    {
+        _potionCooldownEnded = false;
+        yield return new WaitForSeconds(60.0f);
+        _potionCooldownEnded = true;
+    }
+
+    public IEnumerator ShieldCooldownCoroutine()
+    {
+        _shieldCooldownEnded = false;
+        yield return new WaitForSeconds(60.0f);
+        _shieldCooldownEnded = true;
+    }
+
     public void StartWorkout()
     {
         //float beatDuration = 60f / (float)_workoutPhases.Value[_currentPhase].bpm;
@@ -153,6 +167,7 @@ public class WorkoutMonitor : MonoBehaviour
             {
                 if ((_playerHealth.Value < _fullHealth.Value) && _potionCooldownEnded)
                 {
+                    StartCoroutine(PotionCooldownCoroutine());
                     int tier = (Mathf.Clamp(_conditionMetPotion, 0, 2) % 3) + 1;
                     return SpawnPotion(tier, _optSpeed.Value, itemGroundOffset);
                 }
@@ -160,6 +175,7 @@ public class WorkoutMonitor : MonoBehaviour
                 {
                     if ((!_inventory.IsFull) && _shieldCooldownEnded)
                     {
+                        StartCoroutine(ShieldCooldownCoroutine());
                         int tier = (Mathf.Clamp(_conditionMetShield, 0, 2) % 3) + 1;
                         return SpawnShield(tier, _optSpeed.Value, itemGroundOffset);
                     }
@@ -185,7 +201,7 @@ public class WorkoutMonitor : MonoBehaviour
                 }
 
                 Debug.LogError("This ROAV code should be unreachable");
-                return 0;
+                return SpawnGold(1, _optSpeed.Value, itemGroundOffset);
             }
         }
         else

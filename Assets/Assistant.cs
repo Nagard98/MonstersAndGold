@@ -54,7 +54,18 @@ public class Assistant : MonoBehaviour
         float delay = 3.0f;
         float extraReadingDelay = 2.0f;
         m_animationController.SetTrigger("Appear");
-        string msg = poi.alertMessage + (int)spawnSettings.distance + " metri di distanza. Mantieni questo ritmo per raggiungerlo in " + (int)(spawnSettings.TTL - delay - extraReadingDelay) + " secondi.";
+        string msg;
+
+        if (poi.isCollectable)
+        {
+            msg = poi.alertMessage + (int)spawnSettings.distance + " metri. Mantieni un ritmo di " + decimal.Round((decimal)(spawnSettings.distance / spawnSettings.TTL), 2) + " metri al secondo per raggiungerlo in " + (int)(spawnSettings.TTL - delay - extraReadingDelay) + " secondi.";
+        }
+        else
+        {
+            msg = poi.alertMessage + (int)spawnSettings.distance + " metri. Abbassa il ritmo a " + decimal.Round((decimal)(spawnSettings.distance / spawnSettings.TTL), 2) + " metri al secondo per evitarlo";// in " + (int)(spawnSettings.TTL - delay - extraReadingDelay) + " secondi.";
+
+        }
+
         StartCoroutine(DelayedSpeech(msg, delay));
     }
 
