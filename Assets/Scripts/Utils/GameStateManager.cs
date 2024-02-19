@@ -6,6 +6,7 @@ public class GameStateManager : MonoBehaviour
 {
     private GameStateVariable _gameState;
 
+
     private void Start()
     {
         _gameState = Resources.Load<GameStateVariable>("GameState");
@@ -44,4 +45,5 @@ public class GameStateManager : MonoBehaviour
         Time.timeScale = (!_gameState.isInGameMenuOpen && !_gameState.isTutorialOpen) ? 1 : 0;
         _gameState.isPaused = !(!_gameState.isInGameMenuOpen && !_gameState.isTutorialOpen);
     }
+
 }

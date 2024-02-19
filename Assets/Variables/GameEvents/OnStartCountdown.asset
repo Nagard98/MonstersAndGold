@@ -9,13 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 452cc8e04cc49ff459472017ddff1f6d, type: 3}
-  m_Name: CurrentResults
+  m_Script: {fileID: 11500000, guid: dd27690c2cf174a4c8140e0dce64d931, type: 3}
+  m_Name: OnStartCountdown
   m_EditorClassIdentifier: 
-  perfectHits: 100
-  greatHits: 300
-  goodHits: 100
-  missHits: 200
-  longestStreak: 100
-  time: 90
-  score: 21000

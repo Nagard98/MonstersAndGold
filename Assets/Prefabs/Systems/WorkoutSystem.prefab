@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3270919276583623307}
   - component: {fileID: 3270919276583623308}
   - component: {fileID: 3270919276583623309}
+  - component: {fileID: 921612756272819935}
   m_Layer: 0
   m_Name: WorkoutSystem
   m_TagString: Untagged
@@ -27,13 +28,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3270919276583623303}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3270919276583623306
 MonoBehaviour:
@@ -67,15 +68,17 @@ MonoBehaviour:
   beatsShownInAdvance: {fileID: 11400000, guid: cb7db34c6fe618840929f1d0a57ac4a1, type: 2}
   _inventory: {fileID: 11400000, guid: d3dc50feebc98af4ba58af1895b95647, type: 2}
   _playerHealth: {fileID: 11400000, guid: 9d6ef550a20cdac4da27c4211bc3aae2, type: 2}
+  _playerGold: {fileID: 11400000, guid: eded1c4ae388187429d92f06d5063046, type: 2}
   _fullHealth: {fileID: 11400000, guid: 18b3bc6b843e0fa4a8c0f8bc6c8e84e4, type: 2}
   _speed: {fileID: 11400000, guid: 84678ac053dc3ff4cb28306e2e01bcf5, type: 2}
+  _maxSpeed: {fileID: 11400000, guid: a06e9ad41238f774aba71be3e9fe79e2, type: 2}
   _restHR: {fileID: 11400000, guid: f53004633208c744bad09bd38c4b3c7a, type: 2}
   _optSpeed: {fileID: 11400000, guid: 75d5e0c3230bc3844aec244dd4f2074a, type: 2}
   _meanHR: {fileID: 11400000, guid: 7f8e149813766c9478dc1f4ddbfbb9fa, type: 2}
   _maxHR: {fileID: 11400000, guid: 4e438fa79506cc34ca8cf907a0696060, type: 2}
   optRange: {fileID: 11400000, guid: a8077715619d8474face23329ce3c289, type: 2}
   _currentHR: 0
-  durationPROC: 10
+  durationPROC: 15
   itemGroundOffset: 1
   SpawnPOI:
     m_PersistentCalls:
@@ -200,7 +203,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3270919276583623303}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3902f9c081fc1384a84f4cdfeff5ee0d, type: 3}
   m_Name: 
@@ -212,6 +215,34 @@ MonoBehaviour:
       - m_Target: {fileID: 3270919276583623306}
         m_TargetAssemblyTypeName: WorkoutMonitor, Assembly-CSharp
         m_MethodName: CleanUp
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &921612756272819935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3270919276583623303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3902f9c081fc1384a84f4cdfeff5ee0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Event: {fileID: 11400000, guid: f8566bc3dff2b9949932ee261f126315, type: 2}
+  Response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3270919276583623306}
+        m_TargetAssemblyTypeName: UnityEngine.MonoBehaviour, UnityEngine
+        m_MethodName: StopAllCoroutines
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

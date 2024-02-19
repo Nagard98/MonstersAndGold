@@ -14,6 +14,7 @@ public class EnemyAI : MonoBehaviour
     public float senseDistance;
     private Animator _animator;
     private NavMeshAgent _navMeshAgent;
+    private DespawnPOI _despawnPOI;
 
     public UnityEvent Attack, ShieldBrake;
 
@@ -28,16 +29,20 @@ public class EnemyAI : MonoBehaviour
         _animator = GetComponent<Animator>();
         _indexNav = 0;
         _alreadyAttacked = false;
+
+        _despawnPOI = GetComponent<DespawnPOI>();
     }
 
     void Update()
     {
+
         //Checks if player is in sensing radius
         Collider[] colliders = Physics.OverlapSphere(transform.position, senseDistance, 1 << 7);
         if (!_alreadyAttacked && colliders.Length > 0)
         {
             Transform player = colliders[0].transform;
             Hit(player);
+            _despawnPOI.EarlyDestroy();
         }
         else
         {

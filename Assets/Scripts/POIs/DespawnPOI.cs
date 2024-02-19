@@ -10,6 +10,12 @@ public class DespawnPOI : MonoBehaviour
 
     public Despawnable DespawnableObject { set { _despawnableObject = value; } }
     
+    public void EarlyDestroy()
+    {
+        StopCoroutine("DespawnTimerCoroutine");
+        StartCoroutine(DespawnTimerCoroutine(2.0f));
+    }
+
     public void SetDespawnTimer(float seconds)
     {
         StartCoroutine(DespawnTimerCoroutine(seconds));

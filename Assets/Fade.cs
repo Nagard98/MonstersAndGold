@@ -15,6 +15,7 @@ public class Fade : MonoBehaviour
     {
         m_canvasRenderer = GetComponent<CanvasRenderer>();
         m_canvasRenderer.SetAlpha(m_initialAlpha);
+        FadeIn(1.0f);
     }
 
     // Update is called once per frame
