@@ -1,0 +1,4 @@
+# Monsters & Gold
+Game project developed during my master's degree in *Computer Science*. Started initially as an exam project for the *Game Development* course, it was later extended to a VR game for the *Advanced Lab* related to the course in *Virtual Reality and Persuasive User Experience*. The game was developed in **Unity**.
+
+The main point of the project was to convert a 2D [exergame](http://hcilab.uniud.it/images/stories/publications/2010-09/MonsterAndGoldMobileAdaptiveFitnessGame_IEEEPervasiveComputing2010.pdf) developed by Prof. Buttussi and Prof. Chittaro in 2010 for smartphones to a modern version. Actually there are **two versions**, one for use with "normal" HIDs (with the main game loop being a **rythm game**), while the other one uses a **KAT VR Treadmill**. These two versions have their own branches in this repository.
